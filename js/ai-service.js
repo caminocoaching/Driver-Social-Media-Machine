@@ -61,10 +61,13 @@ Racing legends: Senna (flow), Schumacher (preparation), Lauda (resilience), Vers
 Every post has TWO parts that are COMPLETELY UNRELATED:
 - PART 1 — VALUE: The teaching content using the specified framework
 - PART 2 — CTA: Separated by a blank line. Starts with a natural opener like "Oh by the way" or "Before I go" or "I meant to say" or "Completely unrelated". NEVER use "PS" or "P.S.". NEVER connects thematically to value content. "With or without you" energy. Never needy.
+- CRITICAL: Every CTA MUST end with a clear comment trigger on its own line, e.g. 'Comment the word "FLOW" and I'll send you the link.' The keyword comes from the CTA data. This is NON-NEGOTIABLE.
 
 # ALGORITHM COMPLIANCE
+✅ Every CTA ends with: Comment the word "[KEYWORD]" and I'll send you the link.
 ✅ "Drop [WORD] below" / "Comment [WORD] if you want this" / "If this sounds familiar, comment [WORD]"
-❌ NEVER: "Like if you agree" / "Share with someone" / "Tag a friend" / any external links in post body`;
+❌ NEVER: "Like if you agree" / "Share with someone" / "Tag a friend" / any external links in post body
+❌ NEVER: "DM me" — always use "Comment the word" instead`;
 
 // ─── Generate Article Topics with Web Search (Weekly Wizard Step 1) ──
 export async function generateTopics(pillars, raceContext, apiKey, model = 'gpt-4o') {
