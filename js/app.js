@@ -674,7 +674,7 @@ window.appActions = {
             const parsed = parseVideoScript(videoScript);
             post._videoNarration = parsed.pureNarration;
             post._videoFull = videoScript;
-            post._manusPrompt = buildManusPrompt(parsed.slideBrief, chemData, index);
+            post._manusPrompt = buildManusPrompt(parsed.slideBrief, chemData, index, topicData);
 
             saveSession();
             renderPosts();
@@ -875,13 +875,25 @@ function parseVideoScript(script) {
 }
 
 // ─── Build Manus Slide Deck Prompt ───────────────────────────────
-function buildManusPrompt(slideBrief, chemData, postIndex) {
+function buildManusPrompt(slideBrief, chemData, postIndex, topicData = {}) {
+    // Build source article context for Manus
+    const articleSection = topicData.articleUrl ? `
+SOURCE ARTICLE (reference this in the slides):
+- Headline: ${topicData.sourceArticle || topicData.headline || 'Unknown'}
+- URL: ${topicData.articleUrl}
+${topicData.talkingPoints?.length ? `- Key Points: ${topicData.talkingPoints.join(' | ')}` : ''}
+${topicData.racingRelevance ? `- Racing Relevance: ${topicData.racingRelevance}` : ''}
+${topicData.mechanism ? `- Neuroscience Mechanism: ${topicData.mechanism}` : ''}
+Slide 1 (Hook) should reference this article directly. Name the person, study, or discovery.
+Slide 2 (The Story) should expand on the article's fascinating detail.
+` : '';
+
     return `Create a professional slide deck for a 45-60 second vertical video (9:16 format) about neurochemistry in car racing.
 
 BRAND: Camino Coaching by Craig Muirhead
 TOPIC: Post ${postIndex + 1} — ${chemData.icon} ${chemData.name}
 STYLE: Dark premium theme. Background #0A1628 (deep navy). Accent colour ${chemData.color || '#00BFA5'} (teal/chemical colour). Clean modern typography (Inter or similar sans-serif). Minimal, high-contrast, motorsport-inspired.
-
+${articleSection}
 DESIGN RULES:
 - 9:16 vertical format (1080×1920px) — this is for mobile Reels
 - Dark background throughout (#0A1628 or similar deep navy)
@@ -909,7 +921,8 @@ function showVideoModal(script, postIndex, chemData, settings) {
     if (existing) existing.remove();
 
     const parsed = parseVideoScript(script);
-    const manusPrompt = buildManusPrompt(parsed.slideBrief, chemData, postIndex);
+    const topicData = state.posts?.[postIndex]?.topic || state.topics?.[postIndex] || {};
+    const manusPrompt = buildManusPrompt(parsed.slideBrief, chemData, postIndex, topicData);
 
     const modal = document.createElement('div');
     modal.id = 'video-modal';
