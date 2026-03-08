@@ -416,24 +416,47 @@ function renderPosts() {
 
     container.innerHTML = state.posts.map((post, i) => {
         const date = dates[i];
-        const wordCount = (post.content || '').split(/\s+/).filter(w => w).length;
+        const chem = state.stories[i]?.chemical || {};
+        const isConfirmed = post._confirmed || false;
+        const isEditing = post._editing || false;
+        const topicData = post.topic || state.topics?.[i] || {};
 
-        // Parse FB/IG content
-        const hasDualPlatform = (post.content || '').includes('=== FACEBOOK POST ===');
-        let fbContent = post.content || '';
-        let igContent = '';
-        if (hasDualPlatform) {
-            const fbMatch = post.content.match(/=== FACEBOOK POST ===([\s\S]*?)(?:=== INSTAGRAM CAPTION ===|$)/);
-            const igMatch = post.content.match(/=== INSTAGRAM CAPTION ===([\s\S]*?)(?:=== IMAGE TEXT ===|$)/);
-            fbContent = (fbMatch?.[1] || '').trim();
-            igContent = (igMatch?.[1] || '').trim();
+        // Parse FB/IG content — always produce two versions
+        let fbContent = post._fbContent || '';
+        let igContent = post._igContent || '';
+        if (!fbContent && !igContent) {
+            const raw = post.content || '';
+            const hasDual = raw.includes('=== FACEBOOK POST ===');
+            if (hasDual) {
+                const fbMatch = raw.match(/=== FACEBOOK POST ===([\s\S]*?)(?:=== INSTAGRAM CAPTION ===|$)/);
+                const igMatch = raw.match(/=== INSTAGRAM CAPTION ===([\s\S]*?)(?:=== IMAGE TEXT ===|$)/);
+                fbContent = (fbMatch?.[1] || '').trim();
+                igContent = (igMatch?.[1] || '').trim();
+            } else {
+                fbContent = raw;
+                igContent = raw;
+            }
+            post._fbContent = fbContent;
+            post._igContent = igContent;
         }
 
-        const chem = state.stories[i]?.chemical || {};
-        const isApproved = post._approved || false;
+        const fbWords = fbContent.split(/\s+/).filter(w => w).length;
+        const igWords = igContent.split(/\s+/).filter(w => w).length;
+
+        // Status badge
+        let statusBadge = '';
+        if (isConfirmed) statusBadge = '<span style="font-size:0.7rem;color:var(--green,#2EA043);font-weight:700;margin-left:0.5rem;">✅ CONFIRMED</span>';
+        else if (isEditing) statusBadge = '<span style="font-size:0.7rem;color:var(--gold,#DAA520);font-weight:700;margin-left:0.5rem;">✏️ EDITING</span>';
+
+        // Source article link
+        const articleLink = topicData.articleUrl
+            ? `<div style="padding:0.4rem 1rem;background:rgba(0,191,165,0.04);border-top:1px solid rgba(255,255,255,0.04);font-size:0.72rem;">
+                 <span style="color:var(--text-muted);">📰 Source:</span>
+                 <a href="${escapeHtml(topicData.articleUrl)}" target="_blank" rel="noopener" style="color:var(--neuro-teal,#00BFA5);text-decoration:none;margin-left:0.3rem;">${escapeHtml(topicData.sourceArticle || topicData.headline || 'View Article')}</a>
+               </div>` : '';
 
         return `
-      <div class="post-card" id="post-card-${i}" data-index="${i}" ${isApproved ? 'style="border-color:rgba(46,160,67,0.3);"' : ''}>
+      <div class="post-card" id="post-card-${i}" data-index="${i}" style="${isConfirmed ? 'border-color:rgba(46,160,67,0.3);' : isEditing ? 'border-color:rgba(218,165,32,0.3);' : ''}">
         <div class="post-card-header">
           <div class="post-card-header-left">
             <span class="post-number">${i + 1}</span>
@@ -444,40 +467,59 @@ function renderPosts() {
               ${post.pillar.icon} ${post.pillar.name}
             </span>
             <span class="framework-badge">${post.framework.icon} ${post.framework.name}</span>
-            ${isApproved ? '<span style="font-size:0.7rem;color:var(--green,#2EA043);font-weight:700;margin-left:0.5rem;">✅ APPROVED</span>' : ''}
+            ${statusBadge}
           </div>
           <div class="post-card-header-right">
             <span class="schedule-info">${date.dayName} ${date.dateString}</span>
           </div>
         </div>
 
-        ${hasDualPlatform ? `
+        ${articleLink}
+
+        <!-- FB + IG Tabs (always visible) -->
         <div class="platform-tabs" id="platform-tabs-${i}">
-          <button class="platform-tab active" data-platform="fb" onclick="window.appActions.switchPlatform(${i}, 'fb')">📘 Facebook</button>
-          <button class="platform-tab" data-platform="ig" onclick="window.appActions.switchPlatform(${i}, 'ig')">📷 Instagram</button>
+          <button class="platform-tab active" data-platform="fb" onclick="window.appActions.switchTab(${i}, 'fb')">📘 Facebook <span style="font-size:0.65rem;opacity:0.6;">${fbWords}w</span></button>
+          <button class="platform-tab" data-platform="ig" onclick="window.appActions.switchTab(${i}, 'ig')">📷 Instagram <span style="font-size:0.65rem;opacity:0.6;">${igWords}w</span></button>
         </div>
-        <div class="post-content platform-fb" id="post-content-${i}" data-fb="${encodeURIComponent(fbContent)}" data-ig="${encodeURIComponent(igContent)}">${escapeHtml(fbContent)}</div>
+
+        ${isEditing ? `
+        <!-- EDIT MODE -->
+        <div id="edit-area-${i}">
+          <div id="edit-fb-${i}" style="padding:0.5rem 1rem;">
+            <label style="font-size:0.68rem;font-weight:600;color:var(--gold,#DAA520);display:block;margin-bottom:0.25rem;">📘 Facebook Post</label>
+            <textarea id="edit-fb-text-${i}" style="width:100%;min-height:220px;background:rgba(0,0,0,0.3);color:var(--text-primary,#F0F6FC);border:1px solid rgba(218,165,32,0.2);border-radius:6px;padding:0.75rem;font-size:0.82rem;line-height:1.6;font-family:var(--font);resize:vertical;">${escapeHtml(fbContent)}</textarea>
+          </div>
+          <div id="edit-ig-${i}" style="padding:0.5rem 1rem;display:none;">
+            <label style="font-size:0.68rem;font-weight:600;color:var(--gold,#DAA520);display:block;margin-bottom:0.25rem;">📷 Instagram Caption</label>
+            <textarea id="edit-ig-text-${i}" style="width:100%;min-height:220px;background:rgba(0,0,0,0.3);color:var(--text-primary,#F0F6FC);border:1px solid rgba(218,165,32,0.2);border-radius:6px;padding:0.75rem;font-size:0.82rem;line-height:1.6;font-family:var(--font);resize:vertical;">${escapeHtml(igContent)}</textarea>
+          </div>
+        </div>
         ` : `
-        <div class="post-content" id="post-content-${i}">${escapeHtml(post.content || '')}</div>
+        <!-- READ MODE -->
+        <div class="post-content" id="post-content-${i}" data-fb="${encodeURIComponent(fbContent)}" data-ig="${encodeURIComponent(igContent)}">${escapeHtml(fbContent)}</div>
         `}
 
         <div class="post-card-footer">
           <div class="post-meta">
-            <span class="word-count">${wordCount} words</span>
+            <span class="word-count">FB ${fbWords}w · IG ${igWords}w</span>
           </div>
           <div class="post-actions">
             <button class="post-action-btn" onclick="window.appActions.copyPost(${i})">📋 Copy</button>
-            <button class="post-action-btn" onclick="window.appActions.downloadPost(${i})">💾 .txt</button>
+            ${!isConfirmed && !isEditing ? `
+            <button class="post-action-btn" onclick="window.appActions.editPost(${i})" style="color:var(--gold,#DAA520);font-weight:600;">✏️ Edit</button>
+            <button class="post-action-btn" onclick="window.appActions.confirmPost(${i})" style="color:var(--green,#2EA043);font-weight:700;">✅ Confirm</button>
             <button class="post-action-btn" onclick="window.appActions.regenPost(${i})">🔄 Regen</button>
-            ${!isApproved ? `
-            <button class="post-action-btn" onclick="window.appActions.approvePost(${i})" style="color:var(--green,#2EA043);font-weight:700;">✅ Approve</button>
+            ` : ''}
+            ${isEditing ? `
+            <button class="post-action-btn" onclick="window.appActions.cancelEdit(${i})" style="color:var(--text-muted);">✖ Cancel</button>
+            <button class="post-action-btn" onclick="window.appActions.confirmPost(${i})" style="color:var(--green,#2EA043);font-weight:700;">✅ Save & Confirm</button>
             ` : ''}
           </div>
         </div>
 
-        <!-- Email + Video Script blocks (shown after approval) -->
-        <div id="approved-blocks-${i}" style="${isApproved ? '' : 'display:none;'}">
-          ${isApproved && post._emailHTML ? `
+        <!-- Email + Video Script (shown after confirm) -->
+        <div id="confirmed-blocks-${i}" style="${isConfirmed ? '' : 'display:none;'}">
+          ${isConfirmed && post._emailHTML ? `
           <div style="border-top:1px solid rgba(255,255,255,0.06);padding:1rem;">
             <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0.5rem;">
               <span style="font-size:0.8rem;font-weight:700;color:var(--gold,#DAA520);">📧 Email HTML</span>
@@ -491,8 +533,7 @@ function renderPosts() {
             </div>
           </div>
           ` : ''}
-
-          ${isApproved && post._videoNarration ? `
+          ${isConfirmed && post._videoNarration ? `
           <div style="border-top:1px solid rgba(255,255,255,0.06);padding:1rem;">
             <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0.5rem;">
               <span style="font-size:0.8rem;font-weight:700;color:var(--neuro-teal,#00BFA5);">🎬 Video Script (clean TXT)</span>
@@ -504,63 +545,111 @@ function renderPosts() {
             <pre style="white-space:pre-wrap;font-size:0.8rem;line-height:1.7;color:var(--text-primary,#F0F6FC);font-family:var(--font);background:rgba(0,0,0,0.3);padding:1rem;border-radius:8px;border:1px solid rgba(255,255,255,0.06);max-height:300px;overflow-y:auto;">${escapeHtml(post._videoNarration)}</pre>
           </div>
           ` : ''}
-
-          ${isApproved && !post._emailHTML ? `
+          ${isConfirmed && !post._emailHTML ? `
           <div style="border-top:1px solid rgba(255,255,255,0.06);padding:1.5rem;text-align:center;">
-            <div style="font-size:0.8rem;color:var(--text-muted);" id="approve-status-${i}">⏳ Generating email + video script...</div>
+            <div style="font-size:0.8rem;color:var(--text-muted);" id="confirm-status-${i}">⏳ Generating email + video script...</div>
           </div>
           ` : ''}
         </div>
       </div>
     `;
     }).join('');
+
+    // Wire edit-mode tab switching for textareas
+    state.posts.forEach((post, i) => {
+        if (post._editing) {
+            const tabs = document.getElementById(`platform-tabs-${i}`)?.querySelectorAll('.platform-tab');
+            tabs?.forEach(tab => {
+                tab.addEventListener('click', () => {
+                    const p = tab.dataset.platform;
+                    const fbPanel = document.getElementById(`edit-fb-${i}`);
+                    const igPanel = document.getElementById(`edit-ig-${i}`);
+                    if (fbPanel) fbPanel.style.display = p === 'fb' ? 'block' : 'none';
+                    if (igPanel) igPanel.style.display = p === 'ig' ? 'block' : 'none';
+                    tabs.forEach(t => t.classList.toggle('active', t.dataset.platform === p));
+                });
+            });
+        }
+    });
 }
 
 
 // ─── Post Actions ─────────────────────────────────────────────
 window.appActions = {
-    switchPlatform(index, platform) {
-        const container = document.getElementById(`post-content-${index}`);
-        if (!container) return;
-        const content = platform === 'ig' ? decodeURIComponent(container.dataset.ig) : decodeURIComponent(container.dataset.fb);
-        container.textContent = content;
-
+    // Tab switching (works in both read and edit mode)
+    switchTab(index, platform) {
+        const post = state.posts[index];
+        if (post?._editing) {
+            const fbPanel = document.getElementById(`edit-fb-${index}`);
+            const igPanel = document.getElementById(`edit-ig-${index}`);
+            if (fbPanel) fbPanel.style.display = platform === 'fb' ? 'block' : 'none';
+            if (igPanel) igPanel.style.display = platform === 'ig' ? 'block' : 'none';
+        } else {
+            const container = document.getElementById(`post-content-${index}`);
+            if (container) {
+                const content = platform === 'ig' ? decodeURIComponent(container.dataset.ig) : decodeURIComponent(container.dataset.fb);
+                container.textContent = content;
+            }
+        }
         const tabs = document.getElementById(`platform-tabs-${index}`)?.querySelectorAll('.platform-tab');
         tabs?.forEach(t => t.classList.toggle('active', t.dataset.platform === platform));
     },
 
     copyPost(index) {
         const post = state.posts[index];
-        if (post) { copyToClipboard(post.content); showToast('Post copied!', 'success'); }
+        if (!post) return;
+        const activeTab = document.querySelector(`#platform-tabs-${index} .platform-tab.active`);
+        const platform = activeTab?.dataset.platform || 'fb';
+        const content = platform === 'ig' ? (post._igContent || post.content) : (post._fbContent || post.content);
+        copyToClipboard(content);
+        showToast(`${platform === 'ig' ? 'Instagram' : 'Facebook'} post copied!`, 'success');
     },
 
-    downloadPost(index) {
+    editPost(index) {
         const post = state.posts[index];
-        if (post) { downloadPostTxt(post, index); showToast('Downloaded!', 'success'); }
+        if (!post) return;
+        post._editing = true;
+        renderPosts();
+        showToast('Edit mode — modify FB and IG versions, then Save & Confirm.', 'info');
     },
 
-    // ─── Approve Post → Generate Email + Video Script ─────────
-    async approvePost(index) {
+    cancelEdit(index) {
+        const post = state.posts[index];
+        if (!post) return;
+        post._editing = false;
+        renderPosts();
+    },
+
+    // ─── Confirm Post → Save Edits + Generate Email + Video ──
+    async confirmPost(index) {
         const post = state.posts[index];
         if (!post) return;
         const settings = loadSettings();
         if (!settings.claudeApiKey) { showToast('Claude API key needed.', 'error'); return; }
 
-        // Mark as approved immediately and re-render to show loading state
-        post._approved = true;
+        // If in edit mode, save the textarea contents
+        if (post._editing) {
+            const fbText = document.getElementById(`edit-fb-text-${index}`)?.value;
+            const igText = document.getElementById(`edit-ig-text-${index}`)?.value;
+            if (fbText !== undefined) post._fbContent = fbText.trim();
+            if (igText !== undefined) post._igContent = igText.trim();
+            post.content = `=== FACEBOOK POST ===\n${post._fbContent}\n\n=== INSTAGRAM CAPTION ===\n${post._igContent}`;
+            post._editing = false;
+        }
+
+        post._confirmed = true;
         renderPosts();
         saveSession();
 
         const chemData = CHEM_DATA[post.pillar?.id] || { id: 'dopamine', name: 'Dopamine', icon: '🧪', color: '#ffd43b' };
-        const topicData = post.topic || state.topics[index] || {};
+        const topicData = post.topic || state.topics?.[index] || {};
 
-        setStatus(`✅ Approved post ${index + 1} — generating email + video script...`, true);
+        setStatus(`✅ Confirmed post ${index + 1} — generating email + video script...`, true);
 
         try {
-            // Run email and video generation in parallel
             const [emailData, videoScript] = await Promise.all([
                 generateEmail({
-                    postContent: post.content,
+                    postContent: post._fbContent || post.content,
                     topic: topicData,
                     pillar: post.pillar,
                     cta: post.cta,
@@ -568,7 +657,7 @@ window.appActions = {
                 }),
                 generateVideoScript({
                     topic: topicData,
-                    postContent: post.content,
+                    postContent: post._fbContent || post.content,
                     pillar: post.pillar,
                     chemicalId: chemData.id,
                     videoLength: '45-60s',
@@ -578,12 +667,10 @@ window.appActions = {
                 })
             ]);
 
-            // Render email HTML
             const emailHTML = renderEmailHTML(emailData, post.pillar);
             post._emailHTML = emailHTML;
             post._emailSubject = emailData.subject;
 
-            // Parse video script to get clean narration
             const parsed = parseVideoScript(videoScript);
             post._videoNarration = parsed.pureNarration;
             post._videoFull = videoScript;
@@ -591,13 +678,12 @@ window.appActions = {
 
             saveSession();
             renderPosts();
-            showToast(`Post ${index + 1} approved — email + video script ready!`, 'success');
+            showToast(`Post ${index + 1} confirmed — email + video script ready!`, 'success');
         } catch (err) {
             showToast(`Error generating assets: ${err.message}`, 'error');
             console.error(err);
-            // Keep approved state but show error
-            const statusEl = document.getElementById(`approve-status-${index}`);
-            if (statusEl) statusEl.innerHTML = `<span style="color:var(--accent);">❌ Error: ${escapeHtml(err.message)}. Try approving again.</span>`;
+            const statusEl = document.getElementById(`confirm-status-${index}`);
+            if (statusEl) statusEl.innerHTML = `<span style="color:var(--accent);">❌ Error: ${escapeHtml(err.message)}</span>`;
         } finally { setStatus('Ready'); }
     },
 
@@ -619,7 +705,6 @@ window.appActions = {
     openManusPrompt(index) {
         const post = state.posts[index];
         if (!post?._manusPrompt) { showToast('No Manus prompt available.', 'error'); return; }
-        // Show the Manus prompt in a quick modal
         const chemData = CHEM_DATA[post.pillar?.id] || {};
         showVideoModal(post._videoFull, index, chemData, loadSettings());
     },
