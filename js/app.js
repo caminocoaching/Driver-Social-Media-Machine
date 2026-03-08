@@ -430,9 +430,10 @@ function renderPosts() {
         }
 
         const chem = state.stories[i]?.chemical || {};
+        const isApproved = post._approved || false;
 
         return `
-      <div class="post-card" id="post-card-${i}" data-index="${i}">
+      <div class="post-card" id="post-card-${i}" data-index="${i}" ${isApproved ? 'style="border-color:rgba(46,160,67,0.3);"' : ''}>
         <div class="post-card-header">
           <div class="post-card-header-left">
             <span class="post-number">${i + 1}</span>
@@ -443,6 +444,7 @@ function renderPosts() {
               ${post.pillar.icon} ${post.pillar.name}
             </span>
             <span class="framework-badge">${post.framework.icon} ${post.framework.name}</span>
+            ${isApproved ? '<span style="font-size:0.7rem;color:var(--green,#2EA043);font-weight:700;margin-left:0.5rem;">✅ APPROVED</span>' : ''}
           </div>
           <div class="post-card-header-right">
             <span class="schedule-info">${date.dayName} ${date.dateString}</span>
@@ -467,9 +469,47 @@ function renderPosts() {
             <button class="post-action-btn" onclick="window.appActions.copyPost(${i})">📋 Copy</button>
             <button class="post-action-btn" onclick="window.appActions.downloadPost(${i})">💾 .txt</button>
             <button class="post-action-btn" onclick="window.appActions.regenPost(${i})">🔄 Regen</button>
-            <button class="post-action-btn" onclick="window.appActions.generateEmailForPost(${i})" style="color:var(--gold);">📧 Email</button>
-            <button class="post-action-btn" onclick="window.appActions.generateVideoForPost(${i})" style="color:var(--neuro-teal, #00BFA5);">🎬 Video</button>
+            ${!isApproved ? `
+            <button class="post-action-btn" onclick="window.appActions.approvePost(${i})" style="color:var(--green,#2EA043);font-weight:700;">✅ Approve</button>
+            ` : ''}
           </div>
+        </div>
+
+        <!-- Email + Video Script blocks (shown after approval) -->
+        <div id="approved-blocks-${i}" style="${isApproved ? '' : 'display:none;'}">
+          ${isApproved && post._emailHTML ? `
+          <div style="border-top:1px solid rgba(255,255,255,0.06);padding:1rem;">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0.5rem;">
+              <span style="font-size:0.8rem;font-weight:700;color:var(--gold,#DAA520);">📧 Email HTML</span>
+              <div style="display:flex;gap:0.4rem;">
+                <button class="post-action-btn" onclick="window.appActions.copyEmailHTML(${i})" style="font-size:0.7rem;">📋 Copy HTML</button>
+                <button class="post-action-btn" onclick="window.appActions.copyEmailSubject(${i})" style="font-size:0.7rem;">📝 Subject</button>
+              </div>
+            </div>
+            <div style="border:1px solid rgba(255,255,255,0.06);border-radius:8px;overflow:hidden;background:#0D1117;">
+              <iframe id="email-frame-${i}" style="width:100%;height:320px;border:none;" srcdoc="${escapeHtml(post._emailHTML)}"></iframe>
+            </div>
+          </div>
+          ` : ''}
+
+          ${isApproved && post._videoNarration ? `
+          <div style="border-top:1px solid rgba(255,255,255,0.06);padding:1rem;">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0.5rem;">
+              <span style="font-size:0.8rem;font-weight:700;color:var(--neuro-teal,#00BFA5);">🎬 Video Script (clean TXT)</span>
+              <div style="display:flex;gap:0.4rem;">
+                <button class="post-action-btn" onclick="window.appActions.copyVideoScript(${i})" style="font-size:0.7rem;">📋 Copy Script</button>
+                <button class="post-action-btn" onclick="window.appActions.openManusPrompt(${i})" style="font-size:0.7rem;">📊 Manus Prompt</button>
+              </div>
+            </div>
+            <pre style="white-space:pre-wrap;font-size:0.8rem;line-height:1.7;color:var(--text-primary,#F0F6FC);font-family:var(--font);background:rgba(0,0,0,0.3);padding:1rem;border-radius:8px;border:1px solid rgba(255,255,255,0.06);max-height:300px;overflow-y:auto;">${escapeHtml(post._videoNarration)}</pre>
+          </div>
+          ` : ''}
+
+          ${isApproved && !post._emailHTML ? `
+          <div style="border-top:1px solid rgba(255,255,255,0.06);padding:1.5rem;text-align:center;">
+            <div style="font-size:0.8rem;color:var(--text-muted);" id="approve-status-${i}">⏳ Generating email + video script...</div>
+          </div>
+          ` : ''}
         </div>
       </div>
     `;
@@ -497,6 +537,91 @@ window.appActions = {
     downloadPost(index) {
         const post = state.posts[index];
         if (post) { downloadPostTxt(post, index); showToast('Downloaded!', 'success'); }
+    },
+
+    // ─── Approve Post → Generate Email + Video Script ─────────
+    async approvePost(index) {
+        const post = state.posts[index];
+        if (!post) return;
+        const settings = loadSettings();
+        if (!settings.claudeApiKey) { showToast('Claude API key needed.', 'error'); return; }
+
+        // Mark as approved immediately and re-render to show loading state
+        post._approved = true;
+        renderPosts();
+        saveSession();
+
+        const chemData = CHEM_DATA[post.pillar?.id] || { id: 'dopamine', name: 'Dopamine', icon: '🧪', color: '#ffd43b' };
+        const topicData = post.topic || state.topics[index] || {};
+
+        setStatus(`✅ Approved post ${index + 1} — generating email + video script...`, true);
+
+        try {
+            // Run email and video generation in parallel
+            const [emailData, videoScript] = await Promise.all([
+                generateEmail({
+                    postContent: post.content,
+                    topic: topicData,
+                    pillar: post.pillar,
+                    cta: post.cta,
+                    apiKey: settings.claudeApiKey
+                }),
+                generateVideoScript({
+                    topic: topicData,
+                    postContent: post.content,
+                    pillar: post.pillar,
+                    chemicalId: chemData.id,
+                    videoLength: '45-60s',
+                    platform: 'FB Reel + IG Reel',
+                    outputFormat: '9:16',
+                    apiKey: settings.claudeApiKey
+                })
+            ]);
+
+            // Render email HTML
+            const emailHTML = renderEmailHTML(emailData, post.pillar);
+            post._emailHTML = emailHTML;
+            post._emailSubject = emailData.subject;
+
+            // Parse video script to get clean narration
+            const parsed = parseVideoScript(videoScript);
+            post._videoNarration = parsed.pureNarration;
+            post._videoFull = videoScript;
+            post._manusPrompt = buildManusPrompt(parsed.slideBrief, chemData, index);
+
+            saveSession();
+            renderPosts();
+            showToast(`Post ${index + 1} approved — email + video script ready!`, 'success');
+        } catch (err) {
+            showToast(`Error generating assets: ${err.message}`, 'error');
+            console.error(err);
+            // Keep approved state but show error
+            const statusEl = document.getElementById(`approve-status-${index}`);
+            if (statusEl) statusEl.innerHTML = `<span style="color:var(--accent);">❌ Error: ${escapeHtml(err.message)}. Try approving again.</span>`;
+        } finally { setStatus('Ready'); }
+    },
+
+    copyEmailHTML(index) {
+        const post = state.posts[index];
+        if (post?._emailHTML) { copyToClipboard(post._emailHTML); showToast('Email HTML copied!', 'success'); }
+    },
+
+    copyEmailSubject(index) {
+        const post = state.posts[index];
+        if (post?._emailSubject) { copyToClipboard(post._emailSubject); showToast('Subject copied!', 'success'); }
+    },
+
+    copyVideoScript(index) {
+        const post = state.posts[index];
+        if (post?._videoNarration) { copyToClipboard(post._videoNarration); showToast('Video script copied!', 'success'); }
+    },
+
+    openManusPrompt(index) {
+        const post = state.posts[index];
+        if (!post?._manusPrompt) { showToast('No Manus prompt available.', 'error'); return; }
+        // Show the Manus prompt in a quick modal
+        const chemData = CHEM_DATA[post.pillar?.id] || {};
+        showVideoModal(post._videoFull, index, chemData, loadSettings());
     },
 
     async regenPost(index) {
