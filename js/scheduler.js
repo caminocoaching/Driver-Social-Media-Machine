@@ -51,7 +51,8 @@ function formatGHLDate(date) {
     const dd = String(date.getDate()).padStart(2, '0');
     const hh = String(date.getHours()).padStart(2, '0');
     const min = String(date.getMinutes()).padStart(2, '0');
-    return `${yyyy}-${mm}-${dd}T${hh}:${min}:00`;
+    const ss = String(date.getSeconds()).padStart(2, '0');
+    return `${yyyy}-${mm}-${dd} ${hh}:${min}:${ss}`;
 }
 
 // ─── Format Date Display ─────────────────────────────────────
@@ -66,17 +67,18 @@ function formatDisplayDate(date) {
 
 // ─── Export CSV for GHL Social Planner ────────────────────────
 export function exportCSV(posts, dates) {
-    // GHL Social Planner CSV columns
-    const headers = ['scheduled_at', 'content', 'platform', 'media_url', 'status'];
+    // GHL Social Planner CSV columns (matches official sample)
+    const headers = ['postAtSpecificTime (YYYY-MM-DD HH:mm:ss)', 'content', 'link (OGmetaUrl)', 'imageUrls', 'gifUrl', 'videoUrls'];
 
     const rows = posts.map((post, i) => {
         const date = dates[i]?.date || new Date();
         return [
             formatGHLDate(date),
             `"${(post.content || '').replace(/"/g, '""')}"`,
-            'facebook',
+            '',
             post.imageUrl || '',
-            'scheduled'
+            '',
+            ''
         ].join(',');
     });
 
@@ -113,16 +115,17 @@ export function exportCSV(posts, dates) {
 
 // ─── Build CSV String (for clipboard copy) ────────────────────
 export function buildCSVString(posts, dates) {
-    const headers = ['scheduled_at', 'content', 'platform', 'media_url', 'status'];
+    const headers = ['postAtSpecificTime (YYYY-MM-DD HH:mm:ss)', 'content', 'link (OGmetaUrl)', 'imageUrls', 'gifUrl', 'videoUrls'];
 
     const rows = posts.map((post, i) => {
         const date = dates[i]?.date || new Date();
         return [
             formatGHLDate(date),
             `"${(post.content || '').replace(/"/g, '""')}"`,
-            'facebook',
+            '',
             post.imageUrl || '',
-            'scheduled'
+            '',
+            ''
         ].join(',');
     });
 

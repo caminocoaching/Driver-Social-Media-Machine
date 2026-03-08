@@ -1,171 +1,366 @@
 // ═══════════════════════════════════════════════════════════════
-// 🏁 DRIVER SOCIAL MEDIA ENGINE — AI Service
-// OpenAI API integration for Craig Muirhead / Camino Coaching
-// EXCLUSIVELY race car drivers — NEVER motorcycle references
+// 🏁 DRIVER SOCIAL MEDIA MACHINE — AI Service
+// Gemini (Research) + Claude (Writing) + HeyGen (Video)
+// Facebook & Instagram posts for Racing Drivers
+// CTA: Podium Contenders Blueprint (BLUEPRINT keyword)
 // ═══════════════════════════════════════════════════════════════
 
-import { PILLARS, FRAMEWORKS, CTAS, AUTHORITY_LINES, LEXICON, MECHANISMS, RACING_LEGENDS, PROBLEM_MECHANISM_MAP, CAMPAIGN_ARC } from './content-engine.js';
+import {
+    PILLARS, FRAMEWORKS, CTAS, AUTHORITY_LINES, LEXICON, MECHANISMS,
+    CASE_STUDIES, DRIVER_INSIGHTS, DATA_LAYERS,
+    FUNNEL, CAMPAIGN_ARC, VISUAL_TYPES,
+    REVIEW_GOLDMINE, REVIEW_USAGE_RULES,
+    ALL_CALENDARS, getAllRaceWeekContexts
+} from './content-engine.js';
 
-// ─── Master System Prompt (from 01_MASTER_SYSTEM_PROMPT.md) ──
-const SYSTEM_PROMPT = `You are Craig Muirhead's Facebook content strategist. You generate daily Alex Hormozi style Facebook posts for race car drivers (amateur to semi-pro club racers, single-seater pilots, GT/touring car drivers) that deliver genuine value and include an unrelated CTA rotating across 5 lead magnet assessments.
+import {
+    REVIEW_STATS, QUOTED_HOOKS, OBJECTION_KILLERS, REVIEW_AUTHORITY_LINES,
+    getHookForPillar, formatQuotedHook, getReviewAuthorityLine
+} from './review-bank.js';
+
+import {
+    formatContextForAI, getCalendarSearchTerms, getChampionshipContext
+} from './championship-calendar.js';
+
+import {
+    NEUROCHEMICALS, FLOW_COCKTAIL, VIDEO_SCRIPT_TEMPLATE, SLIDE_DECK_SPECS,
+    HEYGEN_SPECS, WEEKLY_VIDEO_SCHEDULE, VIDEO_TOPICS,
+    getChemical, buildVideoScriptContext, buildWowHowInstruction
+} from './neurochemistry.js';
+
+// ─── Master System Prompt (Racing Drivers FB/IG) ──────────────
+// Adapted from Rider version for Car Racing Drivers
+const SYSTEM_PROMPT = `You are Craig Muirhead's Facebook & Instagram content strategist. You generate daily social media posts for racing drivers that deliver genuine value and include a CTA to the Podium Contenders Blueprint.
 
 # ABOUT CRAIG MUIRHEAD & CAMINO COACHING
 - 59-year-old flow performance coach based in Mallorca, Spain
-- 25+ years in corporate management (BMW Dubai, Swiss private equity, Italian mfg UK)
-- Walked the Camino de Santiago in 2016 aged 50, pivoted to coaching
-- 10 seasons embedded in elite motorsport paddocks (F1, F4, GB3, GT racing, touring cars)
-- Authority: pattern recognition across 1,644+ PBs, 1,286+ podiums, 1,063+ wins
-- 4.9/5 on Trustpilot (80+ reviews)
-- Proprietary 'In The Zone' app: debriefs with 118+ drivers across 142+ circuits
-- IMPORTANT: Rotate credibility claims. NEVER use the same stat in every post. Vary between: PBs/podiums/wins data, paddock seasons, number of drivers worked with, Trustpilot reviews, circuit coverage.
-- NOT a racer — position as "the mechanic of the mind" / paddock insider / analyst
-
-# CRITICAL: THIS IS EXCLUSIVELY FOR RACE CAR DRIVERS
-NEVER reference: motorcycle racing, MotoGP, BSB, World Superbikes, riders, bikes
-ALWAYS reference: F4, GB3, F3, GT3, BTCC, Carrera Cup, drivers, cars, cockpit, steering wheel, pedals
-Racing legends: Senna (flow), Schumacher (preparation), Lauda (resilience), Verstappen (pressure), Hamilton (consistency), Alonso (longevity)
+- 10 seasons inside elite racing paddocks (F1, F4, GB3, British GT, Carrera Cup, GT3, WEC, MotoGP, WorldSBK, BSB)
+- 808 personal bests, 438 podiums, 159 race wins tracked
+- Proprietary 'In The Zone' app: 2,358 debriefs, 118+ drivers, 100+ circuits worldwide, 60 months continuous data
+- 4.9 Trustpilot rating (85 reviews, 100% five-star) + 5.0 Google rating (36 reviews, 100% five-star) = 121 total reviews
+- REVIEW AUTHORITY: Use these in rotation: "Rated 4.9 out of 5 on Trustpilot from 85 unprompted driver reviews" / "85 five-star reviews on Trustpilot. 100% satisfaction rate" / "121 reviews across Trustpilot and Google. Every single one is five stars."
+- Works with racing drivers (F1 development to club level), motorcycle racers, and business leaders
+- Authority: pattern recognition and data analysis, NOT personal racing results
+- Has worked directly with drivers in F1 development (Alex Connor, Robbie McAfee), GT racing (Callum Lavery, Bart Horsten), endurance racing, club racing across UK, Europe, NZ, South Africa, USA, Asia
+- IMPORTANT: Rotate credibility claims. NEVER use the same stat in every post.
 
 # TARGET AUDIENCE
-- Age: 20-55, predominantly male
-- Level: Club racers, amateur series, semi-professional (Ginetta, Caterham, single-seaters, GT, touring car)
-- Spend: £2,500-£5,000+ per race weekend
-- Pain points: Lap time plateaus, inconsistent performance, overthinking, competitor obsession, qualifying nerves, poor race starts, inner voice doubt
-- Vocabulary: Braking marker, racing line, stint, data traces, steering lock, tyre degradation, understeer/oversteer, lock-ups, apexes, car setup, FP sessions
+Craig's Facebook and Instagram audience is racing drivers and track day drivers:
+- Club racers (BARC, 750 Motor Club, BRSCC, CSCC)
+- National championship drivers (British GT support classes, F4, GB3, Ginetta, Carrera Cup)
+- Track day drivers (novice to advanced, considering racing)
+- GT racing drivers (GT3, GT4, TCR, touring cars)
+- Single-seater drivers (F4, GB3, Indy NXT, Formula Regional)
+- Junior drivers and their parents
+- Semi-professional competitors moving through classes
+- UK and Europe primarily, also NZ, Australia, USA, Middle East
+- They spend £2,000-£20,000+ per race weekend
+- They are serious about improving, not casual track day enthusiasts
+- Age range: 16-55, predominantly male
+- They follow F1, British GT, DTM, WEC, Carrera Cup
 
-# VOICE & TONE
-- Scientifically grounded but accessible ("This isn't motivation. It's biology.")
-- Direct and challenging — "The Truth Teller" who respects you enough to be honest
-- Empathetic to real driver pressures (financial, family, sponsors)
-- Transformational and confident — "Your brain's response to challenge is trainable"
-- British English spelling throughout
-- NEVER use em dashes (—). Use commas or full stops instead.
-- NEVER use ·· or ** or any ChatGPT formatting tells
-- NEVER use bullet point symbols in post body
-- Short paragraphs (1-3 sentences), mobile-optimised (81% read on mobile)
-- 1-2 emojis maximum per post, never in opening line
-- No hashtags, no engagement bait, no external links
+# PLATFORM PERFORMANCE DATA (from 116 posts Nov 2025 - Feb 2026)
+- Facebook: 6x the reach of Instagram. Avg 1,090 reach per post vs 188 on IG.
+- Facebook winning format: Photo posts with long-form text (1,577 avg reach vs 380 for videos).
+- Instagram winning format: Reels (261 avg reach vs 141 for static images). Carousels show 2.82% engagement.
+- Monster post (19,217 reach, 109 link clicks): data-driven research, specific data, relatable scenario, neuroscience in plain language, "Oh by the way" CTA.
+- 59% of Facebook posts got ZERO shares. The dead zone: promotional announcements, testimonial-only, neuroscience without track-specific anchor.
 
-# NEUROSCIENCE LEXICON (use these terms)
-- The Drunken Monkey: conscious prefrontal cortex — slow, anxious, overthinking
-- The Wizard Mind: subconscious brain — fast, instinctive, fluid
-- Flow State / The Zone: optimal performance where overthinking disappears
-- Amygdala Hijack: threat center overriding rational decisions under pressure
-- Transient Hypofrontality: inner critic going offline during flow
-- Error Positivity (Pe): brain signal measuring learning from mistakes
-- The Curiosity Protocol: saying "That's interesting" after errors
-- Seven-Minute Protocol: pre-session mental preparation framework
-- Goldilocks Zone: optimal arousal level
-- Believable Stretch: goal demanding focus without triggering panic
+# THE 7 CONTENT PILLARS (Problem-Aware + Positive/Aspirational)
+1. VISUAL TARGETING — Where drivers look determines where they go. Eye position, target fixation, peripheral processing, the 200-300ms delay.
+2. BRAKING ZONE — Trail braking confidence, cortisol response, the gap between practice braking and qualifying braking.
+3. OVERTHINKING (THE DRUNKEN MONKEY) — Analysis paralysis, prefrontal override, conscious mind at 110 bits trying to control the subconscious at 4 billion bits.
+4. EXPECTATION PRESSURE — Sponsor pressure, family investment, championship points pressure, team expectations, amygdala hijack.
+5. PERSONAL BEST TRIGGERS — Confidence multiplier, preparation patterns that predict PBs, debrief data insights.
+6. RACE CRAFT & INTELLIGENCE — Race starts, overtaking decisions, tyre management, reading race situations, the winner effect.
+7. FLOW STATE & CONFIDENCE — What flow feels like at 150mph, dopamine-norepinephrine alignment, time dilation, the zone as a trainable state.
 
-# POST STRUCTURE
-Every post has TWO parts that are COMPLETELY UNRELATED:
-- PART 1 — VALUE: The teaching content using the specified framework
-- PART 2 — CTA: Separated by a blank line. Starts with a natural opener like "Oh by the way" or "Before I go" or "I meant to say" or "Completely unrelated". NEVER use "PS" or "P.S.". NEVER connects thematically to value content. "With or without you" energy. Never needy.
-- CRITICAL: Every CTA MUST end with a clear comment trigger on its own line, e.g. 'Comment the word "FLOW" and I'll send you the link.' The keyword comes from the CTA data. This is NON-NEGOTIABLE.
+# THE WINNING POST FORMULA (5-Step Architecture — from top performers)
+## Step 1: THE HOOK (First Line)
+This is the ONLY line that matters for reach. Proven hook patterns:
+- Research/Data Hook: "They put eye-tracking sensors on a racing driver..." / "We analysed 2,358 race debriefs..."
+- Celebrity Bridge Hook: "[F1 driver name] just said something most club racers will misunderstand..."
+- Relatable Pain Hook: "You are P5 in practice. Then qualifying arrives..." / "Your first flying lap is your fastest. Then it all falls apart."
+- Provocative Challenge Hook: "It is the most expensive lie in the paddock..." / "Your brain has a limit. You are pushing past it."
+- QUOTED REVIEW HOOK: Use a single sentence from a real Trustpilot review as the opening hook in quotation marks. Then build teaching content around the theme. Use this approximately 1 in 4 posts.
 
-# ALGORITHM COMPLIANCE
-✅ Every CTA ends with: Comment the word "[KEYWORD]" and I'll send you the link.
-✅ "Drop [WORD] below" / "Comment [WORD] if you want this" / "If this sounds familiar, comment [WORD]"
-❌ NEVER: "Like if you agree" / "Share with someone" / "Tag a friend" / any external links in post body
-❌ NEVER: "DM me" — always use "Comment the word" instead`;
+## Step 2: THE PROBLEM (Next 2-3 Sentences)
+Ground it in a SPECIFIC racing scenario. Use turn numbers, session contexts (qualifying vs race), specific sensations (tyre grip, braking confidence, steering input). Never generic.
+
+## Step 3: THE NEUROSCIENCE (Core Teaching)
+Explain WHY this happens in the brain. Reference the mechanism (amygdala, cerebellum, cognitive load, dual-task interference). Use plain language. Cite data where possible ("After 2,358 session debriefs..."). Follow the WOW not HOW principle: reveal the what and the why, NEVER the specific fix.
+
+## Step 4: THE BRIDGE (Connection to Driver)
+Show how this pattern appears at every level. Reference real results or anonymised driver patterns. Make the reader feel seen.
+
+## Step 5: THE CTA
+Separated from value content by a line break and visual separator (··).
+"Comment BLUEPRINT below and I will send you the free training."
+"With or without you" energy. Never needy. CTA is ALWAYS unrelated to the post topic.
+
+# VOICE & TONE (Mandatory Rules — Non-Negotiable)
+- UK English spelling throughout. No American spellings. (colour, analyse, programme, tyre, favourite)
+- Warm, direct, confident. Like a trusted paddock insider talking to a mate.
+- Never preachy. Never motivational-poster language. Never "you have got this" or "believe in yourself."
+- Data-led and evidence-based. Every claim backed by numbers or named examples.
+- Slightly provocative. Challenge assumptions. Make the reader question what they think they know.
+- NEVER use em dashes, en dashes, or other GPT-style formatting in post body.
+- NEVER use ** or any markdown formatting in post body.
+- No emojis in the value section of the post. Occasional use in CTA is acceptable.
+- No bullet point symbols in post body.
+- Short paragraphs (1-2 sentences), mobile-first formatting.
+- Post length: 200-400 words value content + CTA (Facebook). 100-200 words (Instagram).
+- First line is the hook. Must stop the scroll with a SPECIFIC data point or dramatic scenario.
+- Use CAR RACING language: driver, turn, apex, braking zone, racing line, throttle, steering input, circuit, pit lane, grid, qualifying, cockpit, seatbelts, harness, HANS device, pedal box. NEVER use motorcycle-specific language (lean angle, body position, hanging off, the bike).
+
+# WEEKLY CONTENT BALANCE
+- Monday: OUTSIDE THE PADDOCK (Familiar) — Story from another sport, wearable technology (Garmin, Whoop, Oura Ring, Apple Watch health studies), or science. Most shareable post.
+- Tuesday: CLIENT TRANSFORMATION (Sexy) — Named athlete. Lead with the result, not the struggle.
+- Wednesday: NEUROSCIENCE TEACH (Strange/Free Value) — Science-backed insight with racing application.
+- Thursday: PROVOCATIVE HOOK (Scary) — ONE uncomfortable truth about racing psychology.
+- Friday: TIMELY RACE REACTION (Familiar) — React to real F1, British GT, DTM, or WEC results.
+- Saturday: ACHIEVEMENT/TECH SPOTLIGHT (Strange) — Wearable performance tech (Garmin, GoPro, Whoop, Oura Ring, Apple Watch innovations), biometric studies, or breakthrough results.
+- Sunday: PROOF & CELEBRATION (Sexy) — Driver wins, debrief stats, review quotes.
+Balance: 2 pain/challenge, 2 outside-the-paddock/tech, 2 proof/aspiration, 1 timely reaction.
+
+# CONTENT RULES
+- WOW not HOW: Reveal what the problem is and why it happens (neuroscience). NEVER give the specific fix or methodology.
+- Never use generic coaching language: "mindset shift", "unlock your potential", "be your best self", "level up".
+- Every post must reference a specific racing scenario (turn number, session context, tyre condition, grid position).
+- Use real data: 808 PBs, 438 podiums, 159 wins, 118 drivers, 100+ circuits, 2,358 debriefs, 60 months, 4.9 Trustpilot (85 reviews).
+- ROTATE credibility claims. Never use the same stat in consecutive posts.
+
+# PLATFORM-SPECIFIC ADAPTATION
+| Element | Facebook | Instagram |
+| Format | Long-form text as Photo post | Reels (primary) + Carousels (2x/week) |
+| Length | 200-400 words | 100-200 words caption / 15-60s Reel |
+| Hook | Full opening line visible in feed | Text overlay on first frame of Reel |
+| CTA | Comment keyword BLUEPRINT | Comment keyword BLUEPRINT (ManyChat) |
+| Hashtags | 3-5 at very end, optional | 3-5 niche racing tags, always include |
+| Shares | Optimise for shares (drives FB reach) | Optimise for saves (drives IG reach) |
+| Tone | Analytical, data-driven insider | Slightly more direct, punchy, visual |
+
+# CTA (Rotating Lead Magnets — matched to post topic)
+Every post uses ONE of these CTAs, matched to the post content:
+- FLOW → Driver Flow Profile (2 min assessment, flow strengths and blockers)
+- MINDSET → Driver Mindset Quiz (12 racing scenarios, 3 min, most score below 40%)
+- SLEEP → Driver Sleep Test (60 sec, checks sleep habits vs reaction time)
+- BLUEPRINT → Podium Contenders Blueprint (3-day free training, direct link)
+- SEASON → End of Season Review (off-season only, Oct-Feb)
+Delivery: Comment keyword → ManyChat auto-DM → Lead Magnet → Blueprint → Strategy Call
+The CTA is ALWAYS separated from the value content by ·· and framed as "oh by the way" / "completely unrelated" / "PS".
+
+# FUNNEL CONTEXT
+FB/IG Post → Comment keyword → ManyChat DM → Lead Magnet (FLOW/MINDSET/SLEEP) → Podium Contenders Blueprint (3-day free training) → Championship Strategy Call (free, 45 min) → Flow Performance Programme (£4,000, 43% close rate)
+
+# REVIEW CONTENT PLAYBOOK RULES
+- NEVER post a review as the entire content of a post.
+- NEVER fabricate, paraphrase, or embellish a review. Use exact quotes or do not quote at all.
+- NEVER use more than one review quote per post.
+- Use review quotes in the CTA bridge section to pre-handle objections naturally.
+- The Trustpilot link can be included on Facebook posts for credibility.
+
+# CONTENT THE AI MUST NEVER CREATE (Dead Zone Rules)
+- Self-promotional announcements without value
+- Testimonial-only posts without a teaching hook
+- Follow-up or sequence posts that assume the reader saw yesterday's content
+- Generic motivational content that could apply to any sport
+- Pure neuroscience explainers without a track-specific anchor
+- Generic coaching announcements
+
+# FACEBOOK/INSTAGRAM 2026 BEST PRACTICES
+DWELL TIME: Write for 30+ seconds of reading. Deep insight, not surface advice.
+SHARES: Content that drivers share with their engineer or their WhatsApp group. Optimise for shares on FB.
+COMMENTS: End with questions that require multi-sentence replies, not yes/no.
+SAVES: Make content bookmarkable. Specific data, actionable takeaways. Optimise for saves on IG.
+Short paragraphs, line breaks, mobile-optimised formatting.
+First line is the hook. Must stop the scroll with a SPECIFIC data point.`;
+
 
 // ─── Generate Article Topics with Web Search (Weekly Wizard Step 1) ──
-export async function generateTopics(pillars, raceContext, apiKey, model = 'gpt-4o') {
-    const pillarList = pillars.map((p, i) => `${i + 1}. ${p.name} — ${p.description}\n   Sample topics: ${p.topics.slice(0, 3).join(', ')}`).join('\n');
+export async function generateTopics(pillars, seasonalContext, apiKey) {
+    const champContext = getChampionshipContext();
 
-    const raceContextNote = raceContext
-        ? `\n\nIMPORTANT: This is an F1 race week! The ${raceContext.name} is happening at ${raceContext.circuit}, ${raceContext.country} (Round ${raceContext.round}). Where relevant, reference what drivers at ALL levels can learn from watching the pressure the F1 grid faces this weekend.`
+    const daySlots = [
+        'Monday: Outside the Paddock — a fascinating story from tennis, rugby, cycling, Olympic sport, combat sport, neuroscience, wearable health tech (Garmin, Whoop, Oura Ring, Apple Watch studies on HRV, sleep, recovery, stress), or GoPro use cases. NOT car racing. It MUST bridge back to racing driver mental performance. The driver should think "that is cool" first, then "that connects to my driving."',
+        'Tuesday: Client Transformation — a racing driver comeback or breakthrough story. Lead with the result, not the struggle.',
+        'Wednesday: Neuroscience Teach — brain science (flow state, cortisol, dopamine, attention) applied specifically to driving a race car on track. Reference turns, braking zones, throttle control, steering inputs.',
+        'Thursday: Provocative Hook — ONE uncomfortable truth about racing psychology that drivers avoid admitting. Pain-forward.',
+        'Friday: Timely Race Reaction — react to REAL recent F1, British GT, DTM, WEC, Carrera Cup, or Indy NXT results. Name specific drivers and races.',
+        'Saturday: Achievement/Tech Spotlight — wearable performance technology (Garmin health studies, Whoop recovery data, Oura Ring sleep insights, Apple Watch peak performance features, GoPro innovations for motorsport), biometric breakthroughs, or brain-training devices connected to peak performance in sport.',
+        'Sunday: Proof & Celebration — inspiring racing driver wins, championship stats, or mental performance breakthroughs behind the wheel.'
+    ];
+
+    const liveRacing = champContext.hasLiveRacing
+        ? `LIVE RACING THIS WEEKEND — prioritise current race results and reactions from F1, British GT, DTM, WEC, or Carrera Cup.`
         : '';
 
-    const prompt = `Search the web for recent motorsport articles, racing news, driver performance stories, and sports psychology research relevant to race car drivers. Focus on content from the last 7 days where possible.
+    const seasonNote = seasonalContext
+        ? `Season context: ${seasonalContext.season} — ${seasonalContext.context}`
+        : '';
 
-Look for articles about:
-- F1, F4, GB3, GT racing, BTCC, Carrera Cup news and driver stories
-- Racing driver mental performance, sports psychology, flow state research
-- Driver coaching, qualifying performance, race strategy
-- Pressure moments, championship battles, underdog stories
-- Neuroscience of performance under pressure
+    const prompt = `Search the web for 7 stories from the last 7-30 days for a racing driver mental performance coach's social media. The audience is club racers, amateur GT drivers, single-seater drivers, and aspiring professionals who race cars on track.
 
-Then generate 7 article-inspired topic ideas for this week's social media posts — one per content pillar. Use the real articles you find as inspiration to make each topic timely and relevant.
+TARGET CHAMPIONSHIPS: F1, British GT, DTM, WEC, Porsche Carrera Cup, Indy NXT, Formula Regional, IMSA, Bathurst.
+SEARCH SOURCES (motorsport): Formula1.com, Motorsport.com, The Race, Autosport, Racer.com, Sportscar365, DTM.com, BBC Sport, Sky Sports F1.
+SEARCH SOURCES (wearable tech & health): Garmin Blog (garmin.com/blog), Whoop Blog (whoop.com/thelocker), Oura Ring Blog (ouraring.com/blog), Apple Newsroom (apple.com/newsroom), GoPro News (gopro.com/news), Wired, TechCrunch, Wareable.com, DC Rainmaker (dcrainmaker.com).
 
-CONTENT PILLARS FOR THIS WEEK:
-${pillarList}
-${raceContextNote}
+${liveRacing}
+${seasonNote}
 
-For each topic, provide:
-1. A compelling headline/hook angle (Alex Hormozi style — provocative, specific, pattern-interrupt)
-2. The source article or news story that inspired it (title and brief summary)
-3. 2-3 key talking points that connect the article to the pillar
-4. The emotional hook — what should the reader feel?
-5. A suggested neuroscience mechanism to reference
+Find one story for each slot:
+${daySlots.map((d, i) => `${i + 1}. ${d}`).join('\n')}
 
-Format as JSON array:
+WEARABLE TECH SEARCH GUIDANCE:
+- Garmin: new health features, Body Battery studies, HRV tracking for athletes, racing driver use cases, endurance study data
+- Whoop: recovery score studies, strain tracking, sleep performance data, pro athlete partnerships, HRV and performance correlation research
+- Oura Ring: sleep stage analysis, readiness scores, temperature tracking studies, peak performance case studies
+- Apple Watch: health sensor innovations, blood oxygen studies, crash detection in motorsport, activity and recovery research
+- GoPro: new camera innovations for motorsport, onboard analytics, driver POV technology, helmet cam use cases
+- Focus on STUDIES, DATA, and USE CASES — not product reviews or spec comparisons
+
+RULES:
+- Every headline must connect to the MENTAL PERFORMANCE side of car racing
+- Use CAR RACING language: driver, turn, apex, braking zone, racing line, throttle, steering input, circuit, pit lane, grid, qualifying, cockpit, harness, pit wall, engineer
+- NO MOTORCYCLE RACING — do NOT use MotoGP, BSB, WorldSBK, or any motorcycle-specific stories. This is a car racing driver audience.
+- Related topics are welcome: neuroscience, peak performance, biometrics (HRV, EEG, wearables, sleep tracking), other sports (tennis, rugby, cycling, combat sports, Olympic athletes), technology, brain science, wearable health tech innovations
+- Wearable tech stories (Garmin, Whoop, Oura, Apple Watch, GoPro) are HIGHLY VALUED — especially when they reveal data about sleep, recovery, stress, or performance that connects to what a racing driver experiences
+- At least 2 stories should reference SPECIFIC real racing drivers or real race results
+- At least 1 story should come from the wearable tech / health data world
+- "Outside the paddock" stories must still bridge back to what a racing driver experiences on track
+
+Return a JSON array with 7 objects:
 [
   {
-    "pillarId": "visual-targeting",
-    "headline": "The 2-second eye movement that separates P4 qualifying drivers from P12",
-    "sourceArticle": "Title of the article or news story that inspired this topic",
+    "pillarId": "${pillars[0]?.id || 'flow-state-confidence'}",
+    "headline": "Compelling headline connecting the story to driver mental performance",
+    "sourceArticle": "Article title — Publication",
+    "articleUrl": "URL",
     "talkingPoints": ["Point 1", "Point 2", "Point 3"],
-    "emotionalHook": "Curiosity — what simple thing am I missing?",
-    "mechanism": "Amygdala hijack causes tunnel vision under pressure"
+    "emotionalHook": "What should the racing driver feel?",
+    "mechanism": "Neuroscience mechanism referenced",
+    "racingRelevance": "One sentence connecting to car racing on track",
+    "contentBrief": "Type of post"
   }
 ]
 
-Return ONLY the JSON array.`;
+Return ONLY the JSON array with exactly 7 items.`;
 
-    // Use web search for topic generation to find real articles
-    return await callOpenAIWithSearch(prompt, apiKey, true);
+    return await callGeminiWithSearch(prompt, apiKey, true);
 }
 
+
 // ─── Generate a Single Post ──────────────────────────────────
-export async function generatePost({ topic, pillar, framework, cta, authorityLine, raceContext, apiKey, model = 'gpt-4o', campaignDay = null }) {
-    const raceContextNote = raceContext
-        ? `\nRACE WEEK CONTEXT: The F1 ${raceContext.name} is happening at ${raceContext.circuit}, ${raceContext.country}. If natural, reference the pressure F1 drivers face at this circuit as a parallel to what club/amateur drivers experience.`
-        : '';
+export async function generatePost({ topic, pillar, framework, cta, authorityLine, apiKey, campaignDay = null, neurochemical = null }) {
 
     const campaignNote = campaignDay
-        ? `\n5-DAY CAMPAIGN POSITION: This is ${campaignDay.day} — Purpose: ${campaignDay.purpose}. Target emotion: ${campaignDay.emotion}. Word count: ${campaignDay.wordCount}.`
+        ? `\nCAMPAIGN POSITION: This is ${campaignDay.day} — Purpose: ${campaignDay.purpose}. Target emotion: ${campaignDay.emotion}. Word count: ${campaignDay.wordCount}.`
         : '';
 
-    const prompt = `Write a Facebook post for Craig Muirhead / Camino Coaching using these parameters:
+    // Inject championship context into post generation
+    const champCtx = getChampionshipContext();
+    let raceWeekendNote = '';
+    if (champCtx.hasLiveRacing) {
+        raceWeekendNote = `\nRACE WEEKEND CONTEXT: There is live racing this weekend — ${champCtx.currentWeekend.map(e => `${e.flag} ${e.championship} at ${e.venue}`).join(', ')}. You may naturally reference this if relevant to the topic, but do NOT force it.`;
+    } else if (champCtx.hasRecentResults) {
+        raceWeekendNote = `\nRECENT RACE CONTEXT: Recent results available from ${champCtx.recent.map(e => `${e.flag} ${e.championship} at ${e.venue}`).join(', ')}. Reference if naturally relevant.`;
+    }
+
+    // Neurochemistry context if provided
+    const chemNote = neurochemical
+        ? `\nNEUROCHEMICAL FOCUS: ${neurochemical.name} (${neurochemical.nickname || neurochemical.label}) — ${neurochemical.description || neurochemical.whatItDoes}
+When referencing this chemical in the post, describe how it manifests in racing: ${neurochemical.symptoms?.join(', ') || neurochemical.onTrack || ''}.`
+        : '';
+
+    const prompt = `Write a Facebook post AND an Instagram caption for Craig Muirhead / Camino Coaching using these parameters:
 
 CONTENT PILLAR: ${pillar.name} — ${pillar.description}
 FRAMEWORK: ${framework.name} — ${framework.hookStyle}
-TOPIC/ANGLE: ${typeof topic === 'string' ? topic : topic.headline || topic}
+TOPIC / ANGLE: ${typeof topic === 'string' ? topic : topic.headline || topic}
 ${topic.talkingPoints ? `KEY POINTS: ${topic.talkingPoints.join(', ')}` : ''}
 ${topic.mechanism ? `MECHANISM TO REFERENCE: ${topic.mechanism}` : ''}
+${topic.sourceArticle ? `SOURCE ARTICLE: ${topic.sourceArticle}` : ''}
+${topic.racingRelevance ? `RACING RELEVANCE: ${topic.racingRelevance}` : ''}
+${raceWeekendNote}
+${chemNote}
 
 AUTHORITY LINE TO WEAVE IN NATURALLY:
 "${authorityLine}"
 
-CTA TO APPEND (after a blank line, completely unrelated to post body):
+${(() => {
+            // Try to get a review hook
+            const reviews = REVIEW_GOLDMINE.filter(r => r.pillar === pillar.id || r.pillar === 'all');
+            const review = reviews.length > 0 ? reviews[Math.floor(Math.random() * reviews.length)] : null;
+            if (review && Math.random() < 0.25) {
+                return `OPTIONAL REVIEW HOOK (use if it fits naturally, approximately 1 in 4 posts):
+Reviewer: ${review.reviewer} (${review.location})
+Quote: "${review.keyQuote}"
+Hook angle: ${review.hookDerivation}
+Format: Use as opening line in quotation marks with reviewer's first name. Then build the teaching content around this theme.
+`;
+            }
+            return '';
+        })()}
+
+CTA TO APPEND (after ·· separator, completely unrelated to post body):
 ${cta.ctaTemplate}
-${raceContextNote}${campaignNote}
 
-RULES:
-- Hook first (${framework.name} style)
-- Value-packed body with short paragraphs
-- Reference neuroscience/mechanisms naturally
-- Use racing-specific language (qualifying, grid, sector times, braking markers)
-- Authority line woven into body naturally
-- CTA after a blank line feels COMPLETELY unrelated to post topic. Use natural openers like "Oh by the way", "Before I go", "I meant to say". NEVER use "PS" or "P.S."
-- NEVER use em dashes (—), use commas or full stops instead
-- NEVER use ·· or ** or bullet symbols
-- 150-300 words total
-- British English
-- No hashtags
-- 1-2 emojis max (only near CTA)
-- No external links in post body
-- Mobile-optimised: short paragraphs, line breaks between ideas
+CTA TRIGGER WORD: ${cta.triggerWord || cta.keyword || 'BLUEPRINT'}
+${campaignNote}
 
-Write ONLY the post text, nothing else.`;
+THE 5-STEP WINNING FORMULA (follow this architecture):
+1. HOOK (First Line): Start with a specific data point, research finding, or dramatic racing scenario. This is the ONLY line that matters for reach.
+2. PROBLEM (Next 2-3 sentences): Ground it in a SPECIFIC racing scenario. Use turn numbers, session contexts (qualifying vs race), specific sensations (tyre grip, braking confidence). Never generic.
+3. NEUROSCIENCE (Core Teaching): Explain WHY this happens in the brain. Reference the mechanism. Use plain language. Cite data. WOW not HOW: reveal what the problem is, NEVER the specific fix.
+4. BRIDGE (Connection to Driver): Show how this pattern appears at every level. Reference real results or anonymised patterns. Make the reader feel seen.
+5. CTA (Separated): After ·· separator. "Oh, by the way" or "Completely unrelated" or "PS". BLUEPRINT keyword included. "With or without you" energy.
 
-    return await callOpenAI(prompt, apiKey, model, false);
+RULES (racing driver Facebook / Instagram format):
+- Use CAR RACING language throughout: driver, turn, apex, braking zone, racing line, throttle, steering input, circuit, pit lane, grid, qualifying, cockpit, harness, pit wall, engineer, stint. NEVER use motorcycle language (lean angle, body position, hanging off, the bike).
+- UK English spelling throughout (colour, analyse, programme, tyre, favourite)
+- WOW not HOW: Reveal the problem and why it happens. NEVER give the specific fix or methodology.
+- Every post must reference a specific racing scenario (turn number, session context, tyre condition, grid position)
+- Use real data: 808 PBs, 438 podiums, 159 wins, 118 drivers, 100+ circuits, 2,358 debriefs, 60 months, 4.9 Trustpilot (85 reviews)
+- NEVER use em dashes or en dashes. Use commas or full stops instead.
+- NEVER use ** or bullet symbols in the post body
+- No emojis in the value section. Occasional use in CTA is acceptable.
+- NEVER use generic coaching language: "mindset shift", "unlock your potential", "be your best self", "level up"
+- Short paragraphs (1-2 sentences), mobile-first formatting
+- End with an engagement question that drives comments
+
+FACEBOOK VERSION:
+- 200-400 words value content + CTA
+- Long-form text. Optimise for SHARES (drives FB reach).
+
+INSTAGRAM VERSION:
+- 100-200 words caption. Shorter, punchier, more direct.
+- Optimise for SAVES (drives IG reach).
+- CTA uses comment keyword BLUEPRINT only (ManyChat delivery). No direct links.
+- Include 3-5 niche hashtags at the end (#F1 #RacingDriver #MentalPerformance #FlowState #Motorsport)
+
+DEAD ZONE RULES (never create these):
+- No self-promotional announcements without value
+- No testimonial-only posts without a teaching hook
+- No sequence posts that assume the reader saw yesterday's content
+- No generic motivational content that could apply to any sport
+- No pure neuroscience explainers without a track-specific anchor
+
+Format your response as:
+=== FACEBOOK POST ===
+[Facebook post text here]
+
+=== INSTAGRAM CAPTION ===
+[Instagram caption here]
+
+=== IMAGE TEXT ===
+[Suggest 1-2 lines of text for the image (max 12 words). Use the hook data point or most powerful stat.]`;
+
+    return await callClaude(prompt, apiKey, false);
 }
 
 // ─── Generate Multiple Posts in Parallel ──────────────────────
 export async function generatePosts(topics, config) {
-    const { pillars, frameworks, ctas, authorityLines, raceContext, apiKey, model, campaignDays } = config;
+    const { pillars, frameworks, ctas, authorityLines, apiKey, campaignDays, neurochemicals } = config;
 
     const promises = topics.map((topic, i) => {
         return generatePost({
@@ -174,10 +369,9 @@ export async function generatePosts(topics, config) {
             framework: frameworks[i],
             cta: ctas[i],
             authorityLine: authorityLines[i],
-            raceContext,
             apiKey,
-            model,
-            campaignDay: campaignDays ? campaignDays[i] : null
+            campaignDay: campaignDays ? campaignDays[i] : null,
+            neurochemical: neurochemicals ? neurochemicals[i] : null
         });
     });
 
@@ -194,144 +388,556 @@ export async function generatePosts(topics, config) {
         status: result.status,
         imageUrl: '',
         edited: false,
-        campaignDay: campaignDays ? campaignDays[i] : null
+        campaignDay: campaignDays ? campaignDays[i] : null,
+        neurochemical: neurochemicals ? neurochemicals[i] : null
     }));
 }
 
 // ─── Regenerate a Single Post ─────────────────────────────────
-export async function regeneratePost(post, apiKey, model = 'gpt-4o', raceContext = null) {
+export async function regeneratePost(post, apiKey) {
     const newContent = await generatePost({
         topic: post.topic,
         pillar: post.pillar,
         framework: post.framework,
         cta: post.cta,
         authorityLine: post.authorityLine,
-        raceContext,
         apiKey,
-        model,
-        campaignDay: post.campaignDay
+        campaignDay: post.campaignDay,
+        neurochemical: post.neurochemical
     });
     return { ...post, content: newContent, edited: false };
 }
 
-// ─── OpenAI API Call ──────────────────────────────────────────
-async function callOpenAI(prompt, apiKey, model = 'gpt-4o', parseJson = true) {
-    if (!apiKey) {
-        throw new Error('OpenAI API key not configured. Go to Settings to add your key.');
+// ─── Generate Video Script — Article-First Architecture ───────
+// The video script MUST use the same source article as the text post.
+// Article is the hook. Neurochemistry explains why. Bridge connects to driver.
+export async function generateVideoScript({ topic, postContent, pillar, chemicalId, videoLength = '45-60s', platform = 'FB Reel + IG Reel', outputFormat = '9:16', apiKey }) {
+
+    const chemContext = buildVideoScriptContext(chemicalId, typeof topic === 'string' ? topic : topic.headline || topic);
+
+    // Get championship context for timely references
+    const champCtx = getChampionshipContext();
+    let raceNote = '';
+    if (champCtx.hasLiveRacing) {
+        raceNote = `\nRACE WEEKEND CONTEXT: Live racing this weekend — ${champCtx.currentWeekend.map(e => `${e.flag} ${e.championship} at ${e.venue}`).join(', ')}. Reference if naturally relevant.`;
+    } else if (champCtx.hasRecentResults) {
+        raceNote = `\nRECENT RACE CONTEXT: Recent results from ${champCtx.recent.map(e => `${e.flag} ${e.championship} at ${e.venue}`).join(', ')}.`;
     }
 
-    const response = await fetch('https://api.openai.com/v1/chat/completions', {
+    // Build the source article context — this is the backbone of the video
+    const headline = typeof topic === 'string' ? topic : (topic.headline || topic.topic || topic);
+    const sourceArticle = topic?.sourceArticle || '';
+    const articleUrl = topic?.articleUrl || '';
+    const talkingPoints = topic?.talkingPoints || [];
+    const mechanism = topic?.mechanism || '';
+    const racingRelevance = topic?.racingRelevance || '';
+    const emotionalHook = topic?.emotionalHook || '';
+
+    const prompt = `You are Craig Muirhead's video content strategist. Write a complete video script for a ${videoLength} HeyGen avatar video.
+
+CRITICAL RULE — ARTICLE-FIRST ARCHITECTURE:
+The video script MUST be built on the same source article as the text post. The article is the hook. It is the borrowed authority. It is the reason people watch. The neurochemistry layer explains WHY the article's story works. The bridge connects it to the driver's experience and Camino Coaching data.
+
+This is the formula that generated 19,217 reach on a single post: third-party authority first, your expertise second, CTA last.
+
+THE SOURCE ARTICLE (this is the backbone — NOT optional background):
+Headline: ${headline}
+${sourceArticle ? `Source: ${sourceArticle}` : ''}
+${articleUrl ? `URL: ${articleUrl}` : ''}
+${talkingPoints.length > 0 ? `Key Points:\n${talkingPoints.map(p => `- ${p}`).join('\n')}` : ''}
+${mechanism ? `Neuroscience Mechanism: ${mechanism}` : ''}
+${racingRelevance ? `Racing Relevance: ${racingRelevance}` : ''}
+${emotionalHook ? `Emotional Hook: ${emotionalHook}` : ''}
+${pillar ? `Content Pillar: ${pillar.name} — ${pillar.description || ''}` : ''}
+
+${postContent ? `THE TEXT POST (for context — the video should tell the same story in video format, not invent a new angle):\n${postContent.substring(0, 800)}\n` : ''}
+
+PRODUCTION CONTEXT:
+- This video uses AI avatar (Craig's likeness) narrating over a Manus slide deck
+- Platform: ${platform}
+- Output format: ${outputFormat}
+- Target length: ${videoLength}
+${raceNote}
+
+${chemContext}
+
+HOW TO USE THE ARTICLE IN THE VIDEO:
+1. HOOK must reference the article directly. Name the person, the study, or the discovery from the article in the first sentence.
+2. SCENARIO must include at least one named example from the article in the first 15 seconds. Show WHY this person/study is fascinating.
+3. THE SCIENCE explains the brain chemistry behind WHY the article's story works. This is where the neurochemical layer adds depth.
+4. THE COST quantifies what happens when drivers DON'T have this. Use Camino debrief data (2,358 debriefs, 118 drivers, 100+ circuits).
+5. THE BRIDGE connects the article's insight to the driver watching. "After 2,358 performance debriefs, the pattern is identical in motorsport..."
+6. CTA is casual and separate.
+
+The viewer should watch a video about [the article's fascinating story] and walk away thinking about their own mental preparation on track.
+
+RULES:
+- Use UK English spelling throughout (colour, analyse, programme, tyre, favourite)
+- Use CAR RACING language: driver, turn, apex, braking zone, racing line, throttle, steering input, circuit, pit lane, grid, qualifying, cockpit, stint
+- NEVER use motorcycle language (lean angle, body position, hanging off, the bike)
+- Write numbers out in full text for voice synthesis (e.g., "two thousand three hundred and fifty eight" not "2,358")
+- WOW not HOW: Reveal the chemical and what it does. NEVER give the specific fix or programme methodology
+- Warm, direct, confident tone. Like a trusted paddock insider talking to a mate.
+- The article is NOT optional. It must appear in the HOOK and SCENARIO. If the article references a person, NAME THEM.
+
+FORMAT YOUR RESPONSE EXACTLY LIKE THIS:
+
+=== VIDEO SCRIPT ===
+HOOK (0-5s):
+[Open with the article. Name the person, study, or discovery. One scroll-stopping sentence that makes the viewer curious. This becomes text overlay on Slide 1.]
+
+SCENARIO (5-15s):
+[Expand on the article. Give the fascinating detail — what they did, what they found, why it matters. Then pivot: "Now think about your last qualifying session..." Connect to the driver's experience.]
+
+THE SCIENCE (15-35s):
+[Name the neurochemical. Explain WHY the article's story works at a brain chemistry level. One clear mechanism in plain language. This is where you add the science layer that the original article didn't have.]
+
+THE COST (35-45s):
+[Quantify the impact for a racing driver who doesn't understand this. Lap time, sector time, race position. Use Camino debrief data.]
+
+THE BRIDGE (45-55s):
+[Connect the article's insight to Camino Coaching data. "After two thousand two hundred and forty nine performance debriefs, the pattern is identical in motorsport..." Tease the solution. Never give the fix.]
+
+CTA (55-60s):
+[Casual, low-pressure. Comment BLUEPRINT and I will send you the free training.]
+
+=== SLIDE DECK BRIEF (FOR MANUS) ===
+Slide 1 — Hook: [The article reference. Bold text. Max 15 words.]
+Slide 2 — The Story: [The fascinating detail from the article. Max 15 words.]
+Slide 3 — The Pivot: [Connection to the driver's own racing. Max 15 words.]
+Slide 4 — The Chemical: [Chemical name in accent colour. One-line description.]
+Slide 5 — The Mechanism: [2-3 short bullet points of how it manifests on track.]
+Slide 6 — The Data: [One big Camino stat. Large number + short label.]
+Slide 7 — The Bridge: [Teaser line connecting the article to the solution.]
+Slide 8 — CTA: [Comment BLUEPRINT + Camino Coaching branding.]
+
+=== HEYGEN NOTES ===
+[Avatar position, gesture suggestions, pace notes for this specific video.]
+
+=== SOCIAL CAPTION ===
+[A short Facebook/Instagram caption to post alongside the video. Reference the article. 50-100 words. Include CTA and 3-5 hashtags.]`;
+
+    return await callClaude(prompt, apiKey, false);
+}
+
+// ─── Content Deduplication Storage ────────────────────────────────────────
+const DEDUP_ARTICLES_KEY = 'driver-social-media-used-articles';
+const DEDUP_HOOKS_KEY = 'driver-social-media-used-hooks';
+
+function getUsedArticleUrls() {
+    try {
+        return JSON.parse(localStorage.getItem(DEDUP_ARTICLES_KEY) || '[]');
+    } catch { return []; }
+}
+
+export function storeUsedArticles(topics) {
+    const existing = getUsedArticleUrls();
+    const newUrls = topics
+        .filter(t => t.articleUrl)
+        .map(t => ({ url: t.articleUrl, headline: t.headline, date: new Date().toISOString() }));
+    const combined = [...existing, ...newUrls].slice(-60);
+    localStorage.setItem(DEDUP_ARTICLES_KEY, JSON.stringify(combined));
+}
+
+function getUsedHooks() {
+    try {
+        return JSON.parse(localStorage.getItem(DEDUP_HOOKS_KEY) || '[]');
+    } catch { return []; }
+}
+
+export function storeUsedHooks(posts) {
+    const existing = getUsedHooks();
+    const newHooks = posts
+        .filter(p => p.content)
+        .map(p => (p.content || '').split('\n')[0]);
+    const combined = [...existing, ...newHooks].slice(-30);
+    localStorage.setItem(DEDUP_HOOKS_KEY, JSON.stringify(combined));
+}
+
+function buildDeduplicationContext() {
+    const usedUrls = getUsedArticleUrls();
+    const usedHooks = getUsedHooks();
+    let ctx = '';
+    if (usedUrls.length > 0) {
+        ctx += `\n\nDEDUPLICATION — DO NOT return any article from these previously used URLs:\n${usedUrls.map(a => a.url).join('\n')}\n`;
+    }
+    if (usedHooks.length > 0) {
+        ctx += `\n\nDEDUPLICATION — DO NOT repeat or closely paraphrase these previously used hooks:\n${usedHooks.join('\n')}\n`;
+    }
+    return ctx;
+}
+
+// ─── Claude API Call (Anthropic) — Content Writing ──────────────────
+async function callClaude(prompt, apiKey, parseJson = true) {
+    if (!apiKey) {
+        throw new Error('Claude API key not configured. Go to Settings to add your key.');
+    }
+
+    const response = await fetch('https://api.anthropic.com/v1/messages', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
-            'Authorization': `Bearer ${apiKey}`
+            'x-api-key': apiKey,
+            'anthropic-version': '2023-06-01',
+            'anthropic-dangerous-direct-browser-access': 'true'
         },
         body: JSON.stringify({
-            model: model,
-            messages: [
-                { role: 'system', content: SYSTEM_PROMPT },
-                { role: 'user', content: prompt }
-            ],
-            temperature: 0.85,
-            max_tokens: 4096
+            model: 'claude-sonnet-4-20250514',
+            max_tokens: 4096,
+            system: SYSTEM_PROMPT,
+            messages: [{ role: 'user', content: prompt }],
+            temperature: 0.85
         })
     });
 
     if (!response.ok) {
         const error = await response.json().catch(() => ({}));
-        throw new Error(error.error?.message || `OpenAI API error: ${response.status}`);
+        throw new Error(error.error?.message || `Claude API error: ${response.status}`);
     }
 
     const data = await response.json();
-    const content = data.choices[0]?.message?.content?.trim();
+    const content = data.content?.[0]?.text?.trim();
+
+    if (!content) {
+        throw new Error('No content returned from Claude API.');
+    }
 
     if (parseJson) {
         try {
-            const jsonMatch = content.match(/\[[\s\S]*\]/);
-            return jsonMatch ? JSON.parse(jsonMatch[0]) : JSON.parse(content);
+            // Try to extract JSON array first (for topics, posts)
+            const arrayMatch = content.match(/\[[\s\S]*\]/);
+            if (arrayMatch) return JSON.parse(arrayMatch[0]);
+
+            // Try to extract JSON object (for emails, single responses)
+            const objectMatch = content.match(/\{[\s\S]*\}/);
+            if (objectMatch) return JSON.parse(objectMatch[0]);
+
+            // Try raw parse
+            return JSON.parse(content);
         } catch (e) {
-            throw new Error('Failed to parse AI response as JSON. Please try again.');
+            throw new Error('Failed to parse Claude response as JSON. Please try again.');
         }
     }
 
     return content;
 }
 
-// ─── OpenAI Responses API Call with Web Search ────────────────
-async function callOpenAIWithSearch(prompt, apiKey, parseJson = true) {
+// ─── Gemini API Call with Google Search Grounding — Research ────
+async function callGeminiWithSearch(prompt, apiKey, parseJson = true) {
     if (!apiKey) {
-        throw new Error('OpenAI API key not configured. Go to Settings to add your key.');
+        throw new Error('Gemini API key not configured. Go to Settings to add your key.');
     }
 
-    try {
-        // Use the Responses API with web_search_preview tool
-        const response = await fetch('https://api.openai.com/v1/responses', {
+    const dedupPrompt = prompt + buildDeduplicationContext();
+
+    const response = await fetch(
+        `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`,
+        {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${apiKey}`
-            },
+            headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
-                model: 'gpt-4o',
-                tools: [{ type: 'web_search_preview' }],
-                instructions: SYSTEM_PROMPT,
-                input: prompt
-            })
-        });
-
-        if (!response.ok) {
-            const error = await response.json().catch(() => ({}));
-            console.warn('Responses API failed, falling back to Chat Completions:', error.error?.message);
-            // Fallback to standard Chat Completions without web search
-            return await callOpenAI(prompt, apiKey, 'gpt-4o', parseJson);
-        }
-
-        const data = await response.json();
-
-        // Extract text content from the response output array
-        let content = '';
-        if (data.output && Array.isArray(data.output)) {
-            for (const item of data.output) {
-                if (item.type === 'message' && item.content) {
-                    for (const part of item.content) {
-                        if (part.type === 'output_text') {
-                            content += part.text;
-                        }
-                    }
+                contents: [{ parts: [{ text: dedupPrompt }] }],
+                tools: [{ google_search: {} }],
+                generationConfig: {
+                    temperature: 0.8,
+                    maxOutputTokens: 8192
                 }
-            }
+            })
         }
+    );
 
-        content = content.trim();
-
-        if (!content) {
-            console.warn('No text content in Responses API output, falling back');
-            return await callOpenAI(prompt, apiKey, 'gpt-4o', parseJson);
-        }
-
-        if (parseJson) {
-            try {
-                const jsonMatch = content.match(/\[[\s\S]*\]/);
-                return jsonMatch ? JSON.parse(jsonMatch[0]) : JSON.parse(content);
-            } catch (e) {
-                console.warn('JSON parse failed from web search response, falling back');
-                return await callOpenAI(prompt, apiKey, 'gpt-4o', parseJson);
-            }
-        }
-
-        return content;
-    } catch (err) {
-        console.warn('Web search call failed, falling back to standard API:', err.message);
-        return await callOpenAI(prompt, apiKey, 'gpt-4o', parseJson);
+    if (!response.ok) {
+        const error = await response.json().catch(() => ({}));
+        throw new Error(error.error?.message || `Gemini API error: ${response.status}`);
     }
+
+    const data = await response.json();
+    console.log('[Gemini] Raw response:', JSON.stringify(data).substring(0, 500));
+
+    let content = '';
+    if (data.candidates?.[0]?.content?.parts) {
+        for (const part of data.candidates[0].content.parts) {
+            if (part.text) content += part.text;
+        }
+    }
+
+    // Strip markdown code fences if present
+    content = content.replace(/```json\s*/gi, '').replace(/```\s*/g, '').trim();
+
+    if (!content) {
+        const blockReason = data.candidates?.[0]?.finishReason;
+        const safetyRatings = data.candidates?.[0]?.safetyRatings;
+        console.error('[Gemini] No content. Finish reason:', blockReason, 'Safety:', safetyRatings);
+        throw new Error(`No content from Gemini (reason: ${blockReason || 'unknown'}). Try again.`);
+    }
+
+    console.log('[Gemini] Parsed content preview:', content.substring(0, 200));
+
+    if (parseJson) {
+        try {
+            const jsonMatch = content.match(/\[[\s\S]*\]/);
+            return jsonMatch ? JSON.parse(jsonMatch[0]) : JSON.parse(content);
+        } catch (e) {
+            console.error('[Gemini] JSON parse failed. Content:', content.substring(0, 500));
+            throw new Error('Failed to parse Gemini response as JSON. Try again.');
+        }
+    }
+
+    return content;
+}
+
+// ─── HeyGen Video Generation API ─────────────────────────────────────
+export async function generateHeyGenVideo({ script, avatarId, voiceId, apiKey }) {
+    if (!apiKey) {
+        throw new Error('HeyGen API key not configured. Go to Settings to add your key.');
+    }
+
+    // Parse the script sections into scenes
+    const sections = ['HOOK', 'SCENARIO', 'THE SCIENCE', 'THE COST', 'THE BRIDGE', 'CTA'];
+    const scenes = sections.map((section, i) => {
+        const regex = new RegExp(`${section}[^:]*:\\\\s*([\\\\s\\\\S]*?)(?=${sections[i + 1] ? sections[i + 1] : '==='}|$)`);
+        const match = script.match(regex);
+        const text = (match?.[1] || '').trim();
+        return {
+            scene_type: 'talking_photo',
+            character: {
+                type: 'avatar',
+                avatar_id: avatarId || 'default',
+                voice: { type: 'text', voice_id: voiceId || 'default', input_text: text }
+            },
+            background: { type: 'color', value: '#0A1628' }
+        };
+    }).filter(s => s.character.voice.input_text);
+
+    const response = await fetch('https://api.heygen.com/v2/video/generate', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-Api-Key': apiKey
+        },
+        body: JSON.stringify({
+            video_inputs: scenes,
+            dimension: { width: 1080, height: 1920 }
+        })
+    });
+
+    if (!response.ok) {
+        const error = await response.json().catch(() => ({}));
+        throw new Error(error.message || `HeyGen API error: ${response.status}`);
+    }
+
+    const data = await response.json();
+    return data.data?.video_id || data.video_id;
+}
+
+// ─── HeyGen Video Status Check ───────────────────────────────────────
+export async function checkHeyGenVideoStatus(videoId, apiKey) {
+    const response = await fetch(`https://api.heygen.com/v1/video_status.get?video_id=${videoId}`, {
+        headers: { 'X-Api-Key': apiKey }
+    });
+
+    if (!response.ok) {
+        throw new Error(`HeyGen status check failed: ${response.status}`);
+    }
+
+    const data = await response.json();
+    return {
+        status: data.data?.status || 'unknown',
+        videoUrl: data.data?.video_url || null,
+        thumbnailUrl: data.data?.thumbnail_url || null
+    };
+}
+
+// ─── Generate Email Copy (Claude) ─────────────────────────────
+export async function generateEmail({ topic, pillar, cta, postContent, apiKey }) {
+    const prompt = `You are Craig Muirhead, writing a short nurture email to your list of racing drivers.
+
+TOPIC: ${topic?.headline || topic || 'Mental performance in car racing'}
+PILLAR: ${pillar?.name || 'Mental Performance'} — ${pillar?.description || ''}
+CTA: Podium Contenders Blueprint — Trigger: BLUEPRINT
+
+${postContent ? `RELATED SOCIAL POST (for context — do NOT copy this word-for-word, use it as inspiration for the email angle):\n${postContent.substring(0, 500)}\n` : ''}
+
+Write a SHORT nurture email. This is NOT a newsletter — it's a punchy, personal email from Craig.
+
+RULES:
+- UK English throughout
+- Use car racing language (never motorcycle-specific terms)
+- WOW not HOW: reveal the problem and neuroscience, NEVER the methodology
+- Maximum 200 words body (short, punchy, value-dense)
+- Write like you're talking to a mate in the paddock — direct, no fluff
+- Include a specific racing scenario or data point
+- End with a clear CTA that links to the Podium Contenders Blueprint
+
+OUTPUT FORMAT (return as JSON):
+{
+  "subject": "Email subject line (max 50 chars, curiosity-driven, lowercase feel)",
+  "preheader": "Preview text (max 80 chars, complements subject)",
+  "hook": "Opening line — punchy, scenario-based, stops the scroll (1-2 sentences)",
+  "problem": "The problem/neuroscience angle (2-3 sentences, include a data point or stat)",
+  "bridge": "The 'what if' bridge — teases the solution without giving it away (1-2 sentences)",
+  "ctaText": "CTA button text (max 5 words, action-oriented)",
+  "ctaUrl": "${cta?.url || 'https://academy.caminocoaching.co.uk/podium-contenders-blueprint/order/'}",
+  "signoff": "Short sign-off line before the name (1 sentence, personal)"
+}
+
+Return ONLY the JSON object. No markdown, no code fences.`;
+
+    const result = await callClaude(prompt, apiKey, true);
+
+    // callClaude with parseJson=true expects an array, but we're returning an object
+    if (Array.isArray(result)) {
+        return result[0]; // If it wrapped in an array
+    }
+    return result;
+}
+
+// ─── Render Email as GHL-Compatible HTML ─────────────────────
+export function renderEmailHTML(emailData, pillar) {
+    const {
+        subject = 'From the paddock...',
+        preheader = '',
+        hook = '',
+        problem = '',
+        bridge = '',
+        ctaText = 'Get the Blueprint',
+        ctaUrl = 'https://academy.caminocoaching.co.uk/podium-contenders-blueprint/order/',
+        signoff = 'Speak soon'
+    } = emailData;
+
+    const pillarColor = pillar?.color || '#00BFA5';
+
+    return `<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml" xmlns:v="urn:schemas-microsoft-com:vml" xmlns:o="urn:schemas-microsoft-com:office:office">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<title>${subject}</title>
+<!--[if !mso]><!-->
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
+</style>
+<!--<![endif]-->
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { margin: 0; padding: 0; background-color: #0D1117; font-family: 'Inter', Arial, Helvetica, sans-serif; -webkit-text-size-adjust: 100%; -ms-text-size-adjust: 100%; }
+  table { border-collapse: collapse; mso-table-lspace: 0pt; mso-table-rspace: 0pt; }
+  img { display: block; outline: none; text-decoration: none; border: 0; }
+  a { color: #00BFA5; text-decoration: none; }
+  @media only screen and (max-width: 620px) {
+    .container { width: 100% !important; padding: 0 16px !important; }
+    .content { padding: 28px 20px !important; }
+    .cta-btn { display: block !important; text-align: center !important; }
+    h1 { font-size: 22px !important; }
+  }
+</style>
+</head>
+<body style="margin:0;padding:0;background-color:#0D1117;">
+<div style="display:none;max-height:0;overflow:hidden;mso-hide:all;">${preheader}</div>
+
+<!-- Wrapper -->
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background-color:#0D1117;">
+<tr><td align="center" style="padding:24px 0;">
+
+<!-- Container -->
+<table role="presentation" class="container" width="580" cellpadding="0" cellspacing="0" style="max-width:580px;width:100%;">
+
+<!-- Header Bar -->
+<tr><td style="padding:0 0 2px 0;">
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
+    <tr>
+      <td style="background:linear-gradient(90deg,${pillarColor},#00BFA5);height:4px;border-radius:4px 4px 0 0;"></td>
+    </tr>
+  </table>
+</td></tr>
+
+<!-- Main Content Card -->
+<tr><td class="content" style="background-color:#0A1628;padding:36px 32px;border-radius:0 0 8px 8px;">
+
+  <!-- Logo/Brand -->
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
+    <tr><td style="padding-bottom:24px;border-bottom:1px solid rgba(255,255,255,0.06);">
+      <span style="font-size:13px;font-weight:700;color:#00BFA5;letter-spacing:1.5px;text-transform:uppercase;">CAMINO COACHING</span>
+    </td></tr>
+  </table>
+
+  <!-- Hook -->
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
+    <tr><td style="padding:28px 0 0 0;">
+      <h1 style="font-size:24px;font-weight:700;color:#F0F6FC;line-height:1.3;margin:0;">${hook}</h1>
+    </td></tr>
+  </table>
+
+  <!-- Problem/Science -->
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
+    <tr><td style="padding:20px 0 0 0;">
+      <p style="font-size:15px;line-height:1.65;color:#B0BAC5;margin:0;">${problem}</p>
+    </td></tr>
+  </table>
+
+  <!-- Bridge -->
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
+    <tr><td style="padding:20px 0 0 0;">
+      <p style="font-size:15px;line-height:1.65;color:#D1D5DB;font-weight:600;margin:0;font-style:italic;">${bridge}</p>
+    </td></tr>
+  </table>
+
+  <!-- CTA Button -->
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
+    <tr><td style="padding:28px 0 0 0;" align="center">
+      <table role="presentation" cellpadding="0" cellspacing="0">
+        <tr><td class="cta-btn" style="background-color:#00BFA5;border-radius:6px;padding:14px 32px;">
+          <a href="${ctaUrl}" target="_blank" style="color:#0A1628;font-size:15px;font-weight:700;text-decoration:none;display:inline-block;letter-spacing:0.5px;">${ctaText}</a>
+        </td></tr>
+      </table>
+    </td></tr>
+  </table>
+
+  <!-- Sign-off -->
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
+    <tr><td style="padding:28px 0 0 0;border-top:1px solid rgba(255,255,255,0.06);margin-top:28px;">
+      <p style="font-size:14px;line-height:1.5;color:#8B949E;margin:0 0 4px 0;">${signoff}</p>
+      <p style="font-size:14px;font-weight:700;color:#F0F6FC;margin:0;">Craig Muirhead</p>
+      <p style="font-size:12px;color:#00BFA5;margin:2px 0 0 0;">Camino Coaching — Racing Driver Mental Performance</p>
+    </td></tr>
+  </table>
+
+</td></tr>
+
+<!-- Footer -->
+<tr><td style="padding:20px 0 0 0;">
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
+    <tr><td align="center" style="padding:12px 0;">
+      <p style="font-size:11px;color:#484F58;margin:0;">
+        You're receiving this because you signed up for mental performance insights for racing drivers.
+        <br><a href="{{unsubscribe_link}}" style="color:#484F58;text-decoration:underline;">Unsubscribe</a> · <a href="{{preferences_link}}" style="color:#484F58;text-decoration:underline;">Email preferences</a>
+      </p>
+      <p style="font-size:11px;color:#30363D;margin:8px 0 0 0;">
+        © ${new Date().getFullYear()} Camino Coaching · caminocoaching.co.uk
+      </p>
+    </td></tr>
+  </table>
+</td></tr>
+
+</table>
+<!-- /Container -->
+
+</td></tr>
+</table>
+<!-- /Wrapper -->
+
+</body>
+</html>`;
 }
 
 // ─── Generate Image Prompt ───────────────────────────────────
 export function generateImagePrompt(post) {
-    return `Create a professional, cinematic motorsport photograph for a social media post about "${post.pillar.name}". 
-Style: dramatic lighting, shallow depth of field, rich saturated colours. 
-Setting: Professional race car (single-seater or GT car) context — paddock, cockpit, circuit. 
-Theme: ${post.pillar.description}. 
-No text overlay. No motorcycles. Race CAR drivers only.
-Quality: F1 broadcast standard, editorial motorsport photography.`;
+    return `Create a professional, editorial-quality car racing photograph for a Facebook/Instagram post about "${post.pillar.name}".
+    Style: Photorealistic, shot on Canon EOS R5, 85mm f/1.4 lens, shallow depth of field, natural lighting, 8K resolution.
+        Setting: Racing circuit, pit lane, garage, grid walk, parc fermé — authentic motorsport environment.
+            Theme: ${post.pillar.description}.
+Mood: Intense, authentic, professional motorsport. The driver experience.
+No text overlay. No watermark. No logos. No writing on image. No identifiable faces of real drivers. No identifiable liveries or numbers.
+Square format (1:1) for social media.`;
 }

@@ -1,24 +1,36 @@
 // ═══════════════════════════════════════════════════════════════
-// 🏁 RIDER SOCIAL MEDIA ENGINE — Settings Manager
-// LocalStorage persistence for API keys, preferences, groups
+// 🏁 DRIVER SOCIAL MEDIA MACHINE — Settings Manager
+// LocalStorage persistence for API keys, preferences
 // ═══════════════════════════════════════════════════════════════
 
-const STORAGE_KEY = 'rider-social-engine-settings';
+const STORAGE_KEY = 'driver-social-media-machine-settings';
 
 const DEFAULT_SETTINGS = {
-  openaiApiKey: '',
+  geminiApiKey: '',
+  claudeApiKey: '',
+  heygenApiKey: '',
+  heygenAvatarId: '',
+  heygenVoiceId: '',
+  manusApiKey: '',
+  canvaApiToken: '',
+  canvaPostTemplateId: '',
   ghlToken: '',
   ghlLocationId: '',
-  publishMethod: 'csv', // 'csv' or 'ghl-api'
-  aiModel: 'gpt-4o',
+  ghlEmailFrom: '',
+  publishMethod: 'csv',
   facebookGroups: [
-    { name: 'Motorsport Drivers Network', url: '', enabled: true },
-    { name: 'Club Racing UK', url: '', enabled: true },
-    { name: 'Track Day Enthusiasts', url: '', enabled: true }
+    { name: 'Racing Drivers & Track Day Enthusiasts', url: '', enabled: true },
+    { name: 'British GT & Club Racing Community', url: '', enabled: true },
+    { name: 'Motorsport Performance Discussion Group', url: '', enabled: true }
   ],
-  raceCalendarEnabled: true,
-  postLength: 'medium', // 'short', 'medium', 'long'
-  brandName: 'Camino Coaching'
+  postLength: 'medium',
+  brandName: 'Camino Coaching',
+  reviewUrl: 'improve-rider.scoreapp.com',
+  seasonReviewUrl: 'riderseason.scoreapp.com',
+  flowProfileUrl: '',
+  mindsetQuizUrl: '',
+  sleepTestUrl: '',
+  blueprintUrl: 'https://academy.caminocoaching.co.uk/podium-contenders-blueprint/order/'
 };
 
 // ─── Load Settings ────────────────────────────────────────────
@@ -66,7 +78,7 @@ export function renderSettingsPage() {
   container.innerHTML = `
     <div class="page-header">
       <h1>⚙️ Settings</h1>
-      <p class="page-subtitle">Configure your API keys, publishing method, and Facebook groups</p>
+      <p class="page-subtitle">Configure your API keys, lead magnet links, and publishing preferences</p>
     </div>
 
     <div class="settings-grid">
@@ -78,25 +90,140 @@ export function renderSettingsPage() {
         </div>
         <div class="settings-card-body">
           <div class="form-group">
-            <label for="openai-key">OpenAI API Key</label>
+            <label for="gemini-key">🔍 Gemini API Key <span style="font-size:0.7rem;color:var(--neuro-teal);">(Research — Google Search Grounding)</span></label>
             <div class="input-with-toggle">
-              <input type="password" id="openai-key" class="form-input" 
-                     value="${settings.openaiApiKey}" 
-                     placeholder="sk-..." />
-              <button class="btn-icon toggle-visibility" data-target="openai-key" title="Show/Hide">
+              <input type="password" id="gemini-key" class="form-input" 
+                     value="${settings.geminiApiKey}" 
+                     placeholder="AIza..." />
+              <button class="btn-icon toggle-visibility" data-target="gemini-key" title="Show/Hide">
                 <span class="eye-icon">👁️</span>
               </button>
             </div>
-            <span class="form-hint">Required for content generation. Get yours at platform.openai.com</span>
+            <span class="form-hint">Searches live Google for fresh articles every week. Get yours at aistudio.google.com</span>
           </div>
 
           <div class="form-group">
-            <label for="ai-model">AI Model</label>
-            <select id="ai-model" class="form-select">
-              <option value="gpt-4o" ${settings.aiModel === 'gpt-4o' ? 'selected' : ''}>GPT-4o (Recommended)</option>
-              <option value="gpt-4o-mini" ${settings.aiModel === 'gpt-4o-mini' ? 'selected' : ''}>GPT-4o Mini (Faster/Cheaper)</option>
-              <option value="gpt-4-turbo" ${settings.aiModel === 'gpt-4-turbo' ? 'selected' : ''}>GPT-4 Turbo</option>
-            </select>
+            <label for="claude-key">✍️ Claude API Key <span style="font-size:0.7rem;color:var(--purple);">(Writing — Craig's Voice)</span></label>
+            <div class="input-with-toggle">
+              <input type="password" id="claude-key" class="form-input" 
+                     value="${settings.claudeApiKey}" 
+                     placeholder="sk-ant-..." />
+              <button class="btn-icon toggle-visibility" data-target="claude-key" title="Show/Hide">
+                <span class="eye-icon">👁️</span>
+              </button>
+            </div>
+            <span class="form-hint">Writes all posts and video scripts in Craig's voice. Get yours at console.anthropic.com</span>
+          </div>
+
+          <div class="form-group">
+            <label for="heygen-key">🎬 HeyGen API Key <span style="font-size:0.7rem;color:var(--gold);">(Video Production — AI Avatar)</span></label>
+            <div class="input-with-toggle">
+              <input type="password" id="heygen-key" class="form-input" 
+                     value="${settings.heygenApiKey}" 
+                     placeholder="Enter HeyGen API key..." />
+              <button class="btn-icon toggle-visibility" data-target="heygen-key" title="Show/Hide">
+                <span class="eye-icon">👁️</span>
+              </button>
+            </div>
+            <span class="form-hint">For automated video generation with your AI avatar. Get yours at app.heygen.com/settings</span>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.75rem;">
+            <div class="form-group">
+              <label for="heygen-avatar">HeyGen Avatar ID</label>
+              <input type="text" id="heygen-avatar" class="form-input"
+                     value="${settings.heygenAvatarId}" placeholder="e.g. josh_lite3_20230714" />
+              <span class="form-hint">Your avatar's ID from HeyGen dashboard</span>
+            </div>
+            <div class="form-group">
+              <label for="heygen-voice">HeyGen Voice ID</label>
+              <input type="text" id="heygen-voice" class="form-input"
+                     value="${settings.heygenVoiceId}" placeholder="e.g. 1bd001e7e50f421d891986aed6e1" />
+              <span class="form-hint">Your voice clone or selected voice ID</span>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="manus-key">🎨 Manus API Key <span style="font-size:0.7rem;color:var(--purple);">(Slide Deck Generation)</span></label>
+            <div class="input-with-toggle">
+              <input type="password" id="manus-key" class="form-input"
+                     value="${settings.manusApiKey}"
+                     placeholder="Enter Manus API key..." />
+              <button class="btn-icon toggle-visibility" data-target="manus-key" title="Show/Hide">
+                <span class="eye-icon">👁️</span>
+              </button>
+            </div>
+            <span class="form-hint">Auto-generates slide decks from video script briefs. Get yours at manus.im/settings</span>
+          </div>
+
+          <div class="form-group">
+            <label for="canva-token">🖼️ Canva API Token <span style="font-size:0.7rem;color:var(--blue);">(Post Image Autofill)</span></label>
+            <div class="input-with-toggle">
+              <input type="password" id="canva-token" class="form-input"
+                     value="${settings.canvaApiToken}"
+                     placeholder="Enter Canva API token..." />
+              <button class="btn-icon toggle-visibility" data-target="canva-token" title="Show/Hide">
+                <span class="eye-icon">👁️</span>
+              </button>
+            </div>
+            <span class="form-hint">Auto-fills brand templates with post content. Set up at canva.dev</span>
+          </div>
+          <div class="form-group">
+            <label for="canva-template">Canva Post Template ID</label>
+            <input type="text" id="canva-template" class="form-input"
+                   value="${settings.canvaPostTemplateId}" placeholder="DAGx..." />
+            <span class="form-hint">ID of your Canva brand template for post images (found in Canva template URL)</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Lead Magnet Links (from Motorcycle_Racer_Funnel_Complete_Reference.md) -->
+      <div class="settings-card">
+        <div class="settings-card-header">
+          <span class="settings-icon">🎯</span>
+          <h2>Lead Magnet URLs (5 ScoreApp Assessments)</h2>
+        </div>
+        <div class="settings-card-body">
+          <div class="form-group">
+            <label for="review-url">LM1: Rider Race Weekend Review (PRIMARY)</label>
+            <input type="text" id="review-url" class="form-input"
+                   value="${settings.reviewUrl}"
+                   placeholder="improve-rider.scoreapp.com" />
+            <span class="form-hint">✅ CONFIRMED — Trigger: REVIEW — DM delivery only — 3-4x/week</span>
+          </div>
+          <div class="form-group">
+            <label for="season-review-url">LM2: End of Season Review</label>
+            <input type="text" id="season-review-url" class="form-input"
+                   value="${settings.seasonReviewUrl}"
+                   placeholder="riderseason.scoreapp.com" />
+            <span class="form-hint">✅ CONFIRMED — Trigger: SEASON — Public link — Off-season (Oct-Feb)</span>
+          </div>
+          <div class="form-group">
+            <label for="flow-profile-url">LM3: Rider Flow Profile</label>
+            <input type="text" id="flow-profile-url" class="form-input"
+                   value="${settings.flowProfileUrl}"
+                   placeholder="https://flow-profile-url.com" />
+            <span class="form-hint">⏳ URL NEEDED — Trigger: FLOW — Public link — 1x/week</span>
+          </div>
+          <div class="form-group">
+            <label for="mindset-quiz-url">LM4: Rider Mindset Quiz</label>
+            <input type="text" id="mindset-quiz-url" class="form-input"
+                   value="${settings.mindsetQuizUrl}"
+                   placeholder="https://mindset-quiz-url.com" />
+            <span class="form-hint">⏳ URL NEEDED — Trigger: MINDSET — Public link — 1x/week</span>
+          </div>
+          <div class="form-group">
+            <label for="sleep-test-url">LM5: Rider Sleep Test</label>
+            <input type="text" id="sleep-test-url" class="form-input"
+                   value="${settings.sleepTestUrl || ''}"
+                   placeholder="https://sleep-test-url.com" />
+            <span class="form-hint">⏳ URL NEEDED — Trigger: SLEEP — Public link — 1-2x/month (pattern interrupt)</span>
+          </div>
+          <div class="form-group">
+            <label for="blueprint-url">Podium Contenders Blueprint (Free Training)</label>
+            <input type="text" id="blueprint-url" class="form-input"
+                   value="${settings.blueprintUrl}"
+                   placeholder="https://academy.caminocoaching.co.uk/podium-contenders-blueprint/order/" />
+            <span class="form-hint">✅ CONFIRMED — Trigger: BLUEPRINT — Direct link — 3x/year training windows (Jan, May, Sep)</span>
           </div>
         </div>
       </div>
@@ -109,23 +236,33 @@ export function renderSettingsPage() {
         </div>
         <div class="settings-card-body">
           <div class="form-group">
-            <label for="ghl-token">GHL Private Integration Token</label>
+            <label for="ghl-token">🔑 GHL Private Integration Token <span style="font-size:0.7rem;color:var(--green);">(API v2 — Bearer Auth)</span></label>
             <div class="input-with-toggle">
               <input type="password" id="ghl-token" class="form-input"
                      value="${settings.ghlToken}"
-                     placeholder="Enter your GHL token..." />
+                     placeholder="Enter your GHL Private Integration token..." />
               <button class="btn-icon toggle-visibility" data-target="ghl-token" title="Show/Hide">
                 <span class="eye-icon">👁️</span>
               </button>
             </div>
-            <span class="form-hint">Optional — needed for direct GHL API scheduling</span>
+            <span class="form-hint">Required for direct email dispatch. Agency Settings → Private Integrations → ensure conversations/message.write + contacts.write scopes</span>
           </div>
 
-          <div class="form-group">
-            <label for="ghl-location">GHL Location ID</label>
-            <input type="text" id="ghl-location" class="form-input"
-                   value="${settings.ghlLocationId}"
-                   placeholder="Enter your location ID..." />
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.75rem;">
+            <div class="form-group">
+              <label for="ghl-location">Location ID</label>
+              <input type="text" id="ghl-location" class="form-input"
+                     value="${settings.ghlLocationId}"
+                     placeholder="e.g. vdgR8teGuIgHPMPzbQkK" />
+              <span class="form-hint">Sub-account ID for contact upsert</span>
+            </div>
+            <div class="form-group">
+              <label for="ghl-email-from">Verified Sender Email</label>
+              <input type="email" id="ghl-email-from" class="form-input"
+                     value="${settings.ghlEmailFrom}"
+                     placeholder="e.g. craig@caminocoaching.co.uk" />
+              <span class="form-hint">Must be from your LC Email dedicated domain</span>
+            </div>
           </div>
 
           <div class="form-group">
@@ -152,11 +289,11 @@ export function renderSettingsPage() {
         </div>
       </div>
 
-      <!-- Facebook Groups -->
+      <!-- Facebook/Instagram Groups -->
       <div class="settings-card full-width">
         <div class="settings-card-header">
-          <span class="settings-icon">👥</span>
-          <h2>Facebook Groups</h2>
+          <span class="settings-icon">📱</span>
+          <h2>Facebook & Instagram Audience Groups</h2>
           <button class="btn-sm btn-accent" id="add-group-btn">+ Add Group</button>
         </div>
         <div class="settings-card-body">
@@ -170,33 +307,12 @@ export function renderSettingsPage() {
                 <input type="text" class="form-input group-name" value="${group.name}" 
                        placeholder="Group name" data-index="${i}" />
                 <input type="text" class="form-input group-url" value="${group.url}" 
-                       placeholder="Facebook group URL" data-index="${i}" />
+                       placeholder="Group URL" data-index="${i}" />
                 <button class="btn-icon btn-danger remove-group" data-index="${i}" title="Remove">✕</button>
               </div>
             `).join('')}
           </div>
-          <p class="form-hint">Groups for the "Copy & Go" posting workflow</p>
-        </div>
-      </div>
-
-      <!-- Race Calendar -->
-      <div class="settings-card">
-        <div class="settings-card-header">
-          <span class="settings-icon">🏁</span>
-          <h2>Race Calendar</h2>
-        </div>
-        <div class="settings-card-body">
-          <div class="form-group">
-            <label class="toggle-row">
-              <span>Enable Race Week Detection</span>
-              <label class="toggle-switch">
-                <input type="checkbox" id="race-calendar-toggle" 
-                       ${settings.raceCalendarEnabled ? 'checked' : ''} />
-                <span class="toggle-slider"></span>
-              </label>
-            </label>
-            <span class="form-hint">Auto-injects F1 circuit/round context into posts during race weekends</span>
-          </div>
+          <p class="form-hint">Target Facebook groups for cross-posting</p>
         </div>
       </div>
 
@@ -215,9 +331,9 @@ export function renderSettingsPage() {
           <div class="form-group">
             <label for="post-length">Default Post Length</label>
             <select id="post-length" class="form-select">
-              <option value="short" ${settings.postLength === 'short' ? 'selected' : ''}>Short (100-150 words)</option>
-              <option value="medium" ${settings.postLength === 'medium' ? 'selected' : ''}>Medium (150-300 words)</option>
-              <option value="long" ${settings.postLength === 'long' ? 'selected' : ''}>Long (300-500 words)</option>
+              <option value="short" ${settings.postLength === 'short' ? 'selected' : ''}>Short (100-200 words)</option>
+              <option value="medium" ${settings.postLength === 'medium' ? 'selected' : ''}>Medium (200-350 words)</option>
+              <option value="long" ${settings.postLength === 'long' ? 'selected' : ''}>Long (350-500 words)</option>
             </select>
           </div>
         </div>
@@ -232,13 +348,11 @@ export function renderSettingsPage() {
     </div>
   `;
 
-  // Attach event listeners
   attachSettingsListeners(settings);
 }
 
 // ─── Attach Settings Event Listeners ─────────────────────────
 function attachSettingsListeners(settings) {
-  // Save button
   document.getElementById('save-settings-btn')?.addEventListener('click', () => {
     const updated = gatherSettingsFromForm();
     if (saveSettings(updated)) {
@@ -250,7 +364,6 @@ function attachSettingsListeners(settings) {
     }
   });
 
-  // Toggle visibility buttons
   document.querySelectorAll('.toggle-visibility').forEach(btn => {
     btn.addEventListener('click', () => {
       const targetId = btn.dataset.target;
@@ -262,7 +375,6 @@ function attachSettingsListeners(settings) {
     });
   });
 
-  // Radio options
   document.querySelectorAll('.radio-option input[type="radio"]').forEach(radio => {
     radio.addEventListener('change', () => {
       document.querySelectorAll('.radio-option').forEach(opt => opt.classList.remove('active'));
@@ -270,7 +382,6 @@ function attachSettingsListeners(settings) {
     });
   });
 
-  // Add group
   document.getElementById('add-group-btn')?.addEventListener('click', () => {
     const list = document.getElementById('groups-list');
     const index = list.children.length;
@@ -283,19 +394,17 @@ function attachSettingsListeners(settings) {
         <input type="text" class="form-input group-name" value="" 
                placeholder="Group name" data-index="${index}" />
         <input type="text" class="form-input group-url" value="" 
-               placeholder="Facebook group URL" data-index="${index}" />
+               placeholder="Group URL" data-index="${index}" />
         <button class="btn-icon btn-danger remove-group" data-index="${index}" title="Remove">✕</button>
       </div>
     `;
     list.insertAdjacentHTML('beforeend', html);
 
-    // Re-attach remove listeners
     list.lastElementChild.querySelector('.remove-group').addEventListener('click', (e) => {
       e.target.closest('.group-item').remove();
     });
   });
 
-  // Remove group buttons
   document.querySelectorAll('.remove-group').forEach(btn => {
     btn.addEventListener('click', () => {
       btn.closest('.group-item').remove();
@@ -315,19 +424,31 @@ function gatherSettingsFromForm() {
   });
 
   return {
-    openaiApiKey: document.getElementById('openai-key')?.value || '',
+    geminiApiKey: document.getElementById('gemini-key')?.value || '',
+    claudeApiKey: document.getElementById('claude-key')?.value || '',
+    heygenApiKey: document.getElementById('heygen-key')?.value || '',
+    heygenAvatarId: document.getElementById('heygen-avatar')?.value || '',
+    heygenVoiceId: document.getElementById('heygen-voice')?.value || '',
+    manusApiKey: document.getElementById('manus-key')?.value || '',
+    canvaApiToken: document.getElementById('canva-token')?.value || '',
+    canvaPostTemplateId: document.getElementById('canva-template')?.value || '',
     ghlToken: document.getElementById('ghl-token')?.value || '',
     ghlLocationId: document.getElementById('ghl-location')?.value || '',
+    ghlEmailFrom: document.getElementById('ghl-email-from')?.value || '',
     publishMethod: document.querySelector('input[name="publish-method"]:checked')?.value || 'csv',
-    aiModel: document.getElementById('ai-model')?.value || 'gpt-4o',
     facebookGroups: groups,
-    raceCalendarEnabled: document.getElementById('race-calendar-toggle')?.checked || false,
     brandName: document.getElementById('brand-name')?.value || 'Camino Coaching',
-    postLength: document.getElementById('post-length')?.value || 'medium'
+    postLength: document.getElementById('post-length')?.value || 'medium',
+    reviewUrl: document.getElementById('review-url')?.value || '',
+    seasonReviewUrl: document.getElementById('season-review-url')?.value || '',
+    flowProfileUrl: document.getElementById('flow-profile-url')?.value || '',
+    mindsetQuizUrl: document.getElementById('mindset-quiz-url')?.value || '',
+    sleepTestUrl: document.getElementById('sleep-test-url')?.value || '',
+    blueprintUrl: document.getElementById('blueprint-url')?.value || ''
   };
 }
 
-// ─── Toast Helper (imported from app.js context) ──────────────
+// ─── Toast Helper ────────────────────────────────────────────
 function showToast(message, type = 'info') {
   const event = new CustomEvent('show-toast', { detail: { message, type } });
   document.dispatchEvent(event);

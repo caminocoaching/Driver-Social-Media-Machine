@@ -4,9 +4,12 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Driver Social Media Engine — Camino Coaching</title>
+  <title>Driver Social Media Machine — Camino Coaching</title>
+  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png" />
+  <link rel="icon" type="image/png" sizes="16x16" href="favicon-16.png" />
+  <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png" />
   <meta name="description"
-    content="Daily Facebook content generator for race car drivers. Camino Coaching by Craig Muirhead." />
+    content="Weekly Facebook & Instagram content engine for racing drivers. Generate 7 professional posts with AI-powered research. Camino Coaching by Craig Muirhead." />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap"
@@ -18,83 +21,56 @@
   <!-- ─── Toast Container ──────────────────────────────────── -->
   <div id="toast-container"></div>
 
-  <!-- ─── Navigation ───────────────────────────────────────── -->
+  <!-- ─── Clean Minimal Nav ─────────────────────────────────── -->
   <nav class="nav" id="main-nav">
     <div class="nav-inner">
       <div class="nav-brand">
         <span class="nav-logo">🏁</span>
         <div class="nav-brand-text">
-          <span class="nav-title">Driver Social Media Engine</span>
-          <span class="nav-subtitle">Camino Coaching</span>
+          <span class="nav-title">Camino Coaching</span>
+          <span class="nav-subtitle">Driver Social Media Machine</span>
         </div>
       </div>
       <div class="nav-links">
-        <button class="nav-link active" data-page="wizard" id="nav-wizard">
-          <span class="nav-link-icon">🧙‍♂️</span>
-          <span class="nav-link-text">Weekly Wizard</span>
+        <button class="nav-link active" data-page="weekly" id="nav-weekly">
+          <span class="nav-link-text">This Week's 7</span>
         </button>
         <button class="nav-link" data-page="single" id="nav-single">
-          <span class="nav-link-icon">🔍</span>
           <span class="nav-link-text">Single Post</span>
         </button>
-        <button class="nav-link" data-page="settings" id="nav-settings">
-          <span class="nav-link-icon">⚙️</span>
-          <span class="nav-link-text">Settings</span>
-        </button>
       </div>
-      <div class="nav-status" id="nav-status">
-        <span class="status-dot" id="status-dot"></span>
-        <span class="status-text" id="status-text">Ready</span>
+      <div class="nav-right">
+        <div class="nav-status" id="nav-status">
+          <span class="status-dot" id="status-dot"></span>
+          <span class="status-text" id="status-text">Ready</span>
+        </div>
+        <button class="nav-link nav-settings-btn" data-page="settings" id="nav-settings" title="Settings">
+          <span class="nav-link-text">⚙️</span>
+        </button>
       </div>
     </div>
   </nav>
 
   <!-- ─── Main Content ─────────────────────────────────────── -->
   <main class="main">
-    <!-- ═══ WEEKLY WIZARD PAGE ═══ -->
-    <section class="page active" id="wizard-page">
-      <div class="page-header">
-        <div class="page-header-content">
-          <h1>🧙‍♂️ Weekly Wizard</h1>
-          <p class="page-subtitle">Generate 7 days of Facebook posts in minutes. Find topics → Write posts → Export to
-            GHL.</p>
-        </div>
-        <div class="page-header-badges" id="wizard-badges">
-          <!-- Race week badge will be injected here -->
-        </div>
-      </div>
 
-      <!-- Wizard Steps -->
-      <div class="wizard-steps" id="wizard-steps">
-        <div class="wizard-step active" data-step="1">
-          <div class="wizard-step-number">1</div>
-          <div class="wizard-step-label">Find Topics</div>
-        </div>
-        <div class="wizard-step-connector"></div>
-        <div class="wizard-step" data-step="2">
-          <div class="wizard-step-number">2</div>
-          <div class="wizard-step-label">Write Posts</div>
-        </div>
-        <div class="wizard-step-connector"></div>
-        <div class="wizard-step" data-step="3">
-          <div class="wizard-step-number">3</div>
-          <div class="wizard-step-label">Export</div>
-        </div>
-      </div>
+    <!-- ═══════════════════════════════════════════════════════ -->
+    <!-- MODE 1: THIS WEEK'S 7                                  -->
+    <!-- ═══════════════════════════════════════════════════════ -->
+    <section class="page active" id="weekly-page">
+      <div class="hero-section">
+        <h1 class="hero-title">Find this week's 7 stories</h1>
+        <p class="hero-subtitle">AI searches the web for fascinating articles from motorsport, science, culture &
+          sport —
+          then connects each one to the neurochemistry of peak performance.</p>
 
-      <!-- Step 1: Find Topics -->
-      <div class="wizard-content" id="wizard-step-1">
-        <div class="step-header">
-          <h2>Step 1: Find This Week's Topics</h2>
-          <p>AI will generate 7 topic angles — one for each content pillar — using the 3S + 2F framework.</p>
-        </div>
-        <div class="pillar-preview" id="pillar-preview">
-          <!-- Pillar cards will be rendered here -->
-        </div>
-        <div class="step-actions">
-          <button class="btn btn-primary btn-lg" id="find-topics-btn">
+        <!-- Championship Context (auto-populated) -->
+        <div id="calendar-context" class="calendar-context compact"></div>
+
+        <div class="hero-actions">
+          <button class="btn btn-primary btn-hero" id="find-stories-btn">
             <span class="btn-icon-left">🔍</span>
-            Find Topics with AI
+            Find Stories
             <span class="btn-loading" style="display:none;">
               <span class="spinner"></span>
             </span>
@@ -102,122 +78,96 @@
         </div>
       </div>
 
-      <!-- Step 2: Topics Found → Write Posts -->
-      <div class="wizard-content hidden" id="wizard-step-2">
-        <div class="step-header">
-          <h2>Step 2: Review Topics & Write Posts</h2>
-          <p>Review the 7 topics below. Edit any you'd like to change, then generate all posts in parallel.</p>
-        </div>
-        <div class="topics-grid" id="topics-grid">
-          <!-- Topic cards will be rendered here -->
-        </div>
-        <div class="step-actions">
-          <button class="btn btn-secondary" id="back-to-step1">← Back</button>
-          <button class="btn btn-primary btn-lg" id="write-posts-btn">
-            <span class="btn-icon-left">✍️</span>
-            Write All 7 Posts
-            <span class="btn-loading" style="display:none;">
-              <span class="spinner"></span>
-            </span>
-          </button>
-        </div>
-      </div>
-
-      <!-- Step 3: Posts Generated → Review & Export -->
-      <div class="wizard-content hidden" id="wizard-step-3">
-        <div class="step-header">
-          <h2>Step 3: Review & Export</h2>
-          <p>Your 7 posts are ready. Review, edit, or regenerate any post, then export to GHL.</p>
-        </div>
-        <div class="posts-grid" id="posts-grid">
-          <!-- Post cards will be rendered here -->
-        </div>
-        <div class="export-bar" id="export-bar">
-          <div class="export-info">
-            <span class="export-count" id="export-count">7 posts ready</span>
-            <span class="export-schedule" id="export-schedule"></span>
+      <!-- Story Cards (hidden until AI returns results) -->
+      <div class="stories-container hidden" id="stories-container">
+        <div class="stories-header">
+          <h2 class="stories-title">This week's stories</h2>
+          <div class="stories-meta" id="stories-meta">
+            <!-- e.g. "7 stories found · balanced across 5 chemicals" -->
           </div>
-          <div class="export-actions">
-            <button class="btn btn-secondary" id="back-to-step2">← Back to Topics</button>
-            <button class="btn btn-primary btn-lg" id="export-csv-btn">
-              <span class="btn-icon-left">📄</span>
-              Export CSV for GHL
+        </div>
+
+        <div class="stories-list" id="stories-list">
+          <!-- Story cards rendered by JS -->
+        </div>
+
+        <div class="stories-actions">
+          <button class="btn btn-primary btn-hero" id="write-all-btn">
+            <span class="btn-icon-left">✍️</span>
+            Write All 7
+            <span class="btn-loading" style="display:none;">
+              <span class="spinner"></span>
+            </span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Generated Posts (hidden until posts are written) -->
+      <div class="posts-container hidden" id="posts-container">
+        <div class="posts-header">
+          <h2 class="posts-title">Your posts are ready</h2>
+          <div class="posts-actions-bar">
+            <button class="btn btn-secondary" id="export-csv-btn">
+              <span class="btn-icon-left">📄</span> Export CSV
             </button>
-            <button class="btn btn-secondary btn-lg" id="copy-csv-btn">
-              <span class="btn-icon-left">📋</span>
-              Copy CSV
+            <button class="btn btn-secondary" id="copy-csv-btn">
+              <span class="btn-icon-left">📋</span> Copy CSV
+            </button>
+            <button class="btn btn-secondary" id="generate-emails-btn"
+              style="border-color:rgba(218,165,32,0.3);color:var(--gold);">
+              <span class="btn-icon-left">📧</span> Emails
             </button>
             <a href="https://app.gohighlevel.com/v2/location/EwAyQ03cV2yxVYaxnY5S/marketing/social-planner/csv"
-              target="_blank" class="btn btn-secondary btn-lg" id="open-ghl-btn" style="text-decoration:none;">
-              <span class="btn-icon-left">🚀</span>
-              Open GHL Planner
+              target="_blank" class="btn btn-secondary" id="open-ghl-btn" style="text-decoration:none;">
+              <span class="btn-icon-left">🚀</span> Open GHL
             </a>
+            <button class="btn btn-secondary" id="clear-session-btn"
+              style="color: var(--accent); border-color: rgba(255,68,68,0.3); margin-left:auto;">
+              <span class="btn-icon-left">🔄</span> Start Over
+            </button>
           </div>
+        </div>
+        <div class="posts-grid" id="posts-grid">
+          <!-- Post cards rendered by JS -->
         </div>
       </div>
     </section>
 
-    <!-- ═══ SINGLE POST PAGE ═══ -->
+    <!-- ═══════════════════════════════════════════════════════ -->
+    <!-- MODE 2: SINGLE POST                                     -->
+    <!-- ═══════════════════════════════════════════════════════ -->
     <section class="page" id="single-page">
-      <div class="page-header">
-        <h1>🔍 Single Post Generator</h1>
-        <p class="page-subtitle">Generate an ad-hoc post with full control over pillar, framework, and CTA.</p>
-      </div>
+      <div class="hero-section">
+        <h1 class="hero-title">Create a single post</h1>
+        <p class="hero-subtitle">Paste a link, type a quote, or describe something you saw.
+          The AI finds the angle, picks the chemistry, and writes everything.</p>
 
-      <div class="single-post-layout">
-        <!-- Controls -->
-        <div class="single-controls">
-          <div class="control-card">
-            <h3>Content Pillar</h3>
-            <div class="pillar-selector" id="pillar-selector">
-              <!-- Pillar buttons rendered by JS -->
-            </div>
-          </div>
-
-          <div class="control-card">
-            <h3>Framework (3S + 2F)</h3>
-            <div class="framework-selector" id="framework-selector">
-              <!-- Framework buttons rendered by JS -->
-            </div>
-          </div>
-
-          <div class="control-card">
-            <h3>CTA / Lead Magnet</h3>
-            <select class="form-select" id="cta-selector">
-              <option value="auto">🎯 Auto (Seasonal Rotation)</option>
-              <!-- CTA options rendered by JS -->
-            </select>
-          </div>
-
-          <div class="control-card">
-            <h3>Topic / Angle (optional)</h3>
-            <textarea class="form-textarea" id="single-topic" rows="3"
-              placeholder="Enter a specific topic, article headline, or leave blank for AI to choose..."></textarea>
-          </div>
-
-          <button class="btn btn-primary btn-lg btn-full" id="generate-single-btn">
+        <div class="single-input-area">
+          <textarea class="form-textarea single-textarea" id="single-input" rows="3"
+            placeholder='e.g. "Verstappen won at Silverstone today" or paste an article link...'></textarea>
+          <button class="btn btn-primary btn-hero" id="generate-single-btn">
             <span class="btn-icon-left">⚡</span>
-            Generate Post
+            Generate
             <span class="btn-loading" style="display:none;">
               <span class="spinner"></span>
             </span>
           </button>
         </div>
+      </div>
 
-        <!-- Result -->
-        <div class="single-result" id="single-result">
-          <div class="empty-state">
-            <span class="empty-icon">📝</span>
-            <p>Configure your post settings and click Generate</p>
-          </div>
-        </div>
+      <!-- Single post result -->
+      <div class="single-result-container hidden" id="single-result">
+        <!-- Rendered by JS -->
       </div>
     </section>
 
-    <!-- ═══ SETTINGS PAGE ═══ -->
+    <!-- ═══════════════════════════════════════════════════════ -->
+    <!-- SETTINGS (hidden behind gear icon)                      -->
+    <!-- ═══════════════════════════════════════════════════════ -->
     <section class="page" id="settings-page">
       <!-- Rendered by settings.js -->
     </section>
+
   </main>
 
   <!-- ─── Scripts ──────────────────────────────────────────── -->
