@@ -4,6 +4,67 @@
 // ═══════════════════════════════════════════════════════════════
 
 const STORAGE_KEY = 'driver-social-media-machine-settings';
+const ERROR_LOG_KEY = 'driver-social-media-error-log';
+const MAX_LOG_ENTRIES = 100;
+
+// ─── Error Logger ─────────────────────────────────────────────────
+function getErrorLog() {
+  try {
+    return JSON.parse(localStorage.getItem(ERROR_LOG_KEY) || '[]');
+  } catch { return []; }
+}
+
+function saveErrorLog(log) {
+  try {
+    // Keep only the latest MAX_LOG_ENTRIES
+    const trimmed = log.slice(-MAX_LOG_ENTRIES);
+    localStorage.setItem(ERROR_LOG_KEY, JSON.stringify(trimmed));
+  } catch { /* storage full — silently fail */ }
+}
+
+function logError(source, message, extra = '') {
+  const log = getErrorLog();
+  log.push({
+    time: new Date().toISOString(),
+    source,
+    message: String(message).substring(0, 500),
+    extra: String(extra).substring(0, 200)
+  });
+  saveErrorLog(log);
+
+  // Update badge if settings page is visible
+  const badge = document.getElementById('error-log-count');
+  if (badge) badge.textContent = log.length;
+}
+
+export function clearErrorLog() {
+  localStorage.removeItem(ERROR_LOG_KEY);
+}
+
+// ─── Global Error Capture ─────────────────────────────────────────
+window.addEventListener('error', (event) => {
+  logError('JS Error', event.message, `${event.filename}:${event.lineno}`);
+});
+
+window.addEventListener('unhandledrejection', (event) => {
+  const msg = event.reason?.message || event.reason || 'Unknown promise rejection';
+  logError('Promise Rejection', msg);
+});
+
+// Intercept console.error to capture API errors etc.
+const _origConsoleError = console.error;
+console.error = function (...args) {
+  _origConsoleError.apply(console, args);
+  const msg = args.map(a => (typeof a === 'object' ? JSON.stringify(a) : String(a))).join(' ');
+  logError('console.error', msg.substring(0, 500));
+};
+
+// Public API for explicit error logging from other modules
+window.appLog = {
+  error(source, message) { logError(source, message); },
+  getLog() { return getErrorLog(); },
+  clear() { clearErrorLog(); }
+};
 
 const DEFAULT_SETTINGS = {
   geminiApiKey: '',
@@ -68,6 +129,27 @@ export function updateSetting(key, value) {
   const settings = loadSettings();
   settings[key] = value;
   return saveSettings(settings);
+}
+
+// ─── Render Error Log Entries ─────────────────────────────────────
+function renderErrorLogEntries() {
+  const log = getErrorLog();
+  if (log.length === 0) {
+    return '<div style="color:var(--text-muted);text-align:center;padding:1.5rem;font-style:italic;">No errors logged ✅</div>';
+  }
+  return log.slice().reverse().map(entry => {
+    const time = new Date(entry.time);
+    const timeStr = time.toLocaleDateString('en-GB', { day: '2-digit', month: 'short' }) + ' ' + time.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+    const sourceColor = entry.source === 'JS Error' ? '#ef4444' : entry.source === 'Promise Rejection' ? '#f59e0b' : entry.source === 'console.error' ? '#f97316' : '#8b5cf6';
+    const escapedMsg = entry.message.replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    const escapedExtra = entry.extra ? entry.extra.replace(/</g, '&lt;').replace(/>/g, '&gt;') : '';
+    return `<div style="padding:0.35rem 0;border-bottom:1px solid rgba(255,255,255,0.04);">
+      <span style="color:var(--text-muted);">${timeStr}</span>
+      <span style="color:${sourceColor};font-weight:600;margin-left:0.4rem;">[${entry.source}]</span>
+      <span style="color:var(--text-secondary);margin-left:0.3rem;">${escapedMsg}</span>
+      ${escapedExtra ? `<span style="color:var(--text-muted);margin-left:0.3rem;font-size:0.65rem;">(${escapedExtra})</span>` : ''}
+    </div>`;
+  }).join('');
 }
 
 // ─── Render Settings Page ────────────────────────────────────
@@ -348,7 +430,7 @@ export function renderSettingsPage() {
     </div>
 
     <!-- Data Management -->
-    <div class="settings-card full-width" style="margin-top:1.5rem;border-color:rgba(239,68,68,0.15);">
+    <div class="settings-card full-width" style="margin-top:1.5rem;border-color:rgba(218,165,32,0.15);">
       <div class="settings-card-header">
         <span class="settings-icon">🗑️</span>
         <h2>Data Management</h2>
@@ -368,6 +450,21 @@ export function renderSettingsPage() {
             <p class="form-hint" style="margin-top:0.4rem;">Resets the deduplication memory so previously used articles can appear again.</p>
           </div>
         </div>
+      </div>
+    </div>
+
+    <!-- Error Log -->
+    <div class="settings-card full-width" style="margin-top:1.5rem;border-color:rgba(239,68,68,0.15);">
+      <div class="settings-card-header">
+        <span class="settings-icon">📝</span>
+        <h2>Error Log <span id="error-log-count" style="font-size:0.75rem;padding:0.15rem 0.45rem;border-radius:10px;background:rgba(239,68,68,0.15);color:#ef4444;font-weight:700;margin-left:0.4rem;">${getErrorLog().length}</span></h2>
+        <button class="btn-sm btn-accent" id="clear-error-log-btn" style="margin-left:auto;">Clear Log</button>
+      </div>
+      <div class="settings-card-body">
+        <div id="error-log-entries" style="max-height:300px;overflow-y:auto;background:rgba(0,0,0,0.4);border-radius:8px;border:1px solid rgba(255,255,255,0.06);padding:0.5rem;font-family:'SF Mono',Monaco,Consolas,monospace;font-size:0.72rem;line-height:1.5;">
+          ${renderErrorLogEntries()}
+        </div>
+        <p class="form-hint" style="margin-top:0.4rem;">Captures API errors, JS errors, and unhandled promise rejections. Max ${MAX_LOG_ENTRIES} entries. Oldest entries are removed automatically.</p>
       </div>
     </div>
   `;
@@ -458,6 +555,16 @@ function attachSettingsListeners(settings) {
         showToast('Error clearing article history: ' + e.message, 'error');
       }
     }
+  });
+
+  // ─── Error Log Button ──────────────────────────────────────
+  document.getElementById('clear-error-log-btn')?.addEventListener('click', () => {
+    clearErrorLog();
+    const logContainer = document.getElementById('error-log-entries');
+    if (logContainer) logContainer.innerHTML = renderErrorLogEntries();
+    const badge = document.getElementById('error-log-count');
+    if (badge) badge.textContent = '0';
+    showToast('Error log cleared.', 'success');
   });
 }
 
