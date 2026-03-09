@@ -621,13 +621,23 @@ function renderPosts() {
           ${isConfirmed && post._videoNarration ? `
           <div style="border-top:1px solid rgba(255,255,255,0.06);padding:1rem;">
             <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0.5rem;">
-              <span style="font-size:0.8rem;font-weight:700;color:var(--neuro-teal,#00BFA5);">🎬 Video Script (clean TXT)</span>
+              <span style="font-size:0.8rem;font-weight:700;color:var(--neuro-teal,#00BFA5);">🎬 Video Script — Per Slide</span>
               <div style="display:flex;gap:0.4rem;">
-                <button class="post-action-btn" onclick="window.appActions.copyVideoScript(${i})" style="font-size:0.7rem;">📋 Copy Script</button>
+                <button class="post-action-btn" onclick="window.appActions.copyVideoScript(${i})" style="font-size:0.7rem;">📋 Copy All</button>
                 <button class="post-action-btn" onclick="window.appActions.openManusPrompt(${i})" style="font-size:0.7rem;">📊 Manus Prompt</button>
               </div>
             </div>
-            <pre style="white-space:pre-wrap;font-size:0.8rem;line-height:1.7;color:var(--text-primary,#F0F6FC);font-family:var(--font);background:rgba(0,0,0,0.3);padding:1rem;border-radius:8px;border:1px solid rgba(255,255,255,0.06);max-height:300px;overflow-y:auto;">${escapeHtml(post._videoNarration)}</pre>
+            <div style="display:flex;flex-direction:column;gap:0.5rem;">
+              ${(post._videoSections || []).map((sec, si) => `
+              <div style="border:1px solid ${sec.color}22;border-left:3px solid ${sec.color};border-radius:8px;background:rgba(0,0,0,0.25);overflow:hidden;">
+                <div style="display:flex;align-items:center;justify-content:space-between;padding:0.4rem 0.65rem;background:rgba(0,0,0,0.2);border-bottom:1px solid rgba(255,255,255,0.04);">
+                  <span style="font-size:0.7rem;font-weight:700;color:${sec.color};">${sec.icon} Slide ${sec.slide}: ${sec.label} <span style="font-weight:400;opacity:0.6;">(${sec.time})</span></span>
+                  <button class="post-action-btn" onclick="window.appActions.copySlideText(${i}, ${si})" style="font-size:0.65rem;padding:0.15rem 0.5rem;">📋 Copy</button>
+                </div>
+                <div style="padding:0.5rem 0.65rem;font-size:0.78rem;line-height:1.6;color:var(--text-primary,#F0F6FC);white-space:pre-wrap;font-family:var(--font);">${escapeHtml(sec.text) || '<span style=\"color:var(--text-muted);font-style:italic;\">No content</span>'}</div>
+              </div>
+              `).join('')}
+            </div>
           </div>
           ` : ''}
           ${isConfirmed && !post._emailHTML ? `
@@ -646,7 +656,18 @@ function renderPosts() {
               </div>
             </div>
             ${post._shortsLoopNote ? `<div style="margin-bottom:0.5rem;padding:0.35rem 0.6rem;background:rgba(255,107,53,0.06);border-radius:5px;border-left:2px solid #FF6B35;font-size:0.68rem;color:var(--text-muted);">🔄 <strong>Loop:</strong> ${escapeHtml(post._shortsLoopNote)}</div>` : ''}
-            <pre style="white-space:pre-wrap;font-size:0.8rem;line-height:1.7;color:var(--text-primary,#F0F6FC);font-family:var(--font);background:rgba(0,0,0,0.3);padding:1rem;border-radius:8px;border:1px solid rgba(255,107,53,0.15);max-height:300px;overflow-y:auto;">${escapeHtml(post._shortsNarration)}</pre>
+            <div style="display:flex;flex-direction:column;gap:0.5rem;">
+              ${(post._shortsSections || []).map((sec, si) => `
+              <div style="border:1px solid ${sec.color}22;border-left:3px solid ${sec.color};border-radius:8px;background:rgba(0,0,0,0.25);overflow:hidden;">
+                <div style="display:flex;align-items:center;justify-content:space-between;padding:0.4rem 0.65rem;background:rgba(0,0,0,0.2);border-bottom:1px solid rgba(255,255,255,0.04);">
+                  <span style="font-size:0.7rem;font-weight:700;color:${sec.color};">${sec.icon} Slide ${sec.slide}: ${sec.label} <span style="font-weight:400;opacity:0.6;">(${sec.time})</span></span>
+                  <button class="post-action-btn" onclick="window.appActions.copyShortsSlideText(${i}, ${si})" style="font-size:0.65rem;padding:0.15rem 0.5rem;">📋 Copy</button>
+                </div>
+                ${sec.onScreen ? `<div style="padding:0.3rem 0.65rem;font-size:0.7rem;color:var(--text-muted);border-bottom:1px solid rgba(255,255,255,0.03);"><strong>On screen:</strong> ${escapeHtml(sec.onScreen)}</div>` : ''}
+                <div style="padding:0.5rem 0.65rem;font-size:0.78rem;line-height:1.6;color:var(--text-primary,#F0F6FC);white-space:pre-wrap;font-family:var(--font);">${sec.voice ? escapeHtml(sec.voice) : escapeHtml(sec.text) || '<span style=\"color:var(--text-muted);font-style:italic;\">No content</span>'}</div>
+              </div>
+              `).join('')}
+            </div>
           </div>
           ` : ''}
 
@@ -797,6 +818,7 @@ window.appActions = {
 
       const parsed = parseVideoScript(videoScript);
       post._videoNarration = parsed.pureNarration;
+      post._videoSections = parsed.sections;
       post._videoFull = videoScript;
       post._manusPrompt = buildManusPrompt(parsed.slideBrief, chemData, index, topicData);
 
@@ -806,6 +828,7 @@ window.appActions = {
       post._shortsFull = shortsScript;
       post._shortsManusPrompt = buildShortsManusPrompt(shortsParsed.slideBrief, chemData, index, topicData);
       post._shortsLoopNote = shortsParsed.loopNote;
+      post._shortsSections = shortsParsed.shortsSections;
 
       saveSession();
       renderPosts();
@@ -830,7 +853,16 @@ window.appActions = {
 
   copyVideoScript(index) {
     const post = state.posts[index];
-    if (post?._videoNarration) { copyToClipboard(post._videoNarration); showToast('Video script copied!', 'success'); }
+    if (post?._videoNarration) { copyToClipboard(post._videoNarration); showToast('Full video script copied!', 'success'); }
+  },
+
+  copySlideText(postIndex, slideIndex) {
+    const post = state.posts[postIndex];
+    const sec = post?._videoSections?.[slideIndex];
+    if (sec?.text) {
+      copyToClipboard(sec.text);
+      showToast(`Slide ${sec.slide} (${sec.label}) copied!`, 'success');
+    }
   },
 
   openManusPrompt(index) {
@@ -973,6 +1005,16 @@ window.appActions = {
     window.open('https://app.gohighlevel.com/v2/location/EwAyQ03cV2yxVYaxnY5S/media-storage', '_blank');
   },
 
+  copyShortsSlideText(postIndex, slideIndex) {
+    const post = state.posts[postIndex];
+    const sec = post?._shortsSections?.[slideIndex];
+    if (sec) {
+      const text = sec.voice || sec.text;
+      copyToClipboard(text);
+      showToast(`Short slide ${sec.slide} (${sec.label}) copied!`, 'success');
+    }
+  },
+
   copyShortsScript(index) {
     const post = state.posts[index];
     if (post?._shortsNarration) { copyToClipboard(post._shortsNarration); showToast('30-second Short script copied!', 'success'); }
@@ -993,29 +1035,55 @@ window.appActions = {
 // ─── Parse Script into Sections ──────────────────────────────────
 function parseVideoScript(script) {
   // Extract the slide deck brief for Manus
-  const slideBriefMatch = script.match(/=== SLIDE DECK BRIEF[^=]*===([\s\S]*?)(?:===|$)/i);
+  const slideBriefMatch = script.match(/=== SLIDE DECK BRIEF[^=]*===([\\s\\S]*?)(?:===|$)/i);
   const slideBrief = (slideBriefMatch?.[1] || '').trim();
 
   // Extract the video script section
-  const videoScriptMatch = script.match(/=== VIDEO SCRIPT ===([\s\S]*?)(?:=== SLIDE|$)/i);
+  const videoScriptMatch = script.match(/=== VIDEO SCRIPT ===([\\s\\S]*?)(?:=== SLIDE|$)/i);
   const rawVideoScript = (videoScriptMatch?.[1] || script).trim();
 
   // Strip section headers and timestamps to get pure narration text
-  // Removes lines like "HOOK (0-5s):", "THE SCIENCE (15-35s):", etc.
   const pureNarration = rawVideoScript
-    .replace(/^(HOOK|SCENARIO|THE SCIENCE|THE COST|THE BRIDGE|CTA)\s*(\([^)]*\))?\s*:?\s*$/gim, '')
-    .replace(/\n{3,}/g, '\n\n')
+    .replace(/^(HOOK|SCENARIO|THE SCIENCE|THE COST|THE BRIDGE|CTA)\\s*(\\([^)]*\\))?\\s*:?\\s*$/gim, '')
+    .replace(/\\n{3,}/g, '\\n\\n')
     .trim();
 
+  // Extract individual slide sections for per-slide copy
+  const sectionDefs = [
+    { key: 'hook', label: 'HOOK', icon: '🎣', color: '#ef4444', slide: 1, time: '0-5s' },
+    { key: 'scenario', label: 'SCENARIO', icon: '🏎️', color: '#f59e0b', slide: 2, time: '5-15s' },
+    { key: 'science', label: 'THE SCIENCE', icon: '🧬', color: '#00BFA5', slide: 3, time: '15-35s' },
+    { key: 'cost', label: 'THE COST', icon: '⏱️', color: '#8b5cf6', slide: 4, time: '35-45s' },
+    { key: 'bridge', label: 'THE BRIDGE', icon: '🌉', color: '#3b82f6', slide: 5, time: '45-55s' },
+    { key: 'cta', label: 'CTA', icon: '📣', color: '#DAA520', slide: 6, time: '55-60s' }
+  ];
+
+  const sections = [];
+  for (let si = 0; si < sectionDefs.length; si++) {
+    const def = sectionDefs[si];
+    const nextLabel = sectionDefs[si + 1]?.label;
+    let pattern;
+    if (nextLabel) {
+      pattern = new RegExp(def.label + '\\s*(?:\\([^)]*\\))?\\s*:([\\s\\S]*?)(?=' + nextLabel + '\\s*(?:\\([^)]*\\))?\\s*:)', 'i');
+    } else {
+      pattern = new RegExp(def.label + '\\s*(?:\\([^)]*\\))?\\s*:([\\s\\S]*)$', 'i');
+    }
+    const match = rawVideoScript.match(pattern);
+    sections.push({
+      ...def,
+      text: (match?.[1] || '').trim()
+    });
+  }
+
   // Extract social caption
-  const captionMatch = script.match(/=== SOCIAL CAPTION ===([\s\S]*?)(?:===|$)/i);
+  const captionMatch = script.match(/=== SOCIAL CAPTION ===([\\s\\S]*?)(?:===|$)/i);
   const socialCaption = (captionMatch?.[1] || '').trim();
 
   // Extract HeyGen notes
-  const heygenMatch = script.match(/=== HEYGEN NOTES ===([\s\S]*?)(?:===|$)/i);
+  const heygenMatch = script.match(/=== HEYGEN NOTES ===([\\s\\S]*?)(?:===|$)/i);
   const heygenNotes = (heygenMatch?.[1] || '').trim();
 
-  return { slideBrief, pureNarration, socialCaption, heygenNotes, rawVideoScript };
+  return { slideBrief, pureNarration, socialCaption, heygenNotes, rawVideoScript, sections };
 }
 
 // ─── Build Manus Slide Deck Prompt ───────────────────────────────
@@ -1062,35 +1130,65 @@ IMPORTANT:
 // ─── Parse 30-Second Shorts Script ──────────────────────────────────
 function parseShortsScript(script) {
   // Extract the 4-slide brief for Manus
-  const slideBriefMatch = script.match(/=== SHORTS SLIDE BRIEF[^=]*===([\s\S]*?)(?:===|$)/i);
+  const slideBriefMatch = script.match(/=== SHORTS SLIDE BRIEF[^=]*===([\\s\\S]*?)(?:===|$)/i);
   const slideBrief = (slideBriefMatch?.[1] || '').trim();
 
   // Extract the Short script section
-  const shortsMatch = script.match(/=== 30-SECOND SHORT SCRIPT ===([\s\S]*?)(?:=== SHORTS SLIDE|$)/i);
+  const shortsMatch = script.match(/=== 30-SECOND SHORT SCRIPT ===([\\s\\S]*?)(?:=== SHORTS SLIDE|$)/i);
   const rawScript = (shortsMatch?.[1] || script).trim();
 
   // Strip section headers to get pure narration
-  // Extract only the "Voice:" lines for pure narration
-  const voiceLines = rawScript.match(/Voice:\s*(.+)/gi) || [];
+  const voiceLines = rawScript.match(/Voice:\\s*(.+)/gi) || [];
   const pureNarration = voiceLines.length > 0
-    ? voiceLines.map(line => line.replace(/^Voice:\s*/i, '').trim()).join('\n\n')
+    ? voiceLines.map(line => line.replace(/^Voice:\\s*/i, '').trim()).join('\n\n')
     : rawScript
-      .replace(/^(HOOK|THE INSIGHT|THE PROOF|CTA)\s*(\([^)]*\))?\s*\|?\s*(Slide \d+)?\s*:?\s*$/gim, '')
-      .replace(/^On screen:\s*.+$/gim, '')
-      .replace(/^Voice:\s*/gim, '')
-      .replace(/^Total word count:\s*.+$/gim, '')
-      .replace(/\n{3,}/g, '\n\n')
+      .replace(/^(HOOK|THE INSIGHT|THE PROOF|CTA)\\s*(\\([^)]*\\))?\\s*\\|?\\s*(Slide \\d+)?\\s*:?\\s*$/gim, '')
+      .replace(/^On screen:\\s*.+$/gim, '')
+      .replace(/^Voice:\\s*/gim, '')
+      .replace(/^Total word count:\\s*.+$/gim, '')
+      .replace(/\\n{3,}/g, '\\n\\n')
       .trim();
 
+  // Extract individual 4-slide sections for per-slide copy
+  const shortsSectionDefs = [
+    { key: 'hook', label: 'HOOK', icon: '🎣', color: '#ef4444', slide: 1, time: '0-5s' },
+    { key: 'insight', label: 'THE INSIGHT', icon: '🧬', color: '#00BFA5', slide: 2, time: '5-18s' },
+    { key: 'proof', label: 'THE PROOF', icon: '📊', color: '#3b82f6', slide: 3, time: '18-25s' },
+    { key: 'cta', label: 'CTA', icon: '📣', color: '#DAA520', slide: 4, time: '25-30s' }
+  ];
+
+  const shortsSections = [];
+  for (let si = 0; si < shortsSectionDefs.length; si++) {
+    const def = shortsSectionDefs[si];
+    const nextLabel = shortsSectionDefs[si + 1]?.label;
+    let pattern;
+    if (nextLabel) {
+      pattern = new RegExp(def.label + '\\s*(?:\\([^)]*\\))?\\s*(?:\\|[^:]*)?\\s*:([\\s\\S]*?)(?=' + nextLabel + '\\s*(?:\\([^)]*\\))?\\s*(?:\\|[^:]*)?\\s*:)', 'i');
+    } else {
+      pattern = new RegExp(def.label + '\\s*(?:\\([^)]*\\))?\\s*(?:\\|[^:]*)?\\s*:([\\s\\S]*?)(?=Total word count|$)', 'i');
+    }
+    const match = rawScript.match(pattern);
+    const sectionText = (match?.[1] || '').trim();
+    // Extract voice and on-screen text separately
+    const voiceMatch = sectionText.match(/Voice:\\s*(.+)/i);
+    const onScreenMatch = sectionText.match(/On screen:\\s*(.+)/i);
+    shortsSections.push({
+      ...def,
+      text: sectionText,
+      voice: (voiceMatch?.[1] || '').trim(),
+      onScreen: (onScreenMatch?.[1] || '').trim()
+    });
+  }
+
   // Extract loop note
-  const loopMatch = script.match(/=== LOOP NOTE ===([\s\S]*?)(?:===|$)/i);
+  const loopMatch = script.match(/=== LOOP NOTE ===([\\s\\S]*?)(?:===|$)/i);
   const loopNote = (loopMatch?.[1] || '').trim();
 
   // Extract HeyGen notes
-  const heygenMatch = script.match(/=== HEYGEN NOTES ===([\s\S]*?)(?:===|$)/i);
+  const heygenMatch = script.match(/=== HEYGEN NOTES ===([\\s\\S]*?)(?:===|$)/i);
   const heygenNotes = (heygenMatch?.[1] || '').trim();
 
-  return { slideBrief, pureNarration, loopNote, heygenNotes, rawScript };
+  return { slideBrief, pureNarration, loopNote, heygenNotes, rawScript, shortsSections };
 }
 
 // ─── Build Manus Prompt for 30-Second Shorts (4 slides only) ────

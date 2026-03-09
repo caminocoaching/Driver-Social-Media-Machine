@@ -557,11 +557,17 @@ function attachSettingsListeners(settings) {
   });
 
   document.getElementById('clear-dedup-btn')?.addEventListener('click', () => {
-    if (confirm('Clear article history?\n\nThis resets the deduplication memory so previously used articles and hooks can appear again in future searches.')) {
+    const articleCount = JSON.parse(localStorage.getItem('driver-social-media-used-articles') || '[]').length;
+    const hookCount = JSON.parse(localStorage.getItem('driver-social-media-used-hooks') || '[]').length;
+    if (articleCount === 0 && hookCount === 0) {
+      showToast('Article history is already empty — nothing to clear.', 'info');
+      return;
+    }
+    if (confirm(`Clear article history?\n\n${articleCount} used articles and ${hookCount} used hooks will be removed.\nPreviously blocked articles will appear in future searches again.`)) {
       try {
         localStorage.removeItem('driver-social-media-used-articles');
         localStorage.removeItem('driver-social-media-used-hooks');
-        showToast('Article history cleared! Fresh articles will appear in your next search.', 'success');
+        showToast(`Cleared ${articleCount} articles + ${hookCount} hooks. Fresh articles will appear in your next search.`, 'success');
       } catch (e) {
         showToast('Error clearing article history: ' + e.message, 'error');
       }
