@@ -367,12 +367,6 @@ export function renderSettingsPage() {
             </button>
             <p class="form-hint" style="margin-top:0.4rem;">Resets the deduplication memory so previously used articles can appear again.</p>
           </div>
-          <div style="flex:1;min-width:240px;">
-            <button class="btn btn-lg" id="reset-settings-btn" style="background:rgba(239,68,68,0.12);color:#ef4444;border:1px solid rgba(239,68,68,0.3);width:100%;font-weight:700;">
-              ⚠️ Reset All Settings
-            </button>
-            <p class="form-hint" style="margin-top:0.4rem;">Wipes ALL data: API keys, session, article history, and preferences. Cannot be undone.</p>
-          </div>
         </div>
       </div>
     </div>
@@ -462,23 +456,6 @@ function attachSettingsListeners(settings) {
         showToast('Article history cleared! Fresh articles will appear in your next search.', 'success');
       } catch (e) {
         showToast('Error clearing article history: ' + e.message, 'error');
-      }
-    }
-  });
-
-  document.getElementById('reset-settings-btn')?.addEventListener('click', () => {
-    if (confirm('⚠️ RESET ALL SETTINGS?\n\nThis will permanently delete:\n• All API keys (Gemini, Claude, HeyGen, Manus, Canva, GHL)\n• Current session (stories, posts, scripts)\n• Article deduplication history\n• All preferences\n\nThis cannot be undone.')) {
-      if (confirm('Are you absolutely sure? This wipes everything.')) {
-        try {
-          localStorage.removeItem(STORAGE_KEY);
-          localStorage.removeItem('driverSocialMedia_session');
-          localStorage.removeItem('driver-social-media-used-articles');
-          localStorage.removeItem('driver-social-media-used-hooks');
-          showToast('All data reset to defaults. Reloading...', 'success');
-          setTimeout(() => window.location.reload(), 1000);
-        } catch (e) {
-          showToast('Error resetting: ' + e.message, 'error');
-        }
       }
     }
   });
