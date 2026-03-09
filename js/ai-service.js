@@ -229,17 +229,26 @@ RULES:
 - At least 1 story should come from the wearable tech / health data world
 - "Outside the paddock" stories must still bridge back to what a racing driver experiences on track
 
+=== URL AND TITLE ACCURACY ===
+
+- Use the accurate article title from the source. Do not invent or heavily paraphrase titles.
+- Provide the real URL from your search results. Do not fabricate or simulate URLs.
+- If no URL is available for a story, use an empty string "" for articleUrl.
+
 Return a JSON array with 7 objects:
 [
   {
     "pillarId": "${pillars[0]?.id || 'flow-state-confidence'}",
     "headline": "Compelling headline connecting the story to driver mental performance",
-    "sourceArticle": "Article title — Publication",
-    "articleUrl": "URL",
+    "sourceArticle": "Accurate article title from the website",
+    "articleUrl": "Real URL from your search results (never fabricated)",
+    "source": "Publication name | Date published",
+    "summary": "3 sentences describing the key finding of the article",
     "talkingPoints": ["Point 1", "Point 2", "Point 3"],
+    "killerDataPoint": "The specific number, percentage, measurement, or direct quote that makes this article valuable. Must be concrete.",
     "emotionalHook": "What should the racing driver feel?",
     "mechanism": "Neuroscience mechanism referenced",
-    "racingRelevance": "One sentence connecting to car racing on track",
+    "racingRelevance": "One sentence connecting to car racing on track, using car racing language (turn, apex, braking zone, throttle, steering input, the car, cockpit, harness, pit wall)",
     "contentBrief": "Type of post"
   }
 ]
@@ -661,6 +670,31 @@ async function callGeminiWithSearch(prompt, apiKey, parseJson = true) {
         }
     }
 
+    // Extract REAL URLs from Gemini's grounding metadata
+    const groundingChunks = [];
+    try {
+        const gm = data.candidates?.[0]?.groundingMetadata;
+        console.log('[Gemini] groundingMetadata keys:', gm ? Object.keys(gm) : 'NONE');
+        if (gm?.groundingChunks) {
+            for (const chunk of gm.groundingChunks) {
+                if (chunk.web?.uri) {
+                    groundingChunks.push({ uri: chunk.web.uri, title: chunk.web.title || '' });
+                }
+            }
+        }
+        if (gm?.groundingSupports) {
+            for (const support of gm.groundingSupports) {
+                if (support.groundingChunkIndices) {
+                    console.log(`[Gemini] Support: "${(support.segment?.text || '').substring(0, 80)}" → chunks: [${support.groundingChunkIndices.join(', ')}]`);
+                }
+            }
+        }
+    } catch (e) {
+        console.warn('[Gemini] Error extracting grounding metadata:', e);
+    }
+
+    console.log(`[Gemini] Found ${groundingChunks.length} grounding chunks:`, groundingChunks.map(c => c.uri));
+
     // Strip markdown code fences if present
     content = content.replace(/```json\s*/gi, '').replace(/```\s*/g, '').trim();
 
@@ -668,15 +702,167 @@ async function callGeminiWithSearch(prompt, apiKey, parseJson = true) {
         const blockReason = data.candidates?.[0]?.finishReason;
         const safetyRatings = data.candidates?.[0]?.safetyRatings;
         console.error('[Gemini] No content. Finish reason:', blockReason, 'Safety:', safetyRatings);
+
+        // Auto-retry on RECITATION block (Gemini thinks response is too close to copyrighted text)
+        if (blockReason === 'RECITATION' && !prompt.includes('[RETRY]')) {
+            console.warn('[Gemini] RECITATION block — retrying with softer prompt...');
+            const retryPrompt = prompt.replace(/copy.*?word.for.word/gi, 'use the accurate title')
+                .replace(/EXACT/g, 'accurate')
+                .replace(/never fabricat/gi, 'do not fabricat') + '\n\n[RETRY] Summarise your findings in your own words. Do not quote large blocks of text from articles.';
+            return callGeminiWithSearch(retryPrompt, apiKey, parseJson);
+        }
+
         throw new Error(`No content from Gemini (reason: ${blockReason || 'unknown'}). Try again.`);
     }
-
-    console.log('[Gemini] Parsed content preview:', content.substring(0, 200));
 
     if (parseJson) {
         try {
             const jsonMatch = content.match(/\[[\s\S]*\]/);
-            return jsonMatch ? JSON.parse(jsonMatch[0]) : JSON.parse(content);
+            let parsed = jsonMatch ? JSON.parse(jsonMatch[0]) : JSON.parse(content);
+
+            if (Array.isArray(parsed)) {
+                // Remove YouTube from grounding chunks
+                const cleanChunks = groundingChunks.filter(gc =>
+                    !gc.uri.includes('youtube.com') && !gc.uri.includes('youtu.be')
+                );
+                const usedChunkIdxs = new Set();
+
+                console.log(`[URL] ${cleanChunks.length} grounding chunks available (YouTube filtered):`);
+                cleanChunks.forEach((c, i) => console.log(`  [${i}] ${c.uri} — "${c.title}"`));
+
+                // Helper: compute word similarity score between two strings
+                const wordSimilarity = (textA, textB) => {
+                    const stopWords = new Set(['the', 'and', 'for', 'that', 'this', 'with', 'from', 'was', 'are', 'has', 'have', 'its', 'been', 'were', 'will', 'their', 'what', 'when', 'how', 'not', 'but', 'they', 'about', 'more', 'than', 'into', 'over', 'also', 'after', 'just', 'most', 'only', 'some', 'very', 'could', 'would', 'should', 'which', 'where', 'other', 'each', 'both', 'does', 'here', 'there', 'even', 'your', 'said', 'like', 'made', 'back', 'much']);
+                    const wordsA = textA.toLowerCase().replace(/[^a-z0-9\s]/g, '').split(/\s+/).filter(w => w.length > 2 && !stopWords.has(w));
+                    const wordsB = textB.toLowerCase().replace(/[^a-z0-9\s]/g, '').split(/\s+/).filter(w => w.length > 2 && !stopWords.has(w));
+                    if (wordsA.length === 0 || wordsB.length === 0) return 0;
+                    const overlap = wordsA.filter(w => wordsB.includes(w)).length;
+                    return overlap / Math.max(Math.min(wordsA.length, wordsB.length), 1);
+                };
+
+                // Score ALL stories against ALL chunks, then assign best matches
+                const storyScores = parsed.map((item, idx) => {
+                    const url = item.articleUrl || '';
+
+                    // Strip YouTube
+                    if (url.includes('youtube.com') || url.includes('youtu.be')) {
+                        item.articleUrl = '';
+                    }
+
+                    // If Gemini provided a valid, real URL — keep it
+                    if (item.articleUrl && !item.articleUrl.includes('grounding-api-redirect') &&
+                        !item.articleUrl.includes('googleapis.com') &&
+                        (item.articleUrl.startsWith('http://') || item.articleUrl.startsWith('https://'))) {
+                        item.urlMatchMethod = 'gemini-direct';
+                        console.log(`[URL] Story ${idx + 1}: ✅ Gemini-provided URL → ${item.articleUrl}`);
+                        for (let ci = 0; ci < cleanChunks.length; ci++) {
+                            if (cleanChunks[ci].uri === item.articleUrl) {
+                                usedChunkIdxs.add(ci);
+                                item.groundingTitle = cleanChunks[ci].title || '';
+                                break;
+                            }
+                        }
+                        return null;
+                    }
+
+                    // Build combined text for matching
+                    const storyText = `${item.headline || ''} ${item.sourceArticle || ''} ${item.emotionalHook || ''} ${item.racingRelevance || ''}`;
+
+                    // Score each chunk
+                    const chunkScores = cleanChunks.map((chunk, ci) => {
+                        const chunkText = `${chunk.title || ''}`;
+                        const chunkUri = chunk.uri || '';
+
+                        let score = 0;
+                        let method = '';
+
+                        // Domain match
+                        try {
+                            const domain = new URL(chunkUri).hostname.replace('www.', '').split('.')[0];
+                            const srcLower = (item.sourceArticle || '').toLowerCase().replace(/[\s\-\.]/g, '');
+                            if (domain.length > 2 && srcLower.includes(domain)) {
+                                score += 0.5;
+                                method = 'domain-match';
+                            }
+                        } catch { }
+
+                        // Title similarity
+                        const titleScore = wordSimilarity(storyText, chunkText);
+                        score += titleScore;
+                        if (titleScore > 0.3 && !method) method = 'title-match';
+
+                        // URL path keyword match
+                        try {
+                            const pathWords = new URL(chunkUri).pathname.toLowerCase().replace(/[^a-z0-9\s]/g, ' ').split(/\s+/).filter(w => w.length > 3);
+                            const headWords = (item.headline || '').toLowerCase().replace(/[^a-z0-9\s]/g, '').split(/\s+/).filter(w => w.length > 3);
+                            const pathOverlap = headWords.filter(w => pathWords.some(pw => pw.includes(w) || w.includes(pw))).length;
+                            if (pathOverlap > 0) {
+                                score += pathOverlap * 0.15;
+                                if (!method) method = 'path-match';
+                            }
+                        } catch { }
+
+                        if (!method && score > 0) method = 'fuzzy-match';
+
+                        return { ci, score, method, chunkTitle: chunk.title || '', chunkUri };
+                    });
+
+                    return { idx, chunkScores: chunkScores.sort((a, b) => b.score - a.score) };
+                }).filter(Boolean);
+
+                // Assign best matches, prioritising highest scores first
+                storyScores.sort((a, b) => (b.chunkScores[0]?.score || 0) - (a.chunkScores[0]?.score || 0));
+
+                for (const story of storyScores) {
+                    const item = parsed[story.idx];
+                    let assigned = false;
+
+                    for (const cs of story.chunkScores) {
+                        if (usedChunkIdxs.has(cs.ci)) continue;
+                        if (cs.score <= 0) continue;
+
+                        usedChunkIdxs.add(cs.ci);
+                        item.articleUrl = cs.chunkUri;
+                        item.groundingTitle = cs.chunkTitle;
+                        item.urlMatchScore = cs.score;
+
+                        if (cs.method === 'domain-match' || cs.score >= 0.5) {
+                            item.urlMatchMethod = 'domain-match';
+                        } else if (cs.score >= 0.25) {
+                            item.urlMatchMethod = 'title-match';
+                        } else {
+                            item.urlMatchMethod = 'best-guess';
+                        }
+
+                        console.log(`[URL] Story ${story.idx + 1}: ${cs.score >= 0.25 ? '✅' : '🟡'} ${item.urlMatchMethod} (score: ${cs.score.toFixed(2)}) → ${cs.chunkUri}`);
+                        assigned = true;
+                        break;
+                    }
+
+                    if (!assigned) {
+                        for (let ci = 0; ci < cleanChunks.length; ci++) {
+                            if (!usedChunkIdxs.has(ci)) {
+                                usedChunkIdxs.add(ci);
+                                item.articleUrl = cleanChunks[ci].uri;
+                                item.groundingTitle = cleanChunks[ci].title || '';
+                                item.urlMatchMethod = 'best-guess';
+                                item.urlMatchScore = 0;
+                                console.warn(`[URL] Story ${story.idx + 1}: 🟡 best-guess → ${cleanChunks[ci].uri}`);
+                                assigned = true;
+                                break;
+                            }
+                        }
+                    }
+
+                    if (!assigned) {
+                        item.articleUrl = '';
+                        item.urlMatchMethod = 'unverified';
+                        console.warn(`[URL] Story ${story.idx + 1}: ⚠️ No grounding chunk available`);
+                    }
+                }
+            }
+
+            return parsed;
         } catch (e) {
             console.error('[Gemini] JSON parse failed. Content:', content.substring(0, 500));
             throw new Error('Failed to parse Gemini response as JSON. Try again.');

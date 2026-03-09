@@ -164,6 +164,7 @@ function showToast(message, type = 'info') {
         setTimeout(() => toast.remove(), 300);
     }, 4000);
 }
+window.showToast = showToast;
 
 
 // ─── Navigation (2 modes + settings) ──────────────────────────
@@ -331,9 +332,29 @@ function renderStoryCards() {
 
     container.innerHTML = state.stories.map((story, i) => {
         const chem = story.chemical || {};
-        const source = story.sourceUrl
-            ? new URL(story.sourceUrl).hostname.replace('www.', '')
-            : story.source || '';
+        const articleTitle = story.sourceArticle || '';
+        const articleUrl = story.articleUrl || story.sourceUrl || '';
+        const sourceDomain = articleUrl ? (() => { try { return new URL(articleUrl).hostname.replace('www.', ''); } catch { return ''; } })() : '';
+        const urlMatch = story.urlMatchMethod || (articleUrl ? 'gemini-direct' : 'unverified');
+        const dayNames = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+
+        // Match confidence badge
+        const matchBadges = {
+            'gemini-direct': { label: '✅ Direct', color: '#2EA043', tip: 'URL provided directly by Gemini search' },
+            'domain-match': { label: '🔗 Domain', color: '#00BFA5', tip: 'URL matched by domain name in source' },
+            'title-match': { label: '🔍 Keywords', color: '#DAA520', tip: 'URL matched by title keywords' },
+            'best-guess': { label: '🟡 Best Guess', color: '#E8912A', tip: 'Best available URL — verify before using' },
+            'unverified': { label: '⚠️ No URL', color: '#E84444', tip: 'No URL could be matched from search results' }
+        };
+        const badge = matchBadges[urlMatch] || matchBadges['unverified'];
+
+        // Check if grounding title differs from Gemini's sourceArticle
+        const groundingTitle = story.groundingTitle || '';
+        const titleMismatch = groundingTitle && articleTitle &&
+            groundingTitle.toLowerCase().replace(/[^a-z0-9]/g, '') !== articleTitle.toLowerCase().replace(/[^a-z0-9]/g, '');
+
+        // Summary: use summary field, or join talkingPoints
+        const summaryText = story.summary || (story.talkingPoints?.length ? story.talkingPoints.join('. ') + '.' : '');
 
         return `
       <div class="story-card" data-index="${i}">
@@ -347,13 +368,77 @@ function renderStoryCards() {
           <span class="story-tag pillar" style="color:${story.pillar?.color || '#888'};">
             ${story.pillar?.icon || ''} ${story.pillar?.name || ''}
           </span>
+          <span style="font-size:0.62rem;color:var(--text-muted);margin-left:auto;">${dayNames[i] || `Day ${i + 1}`}</span>
         </div>
-        <div class="story-card-body">
-          <h3 class="story-headline">${escapeHtml(story.headline || story.topic || '')}</h3>
-          ${story.angle ? `<p class="story-angle">${escapeHtml(story.angle)}</p>` : ''}
-          <div class="story-source">${escapeHtml(source)}</div>
+
+        <div class="story-card-body" style="padding:0.6rem 0.8rem;">
+          <!-- HEADLINE -->
+          <h3 class="story-headline" style="margin:0 0 0.5rem;font-size:0.95rem;line-height:1.3;">${escapeHtml(story.headline || story.topic || '')}</h3>
+
+          <!-- ARTICLE -->
+          <div style="margin-bottom:0.35rem;">
+            <span style="font-size:0.68rem;font-weight:700;color:var(--neuro-teal,#00BFA5);letter-spacing:0.5px;">ARTICLE:</span>
+            <span style="font-size:0.75rem;color:var(--text-primary);margin-left:0.3rem;">${escapeHtml(articleTitle || groundingTitle || 'No article title')}</span>
+          </div>
+
+          <!-- URL -->
+          <div style="margin-bottom:0.35rem;display:flex;align-items:center;gap:0.4rem;flex-wrap:wrap;">
+            <span style="font-size:0.68rem;font-weight:700;color:var(--neuro-teal,#00BFA5);letter-spacing:0.5px;">URL:</span>
+            ${articleUrl ? `
+              <a href="${escapeHtml(articleUrl)}" target="_blank" rel="noopener" style="font-size:0.7rem;color:var(--neuro-teal,#00BFA5);word-break:break-all;text-decoration:underline;" onclick="event.stopPropagation();">${escapeHtml(articleUrl.length > 70 ? articleUrl.substring(0, 70) + '...' : articleUrl)}</a>
+            ` : `<span style="font-size:0.7rem;color:var(--text-muted);font-style:italic;">No URL found</span>`}
+            <span style="font-size:0.58rem;padding:0.1rem 0.3rem;border-radius:3px;background:${badge.color}18;color:${badge.color};border:1px solid ${badge.color}30;font-weight:600;" title="${badge.tip}">${badge.label}</span>
+          </div>
+
+          ${titleMismatch ? `
+          <div style="margin-bottom:0.35rem;padding:0.25rem 0.5rem;background:rgba(232,145,42,0.08);border-radius:4px;border-left:2px solid #E8912A;">
+            <span style="font-size:0.62rem;color:#E8912A;font-weight:700;">🔍 REAL TITLE:</span>
+            <span style="font-size:0.68rem;color:var(--text-secondary);font-style:italic;margin-left:0.2rem;">${escapeHtml(groundingTitle)}</span>
+          </div>` : ''}
+
+          <!-- SOURCE -->
+          ${story.source ? `
+          <div style="margin-bottom:0.35rem;">
+            <span style="font-size:0.68rem;font-weight:700;color:var(--neuro-teal,#00BFA5);letter-spacing:0.5px;">SOURCE:</span>
+            <span style="font-size:0.72rem;color:var(--text-secondary);margin-left:0.3rem;">${escapeHtml(story.source)}</span>
+          </div>` : (sourceDomain ? `
+          <div style="margin-bottom:0.35rem;">
+            <span style="font-size:0.68rem;font-weight:700;color:var(--neuro-teal,#00BFA5);letter-spacing:0.5px;">SOURCE:</span>
+            <span style="font-size:0.72rem;color:var(--text-secondary);margin-left:0.3rem;">${escapeHtml(sourceDomain)}</span>
+          </div>` : '')}
+
+          <!-- SUMMARY -->
+          ${summaryText ? `
+          <div style="margin-bottom:0.35rem;">
+            <span style="font-size:0.68rem;font-weight:700;color:var(--neuro-teal,#00BFA5);letter-spacing:0.5px;">SUMMARY:</span>
+            <p style="font-size:0.72rem;color:var(--text-secondary);line-height:1.5;margin:0.15rem 0 0;">${escapeHtml(summaryText)}</p>
+          </div>` : ''}
+
+          <!-- KILLER DATA POINT -->
+          ${story.killerDataPoint ? `
+          <div style="margin-bottom:0.35rem;padding:0.3rem 0.5rem;background:rgba(218,165,32,0.08);border-radius:4px;border-left:2px solid var(--gold,#DAA520);">
+            <span style="font-size:0.68rem;font-weight:700;color:var(--gold,#DAA520);letter-spacing:0.5px;">📊 KILLER DATA POINT:</span>
+            <p style="font-size:0.72rem;color:var(--gold,#DAA520);line-height:1.4;margin:0.15rem 0 0;font-weight:600;">"${escapeHtml(story.killerDataPoint)}"</p>
+          </div>` : ''}
+
+          <!-- RACING RELEVANCE -->
+          ${story.racingRelevance ? `
+          <div style="margin-bottom:0.2rem;padding:0.3rem 0.5rem;background:rgba(0,191,165,0.06);border-radius:4px;border-left:2px solid var(--neuro-teal,#00BFA5);">
+            <span style="font-size:0.68rem;font-weight:700;color:var(--neuro-teal,#00BFA5);letter-spacing:0.5px;">🏁 RACING RELEVANCE:</span>
+            <p style="font-size:0.72rem;color:var(--text-secondary);line-height:1.4;margin:0.15rem 0 0;font-style:italic;">${escapeHtml(story.racingRelevance)}</p>
+          </div>` : ''}
+
+          <!-- MECHANISM -->
+          ${story.mechanism ? `
+          <div style="margin-top:0.2rem;">
+            <span style="font-size:0.62rem;color:var(--text-muted);">🧠 ${escapeHtml(story.mechanism)}</span>
+          </div>` : ''}
         </div>
+
         <div class="story-card-actions">
+          <button class="story-generate-btn" onclick="window.appActions.regenerateStory && window.appActions.regenerateStory(${i})" style="font-size:0.7rem;padding:0.3rem 0.6rem;background:none;border:1px solid var(--border);color:var(--text-muted);" title="Find a different story for this slot">
+            🔄 Swap
+          </button>
           <button class="story-generate-btn" onclick="window.appActions.generateStory(${i})">
             Generate →
           </button>
@@ -549,6 +634,23 @@ function renderPosts() {
           <div style="border-top:1px solid rgba(255,255,255,0.06);padding:1.5rem;text-align:center;">
             <div style="font-size:0.8rem;color:var(--text-muted);" id="confirm-status-${i}">⏳ Generating email + video script...</div>
           </div>
+          ` : ''}
+
+          ${isConfirmed ? `
+          <!-- 🚀 LAUNCH LINKS -->
+          <div style="border-top:1px solid rgba(255,255,255,0.06);padding:0.6rem 1rem;display:flex;gap:0.5rem;flex-wrap:wrap;align-items:center;">
+            <span style="font-size:0.72rem;font-weight:700;color:var(--text-muted);">🚀 NEXT:</span>
+            <a href="https://manus.im/app/project/9SDGQdQC5wMtzPWss5vc4K" target="_blank" rel="noopener" style="font-size:0.72rem;padding:0.25rem 0.6rem;background:rgba(0,191,165,0.12);color:var(--neuro-teal,#00BFA5);border:1px solid rgba(0,191,165,0.3);border-radius:5px;text-decoration:none;font-weight:700;">🎨 Manus Slides</a>
+            <a href="https://app.heygen.com/avatar/ppt-to-video" target="_blank" rel="noopener" style="font-size:0.72rem;padding:0.25rem 0.6rem;background:rgba(218,165,32,0.12);color:var(--gold,#DAA520);border:1px solid rgba(218,165,32,0.3);border-radius:5px;text-decoration:none;font-weight:700;">🎬 HeyGen Video</a>
+            <a href="https://app.gohighlevel.com/v2/location/vdgR8teGuIgHPMPzbQkK/marketing/social-planner" target="_blank" rel="noopener" style="font-size:0.72rem;padding:0.25rem 0.6rem;background:rgba(46,160,67,0.12);color:var(--green,#2EA043);border:1px solid rgba(46,160,67,0.3);border-radius:5px;text-decoration:none;font-weight:700;">📱 GHL Planner</a>
+          </div>
+          <!-- 🔗 Source URL for Manus -->
+          ${topicData.articleUrl ? `
+          <div style="border-top:1px solid rgba(255,255,255,0.06);padding:0.4rem 1rem;display:flex;align-items:center;gap:0.5rem;">
+            <span style="font-size:0.66rem;color:var(--neuro-teal,#00BFA5);font-weight:700;">🔗 Article URL for Manus:</span>
+            <a href="${escapeHtml(topicData.articleUrl)}" target="_blank" rel="noopener" style="font-size:0.66rem;color:var(--text-secondary);flex:1;word-break:break-all;text-decoration:underline;">${escapeHtml(topicData.articleUrl)}</a>
+            <button class="post-action-btn" onclick="navigator.clipboard.writeText('${escapeHtml(topicData.articleUrl)}');window.showToast && window.showToast('URL copied!','success')" style="font-size:0.62rem;">📋</button>
+          </div>` : ''}
           ` : ''}
         </div>
       </div>
