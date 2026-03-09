@@ -837,8 +837,39 @@ async function callGeminiWithSearch(prompt, apiKey, parseJson = true) {
 
     if (parseJson) {
         try {
-            const jsonMatch = content.match(/\[[\s\S]*\]/);
-            let parsed = jsonMatch ? JSON.parse(jsonMatch[0]) : JSON.parse(content);
+            // Try multiple approaches to extract JSON array
+            let parsed;
+
+            // Approach 1: Direct parse (cleanest)
+            try { parsed = JSON.parse(content); } catch { }
+
+            // Approach 2: Find JSON array with balanced brackets
+            if (!parsed) {
+                const arrStart = content.indexOf('[');
+                if (arrStart !== -1) {
+                    let depth = 0;
+                    let arrEnd = -1;
+                    for (let i = arrStart; i < content.length; i++) {
+                        if (content[i] === '[') depth++;
+                        else if (content[i] === ']') { depth--; if (depth === 0) { arrEnd = i; break; } }
+                    }
+                    if (arrEnd > arrStart) {
+                        try { parsed = JSON.parse(content.substring(arrStart, arrEnd + 1)); } catch { }
+                    }
+                }
+            }
+
+            // Approach 3: Greedy regex fallback
+            if (!parsed) {
+                const jsonMatch = content.match(/\[[\s\S]*\]/);
+                if (jsonMatch) {
+                    try { parsed = JSON.parse(jsonMatch[0]); } catch { }
+                }
+            }
+
+            if (!parsed) {
+                throw new Error('Could not extract JSON from Gemini response');
+            }
 
             if (Array.isArray(parsed)) {
                 // Remove YouTube from grounding chunks

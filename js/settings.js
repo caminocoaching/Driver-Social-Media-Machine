@@ -55,7 +55,18 @@ window.addEventListener('unhandledrejection', (event) => {
 const _origConsoleError = console.error;
 console.error = function (...args) {
   _origConsoleError.apply(console, args);
-  const msg = args.map(a => (typeof a === 'object' ? JSON.stringify(a) : String(a))).join(' ');
+  const msg = args.map(a => {
+    if (a instanceof Error) return `${a.name}: ${a.message}`;
+    if (typeof a === 'object' && a !== null) {
+      try {
+        if (a.message) return `${a.name || 'Error'}: ${a.message}`;
+        if (a.error?.message) return `API Error: ${a.error.message}`;
+        const s = JSON.stringify(a);
+        return s === '{}' ? Object.prototype.toString.call(a) : s;
+      } catch { return String(a); }
+    }
+    return String(a);
+  }).join(' ');
   logError('console.error', msg.substring(0, 500));
 };
 
