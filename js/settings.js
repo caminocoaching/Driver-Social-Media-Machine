@@ -346,6 +346,36 @@ export function renderSettingsPage() {
       </button>
       <span class="save-status" id="save-status"></span>
     </div>
+
+    <!-- Data Management -->
+    <div class="settings-card full-width" style="margin-top:1.5rem;border-color:rgba(239,68,68,0.15);">
+      <div class="settings-card-header">
+        <span class="settings-icon">🗑️</span>
+        <h2>Data Management</h2>
+      </div>
+      <div class="settings-card-body">
+        <div style="display:flex;gap:1rem;flex-wrap:wrap;align-items:flex-start;">
+          <div style="flex:1;min-width:240px;">
+            <button class="btn btn-lg" id="clear-session-btn" style="background:rgba(218,165,32,0.12);color:var(--gold,#DAA520);border:1px solid rgba(218,165,32,0.3);width:100%;font-weight:700;">
+              🔄 Clear Current Session
+            </button>
+            <p class="form-hint" style="margin-top:0.4rem;">Clears this week's stories, posts, and generated content. API keys and settings are kept.</p>
+          </div>
+          <div style="flex:1;min-width:240px;">
+            <button class="btn btn-lg" id="clear-dedup-btn" style="background:rgba(139,92,246,0.12);color:#8B5CF6;border:1px solid rgba(139,92,246,0.3);width:100%;font-weight:700;">
+              📰 Clear Article History
+            </button>
+            <p class="form-hint" style="margin-top:0.4rem;">Resets the deduplication memory so previously used articles can appear again.</p>
+          </div>
+          <div style="flex:1;min-width:240px;">
+            <button class="btn btn-lg" id="reset-settings-btn" style="background:rgba(239,68,68,0.12);color:#ef4444;border:1px solid rgba(239,68,68,0.3);width:100%;font-weight:700;">
+              ⚠️ Reset All Settings
+            </button>
+            <p class="form-hint" style="margin-top:0.4rem;">Wipes ALL data: API keys, session, article history, and preferences. Cannot be undone.</p>
+          </div>
+        </div>
+      </div>
+    </div>
   `;
 
   attachSettingsListeners(settings);
@@ -409,6 +439,48 @@ function attachSettingsListeners(settings) {
     btn.addEventListener('click', () => {
       btn.closest('.group-item').remove();
     });
+  });
+
+  // ─── Data Management Buttons ──────────────────────────────
+  document.getElementById('clear-session-btn')?.addEventListener('click', () => {
+    if (confirm('Clear current session?\n\nThis will remove this week\'s stories, posts, and generated content (email, video scripts, Shorts).\n\nYour API keys and settings will be kept.')) {
+      try {
+        localStorage.removeItem('driverSocialMedia_session');
+        showToast('Session cleared! Refresh the page to start fresh.', 'success');
+        setTimeout(() => window.location.reload(), 1000);
+      } catch (e) {
+        showToast('Error clearing session: ' + e.message, 'error');
+      }
+    }
+  });
+
+  document.getElementById('clear-dedup-btn')?.addEventListener('click', () => {
+    if (confirm('Clear article history?\n\nThis resets the deduplication memory so previously used articles and hooks can appear again in future searches.')) {
+      try {
+        localStorage.removeItem('driver-social-media-used-articles');
+        localStorage.removeItem('driver-social-media-used-hooks');
+        showToast('Article history cleared! Fresh articles will appear in your next search.', 'success');
+      } catch (e) {
+        showToast('Error clearing article history: ' + e.message, 'error');
+      }
+    }
+  });
+
+  document.getElementById('reset-settings-btn')?.addEventListener('click', () => {
+    if (confirm('⚠️ RESET ALL SETTINGS?\n\nThis will permanently delete:\n• All API keys (Gemini, Claude, HeyGen, Manus, Canva, GHL)\n• Current session (stories, posts, scripts)\n• Article deduplication history\n• All preferences\n\nThis cannot be undone.')) {
+      if (confirm('Are you absolutely sure? This wipes everything.')) {
+        try {
+          localStorage.removeItem(STORAGE_KEY);
+          localStorage.removeItem('driverSocialMedia_session');
+          localStorage.removeItem('driver-social-media-used-articles');
+          localStorage.removeItem('driver-social-media-used-hooks');
+          showToast('All data reset to defaults. Reloading...', 'success');
+          setTimeout(() => window.location.reload(), 1000);
+        } catch (e) {
+          showToast('Error resetting: ' + e.message, 'error');
+        }
+      }
+    }
   });
 }
 
