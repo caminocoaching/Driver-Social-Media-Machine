@@ -25,7 +25,8 @@ import {
 import {
     NEUROCHEMICALS, FLOW_COCKTAIL, VIDEO_SCRIPT_TEMPLATE, SLIDE_DECK_SPECS,
     HEYGEN_SPECS, WEEKLY_VIDEO_SCHEDULE, VIDEO_TOPICS,
-    getChemical, buildVideoScriptContext, buildWowHowInstruction
+    SHORTS_SCRIPT_TEMPLATE, SHORTS_SLIDE_SPECS, SHORTS_HOOK_STYLES, SHORTS_CTA_VARIANTS,
+    getChemical, buildVideoScriptContext, buildShortsScriptContext, buildWowHowInstruction
 } from './neurochemistry.js';
 
 // ─── Master System Prompt (Racing Drivers FB/IG) ──────────────
@@ -525,6 +526,121 @@ Slide 8 — CTA: [Comment BLUEPRINT + Camino Coaching branding.]
 
 === SOCIAL CAPTION ===
 [A short Facebook/Instagram caption to post alongside the video. Reference the article. 50-100 words. Include CTA and 3-5 hashtags.]`;
+
+    return await callClaude(prompt, apiKey, false);
+}
+
+// ─── Generate 30-Second Shorts Script — Playbook Rules ────────
+// Compressed format: 4 slides, 75-85 words, razor-sharp structure.
+// YouTube Shorts + Instagram Reels + Facebook Reels
+export async function generateShortsScript({ topic, postContent, pillar, chemicalId, apiKey }) {
+
+    const shortsContext = buildShortsScriptContext(chemicalId, typeof topic === 'string' ? topic : topic.headline || topic);
+
+    // Get championship context for timely references
+    const champCtx = getChampionshipContext();
+    let raceNote = '';
+    if (champCtx.hasLiveRacing) {
+        raceNote = `\nRACE WEEKEND CONTEXT: Live racing this weekend — ${champCtx.currentWeekend.map(e => `${e.flag} ${e.championship} at ${e.venue}`).join(', ')}. Reference if naturally relevant.`;
+    } else if (champCtx.hasRecentResults) {
+        raceNote = `\nRECENT RACE CONTEXT: Recent results from ${champCtx.recent.map(e => `${e.flag} ${e.championship} at ${e.venue}`).join(', ')}.`;
+    }
+
+    // Build source article context
+    const headline = typeof topic === 'string' ? topic : (topic.headline || topic.topic || topic);
+    const sourceArticle = topic?.sourceArticle || '';
+    const articleUrl = topic?.articleUrl || '';
+    const talkingPoints = topic?.talkingPoints || [];
+    const mechanism = topic?.mechanism || '';
+    const racingRelevance = topic?.racingRelevance || '';
+    const emotionalHook = topic?.emotionalHook || '';
+
+    // Pick a random CTA variant
+    const ctaVariant = SHORTS_CTA_VARIANTS[Math.floor(Math.random() * SHORTS_CTA_VARIANTS.length)];
+
+    const prompt = `You are Craig Muirhead's 30-second video content strategist. Write a COMPLETE 30-second Short script.
+
+CRITICAL: This is a 30-SECOND SHORT, not a 45-60 second video. Every rule below is non-negotiable.
+
+=== THE RULES OF 30-SECOND VIDEO ===
+
+1. YOU HAVE 1.5 SECONDS, NOT 3. The first frame and first spoken word must create a reason to stay before the viewer's thumb finishes its scroll motion. Voice starts at 0.0 seconds. No music intro. No greeting. No "hey guys."
+
+2. TEXT ON SCREEN IS NOT OPTIONAL. Over 60% watch with sound off. Every word the avatar speaks must appear as burned-in captions. Keywords highlighted in teal (positive) or red (cortisol/threat).
+
+3. ONE IDEA PER VIDEO, NO EXCEPTIONS. Not two. Not "one idea with a bonus tip." One.
+
+4. DESIGN FOR THE LOOP. End with a statement that connects back to the opening. The viewer's brain naturally loops back to the beginning.
+
+5. THE CTA MUST BE EFFORTLESS. Maximum 6-8 words. No explanation of the quiz. No selling.
+
+=== SOURCE ARTICLE (backbone of the Short) ===
+Headline: ${headline}
+${sourceArticle ? `Source: ${sourceArticle}` : ''}
+${articleUrl ? `URL: ${articleUrl}` : ''}
+${talkingPoints.length > 0 ? `Key Points:\n${talkingPoints.map(p => `- ${p}`).join('\n')}` : ''}
+${mechanism ? `Neuroscience Mechanism: ${mechanism}` : ''}
+${racingRelevance ? `Racing Relevance: ${racingRelevance}` : ''}
+${emotionalHook ? `Emotional Hook: ${emotionalHook}` : ''}
+${pillar ? `Content Pillar: ${pillar.name}` : ''}
+
+${postContent ? `THE TEXT POST (for context — the Short tells the same story compressed to 30 seconds):\n${postContent.substring(0, 400)}\n` : ''}
+
+${raceNote}
+
+${shortsContext}
+
+SUGGESTED CTA: "${ctaVariant}"
+
+RULES:
+- Use UK English spelling throughout (colour, analyse, programme, tyre, favourite)
+- Use CAR RACING language: driver, turn, apex, braking zone, racing line, throttle, steering input, circuit, pit lane, grid, qualifying, cockpit, stint
+- NEVER use motorcycle language (lean angle, body position, hanging off, the bike)
+- Write numbers out in full text for voice synthesis (e.g., "six hundred and ninety nine" not "699")
+- WOW not HOW: Reveal the chemical and what it does. NEVER give the specific fix or programme methodology
+- Warm, direct, confident tone. Like a trusted paddock insider giving you one razor-sharp insight.
+- TOTAL SCRIPT: 75-85 words. Read it aloud. Time it. If over 30 seconds, cut words. Do NOT speed up delivery.
+- The HOOK must reference the source article. Name the person, study, or discovery.
+
+WHAT KILLS THE HOOK (never do these):
+- Any form of introduction or greeting
+- "In this video I'm going to talk about..."
+- Logo animations or brand intros
+- Starting with context instead of the payoff
+- Generic statements like "Mental performance matters"
+
+FORMAT YOUR RESPONSE EXACTLY LIKE THIS:
+
+=== 30-SECOND SHORT SCRIPT ===
+HOOK (0-5s) | Slide 1:
+On screen: [5-7 words for the slide text]
+Voice: [The hook sentence — max 12 words spoken]
+
+THE INSIGHT (5-18s) | Slide 2:
+On screen: [Background image description + chemical name in accent colour + one-line text]
+Voice: [3-4 sentences, ~35-40 words. Name the source. Name the chemical. One sentence on why it matters to the driver.]
+
+THE PROOF (18-25s) | Slide 3:
+On screen: [One big number in teal + short label]
+Voice: [1-2 sentences, ~15-20 words. State the data point once.]
+
+CTA (25-30s) | Slide 4:
+On screen: [Comment keyword in teal + small descriptor]
+Voice: [One sentence, 6-8 words max]
+
+Total word count: [NUMBER]
+
+=== SHORTS SLIDE BRIEF (FOR MANUS — 4 SLIDES ONLY) ===
+Slide 1 — Hook: [Bold text, 5-7 words. Max.]
+Slide 2 — The Insight: [Chemical name in accent colour. One-line mechanism. Background image note.]
+Slide 3 — The Proof: [Big number in teal. Short label.]
+Slide 4 — CTA: [Comment keyword in teal. Minimal visual weight. Dark background.]
+
+=== LOOP NOTE ===
+[One sentence explaining how the ending connects back to the opening for replay.]
+
+=== HEYGEN NOTES ===
+[Avatar expression, gesture, and pace instructions specific to this Short.]`;
 
     return await callClaude(prompt, apiKey, false);
 }

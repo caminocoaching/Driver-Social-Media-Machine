@@ -17,7 +17,7 @@ import {
 
 import {
   generateTopics, generatePost, generatePosts, regeneratePost, generateImagePrompt,
-  generateVideoScript, storeUsedArticles, storeUsedHooks,
+  generateVideoScript, generateShortsScript, storeUsedArticles, storeUsedHooks,
   generateEmail, renderEmailHTML
 } from './ai-service.js';
 
@@ -632,7 +632,21 @@ function renderPosts() {
           ` : ''}
           ${isConfirmed && !post._emailHTML ? `
           <div style="border-top:1px solid rgba(255,255,255,0.06);padding:1.5rem;text-align:center;">
-            <div style="font-size:0.8rem;color:var(--text-muted);" id="confirm-status-${i}">⏳ Generating email + video script...</div>
+            <div style="font-size:0.8rem;color:var(--text-muted);" id="confirm-status-${i}">⏳ Generating email + video script + 30s Short...</div>
+          </div>
+          ` : ''}}
+
+          ${isConfirmed && post._shortsNarration ? `
+          <div style="border-top:1px solid rgba(255,255,255,0.06);padding:1rem;">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0.5rem;">
+              <span style="font-size:0.8rem;font-weight:700;color:#FF6B35;">🎬 30-Second Short Script</span>
+              <div style="display:flex;gap:0.4rem;">
+                <button class="post-action-btn" onclick="window.appActions.copyShortsScript(${i})" style="font-size:0.7rem;">📋 Copy Script</button>
+                <button class="post-action-btn" onclick="window.appActions.openShortsManusPrompt(${i})" style="font-size:0.7rem;">📊 Shorts Manus</button>
+              </div>
+            </div>
+            ${post._shortsLoopNote ? `<div style="margin-bottom:0.5rem;padding:0.35rem 0.6rem;background:rgba(255,107,53,0.06);border-radius:5px;border-left:2px solid #FF6B35;font-size:0.68rem;color:var(--text-muted);">🔄 <strong>Loop:</strong> ${escapeHtml(post._shortsLoopNote)}</div>` : ''}
+            <pre style="white-space:pre-wrap;font-size:0.8rem;line-height:1.7;color:var(--text-primary,#F0F6FC);font-family:var(--font);background:rgba(0,0,0,0.3);padding:1rem;border-radius:8px;border:1px solid rgba(255,107,53,0.15);max-height:300px;overflow-y:auto;">${escapeHtml(post._shortsNarration)}</pre>
           </div>
           ` : ''}
 
@@ -747,10 +761,10 @@ window.appActions = {
     const chemData = CHEM_DATA[post.pillar?.id] || { id: 'dopamine', name: 'Dopamine', icon: '🧪', color: '#ffd43b' };
     const topicData = post.topic || state.topics?.[index] || {};
 
-    setStatus(`✅ Confirmed post ${index + 1} — generating email + video script...`, true);
+    setStatus(`✅ Confirmed post ${index + 1} — generating email + video script + 30s Short...`, true);
 
     try {
-      const [emailData, videoScript] = await Promise.all([
+      const [emailData, videoScript, shortsScript] = await Promise.all([
         generateEmail({
           postContent: post._fbContent || post.content,
           topic: topicData,
@@ -767,6 +781,13 @@ window.appActions = {
           platform: 'FB Reel + IG Reel',
           outputFormat: '9:16',
           apiKey: settings.claudeApiKey
+        }),
+        generateShortsScript({
+          topic: topicData,
+          postContent: post._fbContent || post.content,
+          pillar: post.pillar,
+          chemicalId: chemData.id,
+          apiKey: settings.claudeApiKey
         })
       ]);
 
@@ -779,9 +800,16 @@ window.appActions = {
       post._videoFull = videoScript;
       post._manusPrompt = buildManusPrompt(parsed.slideBrief, chemData, index, topicData);
 
+      // 30-Second Short
+      const shortsParsed = parseShortsScript(shortsScript);
+      post._shortsNarration = shortsParsed.pureNarration;
+      post._shortsFull = shortsScript;
+      post._shortsManusPrompt = buildShortsManusPrompt(shortsParsed.slideBrief, chemData, index, topicData);
+      post._shortsLoopNote = shortsParsed.loopNote;
+
       saveSession();
       renderPosts();
-      showToast(`Post ${index + 1} confirmed — email + video script ready!`, 'success');
+      showToast(`Post ${index + 1} confirmed — email + video + 30s Short ready!`, 'success');
     } catch (err) {
       showToast(`Error generating assets: ${err.message}`, 'error');
       console.error(err);
@@ -945,6 +973,19 @@ window.appActions = {
     window.open('https://app.gohighlevel.com/v2/location/EwAyQ03cV2yxVYaxnY5S/media-storage', '_blank');
   },
 
+  copyShortsScript(index) {
+    const post = state.posts[index];
+    if (post?._shortsNarration) { copyToClipboard(post._shortsNarration); showToast('30-second Short script copied!', 'success'); }
+  },
+
+  openShortsManusPrompt(index) {
+    const post = state.posts[index];
+    if (!post?._shortsManusPrompt) { showToast('No Shorts Manus prompt available.', 'error'); return; }
+    // Copy the Shorts Manus prompt to clipboard and show toast
+    copyToClipboard(post._shortsManusPrompt);
+    showToast('Shorts Manus prompt copied! Paste into Manus for 4-slide deck.', 'success');
+  },
+
   clearSession() { clearSession(); }
 };
 
@@ -1016,6 +1057,78 @@ IMPORTANT:
 - This will be uploaded to HeyGen PPT-to-Video, so slides should be visually clean with space for an avatar overlay
 - Keep text away from the bottom 20% of each slide (avatar space)
 - Total: 7-8 slides maximum`;
+}
+
+// ─── Parse 30-Second Shorts Script ──────────────────────────────────
+function parseShortsScript(script) {
+  // Extract the 4-slide brief for Manus
+  const slideBriefMatch = script.match(/=== SHORTS SLIDE BRIEF[^=]*===([\s\S]*?)(?:===|$)/i);
+  const slideBrief = (slideBriefMatch?.[1] || '').trim();
+
+  // Extract the Short script section
+  const shortsMatch = script.match(/=== 30-SECOND SHORT SCRIPT ===([\s\S]*?)(?:=== SHORTS SLIDE|$)/i);
+  const rawScript = (shortsMatch?.[1] || script).trim();
+
+  // Strip section headers to get pure narration
+  // Extract only the "Voice:" lines for pure narration
+  const voiceLines = rawScript.match(/Voice:\s*(.+)/gi) || [];
+  const pureNarration = voiceLines.length > 0
+    ? voiceLines.map(line => line.replace(/^Voice:\s*/i, '').trim()).join('\n\n')
+    : rawScript
+      .replace(/^(HOOK|THE INSIGHT|THE PROOF|CTA)\s*(\([^)]*\))?\s*\|?\s*(Slide \d+)?\s*:?\s*$/gim, '')
+      .replace(/^On screen:\s*.+$/gim, '')
+      .replace(/^Voice:\s*/gim, '')
+      .replace(/^Total word count:\s*.+$/gim, '')
+      .replace(/\n{3,}/g, '\n\n')
+      .trim();
+
+  // Extract loop note
+  const loopMatch = script.match(/=== LOOP NOTE ===([\s\S]*?)(?:===|$)/i);
+  const loopNote = (loopMatch?.[1] || '').trim();
+
+  // Extract HeyGen notes
+  const heygenMatch = script.match(/=== HEYGEN NOTES ===([\s\S]*?)(?:===|$)/i);
+  const heygenNotes = (heygenMatch?.[1] || '').trim();
+
+  return { slideBrief, pureNarration, loopNote, heygenNotes, rawScript };
+}
+
+// ─── Build Manus Prompt for 30-Second Shorts (4 slides only) ────
+function buildShortsManusPrompt(slideBrief, chemData, postIndex, topicData = {}) {
+  const articleSection = topicData.articleUrl ? `
+SOURCE ARTICLE:
+- Headline: ${topicData.sourceArticle || topicData.headline || 'Unknown'}
+- URL: ${topicData.articleUrl}
+Slide 1 (Hook) must reference this article. Name the person, study, or discovery.
+` : '';
+
+  return `Create a 4-SLIDE presentation deck for a 30-SECOND vertical Short (9:16 format) about neurochemistry in car racing.
+
+CRITICAL: This is a 30-second Short, NOT a full video. Only 4 slides. Each slide on screen for 5-8 seconds.
+
+BRAND: Camino Coaching by Craig Muirhead
+TOPIC: Post ${postIndex + 1} — ${chemData.icon} ${chemData.name}
+STYLE: Dark premium theme. Background #0A1628 (deep navy). Accent colour ${chemData.color || '#00BFA5'}. Clean modern typography. Minimal, high-contrast.
+${articleSection}
+DESIGN RULES:
+- 9:16 vertical format (1080×1920px) for mobile Shorts/Reels
+- Dark background throughout (#0A1628)
+- Maximum 5-7 words per slide (must be readable in under 1 second)
+- Accent colour for highlights and chemical names: ${chemData.color || '#00BFA5'}
+- Red (#ef4444) for cortisol/threat references
+- Large bold text. One clear message per slide.
+- Keep text away from bottom 20% (avatar space)
+- Slide 1 text must be ALREADY visible when video starts (no fade-in animation)
+- Slide 4 (CTA) must have minimal visual weight — dark background, small text — so the eye naturally loops back to Slide 1
+
+SLIDES (4 ONLY):
+${slideBrief}
+
+IMPORTANT:
+- Export as PowerPoint (.pptx) format
+- ONLY 4 SLIDES. No bridge slide. No mechanism slide. No end card.
+- This will be uploaded to HeyGen PPT-to-Video
+- The transition from Slide 4 back to Slide 1 must feel visually smooth for loop replay`;
 }
 
 // ─── Video Script Modal (3-Step Workflow) ─────────────────────────

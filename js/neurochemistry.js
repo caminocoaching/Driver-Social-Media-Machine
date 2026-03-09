@@ -406,6 +406,195 @@ export const VIDEO_TOPICS = [
     { topic: '699 personal bests in our data. The chemical pattern they all share.', chemical: 'flow-cocktail' }
 ];
 
+// ─── 30-SECOND SHORTS PLAYBOOK ────────────────────────────────
+// Source: Camino Coaching 30-Second Shorts Playbook (March 2026)
+// YouTube Shorts + Instagram Reels + Facebook Reels
+// Compressed format: 4 slides, 75-85 words, razor-sharp structure.
+
+export const SHORTS_SCRIPT_TEMPLATE = {
+    targetLength: '30 seconds',
+    wordCount: { min: 75, max: 85 },
+    slideCount: 4,
+    sections: [
+        {
+            id: 'hook',
+            name: 'HOOK',
+            timing: '0-5 seconds',
+            slideNumber: 1,
+            instruction: 'One scroll-stopping sentence. Maximum 12 words spoken. 5-7 words on screen. Voice starts at 0.0 seconds. No pause. No intro. No greeting.',
+            maxScreenWords: 7,
+            maxSpokenWords: 12,
+            example: 'Simone Biles said her therapist was as crucial as her coach. Here\'s the chemical reason.'
+        },
+        {
+            id: 'insight',
+            name: 'THE INSIGHT',
+            timing: '5-18 seconds',
+            slideNumber: 2,
+            instruction: 'The article reference + the chemical explanation. 3-4 sentences maximum. Approximately 35-40 words. Name the source. Name the chemical. Explain in one sentence why it matters to the driver.',
+            maxWords: 40,
+            example: 'When Biles visualises her routine before competition, her brain releases dopamine. The anticipation chemical. It primes her nervous system for performance before she even steps onto the mat. Your brain does the same thing when you visualise a lap. Or it would, if you trained it to.'
+        },
+        {
+            id: 'proof',
+            name: 'THE PROOF',
+            timing: '18-25 seconds',
+            slideNumber: 3,
+            instruction: 'One data point from the debrief data or one specific result. 1-2 sentences. Approximately 15-20 words. Big number on screen. Voice states it once.',
+            maxWords: 20,
+            example: 'Six hundred and ninety nine personal bests in our debrief data. The drivers who prepare their brain chemistry before a session PB more than twice as often.'
+        },
+        {
+            id: 'cta',
+            name: 'CTA',
+            timing: '25-30 seconds',
+            slideNumber: 4,
+            instruction: 'One sentence. 6-8 words maximum. Direct, effortless. No explanation of the quiz.',
+            maxWords: 8,
+            example: 'Comment MINDSET. I\'ll send you the free quiz.'
+        }
+    ]
+};
+
+export const SHORTS_SLIDE_SPECS = {
+    style: {
+        background: '#0A1628',
+        font: 'Montserrat',
+        accent: '#00BFA5',
+        accentNegative: '#ef4444',
+        maxWordsPerSlide: 7,
+        format: '9:16 vertical (1080×1920px)'
+    },
+    slides: [
+        { number: 1, name: 'Hook', content: 'Bold text, 5-7 words maximum. Must be readable in under 1 second. Text already on screen when video starts, not fading in. Large font. No images.', timing: '0-5s' },
+        { number: 2, name: 'The Insight', content: 'Article reference + chemical name in accent colour. Background image with dark overlay. One-line mechanism explanation.', timing: '5-18s' },
+        { number: 3, name: 'The Proof', content: 'One big number in teal/accent colour. Short label underneath. Data Visualisation Card format.', timing: '18-25s' },
+        { number: 4, name: 'CTA', content: 'Comment keyword in teal. Minimal visual weight. Dark background. Small text. Must feel smooth transitioning back to Slide 1 for loop replay.', timing: '25-30s' }
+    ],
+    captionRules: {
+        style: 'Bold, high-contrast, white text with slight dark shadow or background bar.',
+        position: 'Top or centre of screen, NEVER bottom (avatar space).',
+        maxLines: 2,
+        highlighting: 'Keywords highlighted: teal for positive, red for cortisol/threat.'
+    }
+};
+
+export const SHORTS_HOOK_STYLES = [
+    {
+        id: 'shock-stat',
+        name: 'The Shock Stat',
+        formula: 'Lead with a surprising number or percentage that stops the scroll.',
+        example: '63% of crashes happen within 3 laps of a personal best.'
+    },
+    {
+        id: 'impossible-claim',
+        name: 'The Impossible Claim',
+        formula: 'State something the viewer will instinctively want to verify.',
+        example: 'Your brain makes you brake 5 metres earlier and you don\'t even know it.'
+    },
+    {
+        id: 'named-authority',
+        name: 'The Named Authority',
+        formula: 'Open with a recognisable name + their insight.',
+        example: 'Simone Biles said her therapist was as crucial as her coach.'
+    },
+    {
+        id: 'direct-challenge',
+        name: 'The Direct Challenge',
+        formula: 'Challenge the viewer directly. Make it personal.',
+        example: 'You\'ve never trained the 75% of performance that happens in your head.'
+    },
+    {
+        id: 'specific-question',
+        name: 'The Specific Question',
+        formula: 'Ask a hyper-specific question they can\'t answer.',
+        example: 'Where are your eyes 0.3 seconds before you hit the braking marker?'
+    }
+];
+
+export const SHORTS_CTA_VARIANTS = [
+    'Comment MINDSET for the free quiz.',
+    'Comment FLOW. I\'ll send you the training.',
+    'Free quiz. Comment MINDSET.',
+    'Link in bio. 3 minutes. Free.',
+    'Comment BLUEPRINT for the free training.'
+];
+
+/**
+ * Build the full 30-second Shorts context for AI prompt construction
+ */
+export function buildShortsScriptContext(chemicalId, topic) {
+    const isFlowCocktail = chemicalId === 'flow-cocktail';
+
+    let chemContext;
+    if (isFlowCocktail) {
+        chemContext = `CHEMICAL FOCUS: The Flow State Cocktail
+Description: ${FLOW_COCKTAIL.description}
+The 5 chemicals: ${FLOW_COCKTAIL.chemicals.map(c => `${c.name} (${c.role})`).join(', ')}
+Processing speed: ${FLOW_COCKTAIL.processingSpeed.flow} (flow) vs ${FLOW_COCKTAIL.processingSpeed.conscious} (conscious)`;
+    } else {
+        const chem = getChemical(chemicalId);
+        if (!chem) return '';
+        chemContext = `CHEMICAL FOCUS: ${chem.name} — ${chem.nickname}
+Description: ${chem.description}
+Racing scenarios: ${chem.racingScenarios.slice(0, 3).join('; ')}
+How it manifests: ${chem.symptoms.join(', ')}
+The cost: ${chem.costMetric}
+Bridge line: ${chem.bridgeLine}`;
+    }
+
+    const wowHow = buildWowHowInstruction(chemicalId);
+
+    const templateInstructions = SHORTS_SCRIPT_TEMPLATE.sections.map(s =>
+        `${s.name} (${s.timing}) | Slide ${s.slideNumber}: ${s.instruction}\nExample: "${s.example}"`
+    ).join('\n\n');
+
+    const hookStyles = SHORTS_HOOK_STYLES.map(h =>
+        `- ${h.name}: ${h.formula} Example: "${h.example}"`
+    ).join('\n');
+
+    return `${chemContext}
+
+${wowHow}
+
+TOPIC: ${topic}
+
+=== 30-SECOND SHORTS SCRIPT STRUCTURE (follow this EXACTLY) ===
+${templateInstructions}
+
+TOTAL WORD COUNT: ${SHORTS_SCRIPT_TEMPLATE.wordCount.min}-${SHORTS_SCRIPT_TEMPLATE.wordCount.max} words. No more.
+
+HOOK STYLE OPTIONS (pick one):
+${hookStyles}
+
+SLIDE DECK SPEC (for Manus — 4 slides only):
+- Format: ${SHORTS_SLIDE_SPECS.style.format}
+- Background: ${SHORTS_SLIDE_SPECS.style.background} (dark)
+- Font: ${SHORTS_SLIDE_SPECS.style.font}
+- Accent colour: ${SHORTS_SLIDE_SPECS.style.accent} (teal for positive), ${SHORTS_SLIDE_SPECS.style.accentNegative} (red for threat)
+- Max words per slide: ${SHORTS_SLIDE_SPECS.style.maxWordsPerSlide}
+${SHORTS_SLIDE_SPECS.slides.map(s => `- Slide ${s.number} (${s.name}, ${s.timing}): ${s.content}`).join('\n')}
+
+CAPTION RULES:
+- ${SHORTS_SLIDE_SPECS.captionRules.style}
+- Position: ${SHORTS_SLIDE_SPECS.captionRules.position}
+- Max lines on screen: ${SHORTS_SLIDE_SPECS.captionRules.maxLines}
+- ${SHORTS_SLIDE_SPECS.captionRules.highlighting}
+
+HEYGEN AVATAR NOTES:
+- Avatar in bottom-right corner circle. Slightly larger in Hook section (0-5s), then standard size.
+- Direct eye contact with camera in first second.
+- Facial expressions must match content: intense for cortisol/threat, energised for achievement/data.
+- Gestures required: head nods, eyebrow raises, hand movements. NOT a still talking head.
+- Voice pace: FAST for hook (0-5s), slightly SLOWER for insight (5-18s), conversational for CTA (25-30s).
+- Voice starts at 0.3 seconds. No music intro. No greeting.
+
+LOOP ENGINEERING:
+- End the video with a statement that connects back to the opening.
+- The final CTA slide should have minimal visual weight so the eye loops back to Slide 1.
+- The transition from Slide 4 back to Slide 1 must feel smooth, not jarring.`;
+}
+
 // ─── Helper Functions ─────────────────────────────────────────
 
 /**
