@@ -936,32 +936,64 @@ export async function checkHeyGenVideoStatus(videoId, apiKey) {
 
 // ─── Generate Email Copy (Claude) ─────────────────────────────
 export async function generateEmail({ topic, pillar, cta, postContent, apiKey }) {
-    const prompt = `You are Craig Muirhead, writing a short nurture email to your list of racing drivers.
+    const articleTitle = topic?.sourceArticle || topic?.headline || '';
+    const articleUrl = topic?.articleUrl || '';
+    const killerDataPoint = topic?.killerDataPoint || '';
+    const summary = topic?.summary || '';
+    const racingRelevance = topic?.racingRelevance || '';
+    const mechanism = topic?.mechanism || '';
+    const source = topic?.source || '';
+    const talkingPoints = topic?.talkingPoints || [];
+
+    const prompt = `You are Craig Muirhead, writing a detailed nurture email to your list of racing drivers. This email is built around a specific article you found during your weekly research.
 
 TOPIC: ${topic?.headline || topic || 'Mental performance in car racing'}
 PILLAR: ${pillar?.name || 'Mental Performance'} — ${pillar?.description || ''}
 CTA: Podium Contenders Blueprint — Trigger: BLUEPRINT
 
-${postContent ? `RELATED SOCIAL POST (for context — do NOT copy this word-for-word, use it as inspiration for the email angle):\n${postContent.substring(0, 500)}\n` : ''}
+=== THE SOURCE ARTICLE (use this as the backbone of the email) ===
+${articleTitle ? `ARTICLE TITLE: ${articleTitle}` : ''}
+${source ? `SOURCE: ${source}` : ''}
+${articleUrl ? `URL: ${articleUrl}` : ''}
+${summary ? `SUMMARY: ${summary}` : ''}
+${killerDataPoint ? `KILLER DATA POINT: "${killerDataPoint}"` : ''}
+${mechanism ? `NEUROSCIENCE MECHANISM: ${mechanism}` : ''}
+${racingRelevance ? `RACING RELEVANCE: ${racingRelevance}` : ''}
+${talkingPoints.length > 0 ? `KEY TALKING POINTS:\n${talkingPoints.map(p => '- ' + p).join('\n')}` : ''}
 
-Write a SHORT nurture email. This is NOT a newsletter — it's a punchy, personal email from Craig.
+${postContent ? `RELATED SOCIAL POST (for voice/angle reference — do NOT copy):\n${postContent.substring(0, 600)}\n` : ''}
+
+WRITE A DETAILED EMAIL (400-600 words). This is a proper article-style email that delivers genuine value. The reader should feel like they learned something specific.
+
+EMAIL STRUCTURE:
+1. HOOK (1-2 sentences): Open with the article's most fascinating finding. Name the study, researcher, or driver. Make them curious.
+2. THE ARTICLE INSIGHT (3-5 sentences): Share the key finding in detail. Use the killer data point. Explain what the researchers/drivers discovered and WHY it matters.
+3. THE NEUROSCIENCE (3-4 sentences): Explain the brain mechanism behind this finding. Reference ${mechanism || 'the relevant neuroscience'}. Use plain language.
+4. THE RACING SCENARIO (3-4 sentences): Paint a vivid, specific car racing scenario where this exact pattern plays out. Turn numbers, session context (qualifying vs race), physical sensations (G-force, braking, tyre grip, steering input). Show the reader THEIR experience through the lens of this research.
+5. THE DATA BRIDGE (2-3 sentences): Connect to Camino Coaching debrief data. "After 2,358 debriefs..." Show the pattern is real and measurable.
+6. THE CTA (2-3 sentences): Separated by ·· — casual, unrelated. "Oh, by the way..." Direct link to Blueprint.
 
 RULES:
-- UK English throughout
-- Use car racing language (never motorcycle-specific terms)
-- WOW not HOW: reveal the problem and neuroscience, NEVER the methodology
-- Maximum 200 words body (short, punchy, value-dense)
-- Write like you're talking to a mate in the paddock — direct, no fluff
-- Include a specific racing scenario or data point
-- End with a clear CTA that links to the Podium Contenders Blueprint
+- UK English throughout (colour, analyse, programme, tyre, favourite)
+- Use CAR RACING language: driver, turn, apex, braking zone, steering input, cockpit, harness, pit wall, throttle application, session, qualifying, grid, paddock, the car
+- WOW not HOW: reveal the problem and neuroscience, NEVER the specific fix or methodology
+- Reference the source article by name — this is borrowed authority
+- Include the killer data point prominently
+- Write like you're talking to a mate in the paddock — direct, warm, data-driven
+- NEVER use em dashes or en dashes. Use commas or full stops instead.
+- No emojis except occasionally in CTA section
+- Short paragraphs (1-3 sentences), mobile-friendly formatting
 
 OUTPUT FORMAT (return as JSON):
 {
   "subject": "Email subject line (max 50 chars, curiosity-driven, lowercase feel)",
-  "preheader": "Preview text (max 80 chars, complements subject)",
-  "hook": "Opening line — punchy, scenario-based, stops the scroll (1-2 sentences)",
-  "problem": "The problem/neuroscience angle (2-3 sentences, include a data point or stat)",
-  "bridge": "The 'what if' bridge — teases the solution without giving it away (1-2 sentences)",
+  "preheader": "Preview text (max 80 chars, complements subject, teases the data point)",
+  "hook": "Opening 1-2 sentences — reference the article directly. Name it.",
+  "articleInsight": "3-5 sentences expanding on the article's key finding. Include the killer data point.",
+  "dataHighlight": "The single killer data point or quote, formatted as a standalone callout",
+  "problem": "3-4 sentences: the neuroscience mechanism explained in plain language.",
+  "racingScenario": "3-4 sentences: vivid car racing scenario where this plays out. Turn numbers, session context, sensations.",
+  "bridge": "2-3 sentences: connect to Camino debrief data. Tease the solution without giving it away.",
   "ctaText": "CTA button text (max 5 words, action-oriented)",
   "ctaUrl": "${cta?.url || 'https://academy.caminocoaching.co.uk/podium-contenders-blueprint/order/'}",
   "signoff": "Short sign-off line before the name (1 sentence, personal)"
@@ -971,9 +1003,8 @@ Return ONLY the JSON object. No markdown, no code fences.`;
 
     const result = await callClaude(prompt, apiKey, true);
 
-    // callClaude with parseJson=true expects an array, but we're returning an object
     if (Array.isArray(result)) {
-        return result[0]; // If it wrapped in an array
+        return result[0];
     }
     return result;
 }
@@ -984,7 +1015,10 @@ export function renderEmailHTML(emailData, pillar) {
         subject = 'From the paddock...',
         preheader = '',
         hook = '',
+        articleInsight = '',
+        dataHighlight = '',
         problem = '',
+        racingScenario = '',
         bridge = '',
         ctaText = 'Get the Blueprint',
         ctaUrl = 'https://academy.caminocoaching.co.uk/podium-contenders-blueprint/order/',
@@ -1055,12 +1089,44 @@ export function renderEmailHTML(emailData, pillar) {
     </td></tr>
   </table>
 
-  <!-- Problem/Science -->
+  ${articleInsight ? `
+  <!-- Article Insight -->
   <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
     <tr><td style="padding:20px 0 0 0;">
-      <p style="font-size:15px;line-height:1.65;color:#B0BAC5;margin:0;">${problem}</p>
+      <p style="font-size:15px;line-height:1.7;color:#C8D1DC;margin:0;">${articleInsight}</p>
+    </td></tr>
+  </table>` : ''}
+
+  ${dataHighlight ? `
+  <!-- Killer Data Point Callout -->
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
+    <tr><td style="padding:24px 0 0 0;">
+      <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background-color:rgba(218,165,32,0.08);border-left:4px solid #DAA520;border-radius:0 6px 6px 0;">
+        <tr><td style="padding:16px 20px;">
+          <p style="font-size:16px;line-height:1.5;color:#F0F6FC;font-weight:600;margin:0;">"${dataHighlight}"</p>
+        </td></tr>
+      </table>
+    </td></tr>
+  </table>` : ''}
+
+  <!-- Neuroscience -->
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
+    <tr><td style="padding:20px 0 0 0;">
+      <p style="font-size:15px;line-height:1.7;color:#B0BAC5;margin:0;">${problem}</p>
     </td></tr>
   </table>
+
+  ${racingScenario ? `
+  <!-- Racing Scenario -->
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
+    <tr><td style="padding:20px 0 0 0;">
+      <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background-color:rgba(0,191,165,0.06);border-left:4px solid #00BFA5;border-radius:0 6px 6px 0;">
+        <tr><td style="padding:16px 20px;">
+          <p style="font-size:15px;line-height:1.65;color:#C8D1DC;margin:0;font-style:italic;">${racingScenario}</p>
+        </td></tr>
+      </table>
+    </td></tr>
+  </table>` : ''}
 
   <!-- Bridge -->
   <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
