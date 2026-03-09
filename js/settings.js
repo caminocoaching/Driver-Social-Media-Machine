@@ -545,14 +545,19 @@ function attachSettingsListeners(settings) {
 
   // ─── Data Management Buttons ──────────────────────────────
   document.getElementById('clear-session-btn')?.addEventListener('click', () => {
-    if (confirm('Clear current session?\n\nThis will remove this week\'s stories, posts, and generated content (email, video scripts, Shorts).\n\nYour API keys and settings will be kept.')) {
-      try {
-        localStorage.removeItem('driverSocialMedia_session');
-        showToast('Session cleared! Refresh the page to start fresh.', 'success');
-        setTimeout(() => window.location.reload(), 1000);
-      } catch (e) {
-        showToast('Error clearing session: ' + e.message, 'error');
-      }
+    const sessionData = localStorage.getItem('driverSocialMedia_session');
+    if (!sessionData) {
+      showToast('Session is already empty — nothing to clear.', 'info');
+      alert('Session is already empty — nothing to clear.');
+      return;
+    }
+    const parsed = JSON.parse(sessionData);
+    const postCount = parsed.posts?.length || 0;
+    const storyCount = parsed.stories?.length || 0;
+    if (confirm(`Clear current session?\n\n${storyCount} stories and ${postCount} posts will be removed.\nAll generated content (emails, video scripts, Shorts) will be cleared.\n\nYour API keys and settings will NOT be touched.`)) {
+      localStorage.removeItem('driverSocialMedia_session');
+      alert('Session cleared! Page will now reload.');
+      window.location.reload();
     }
   });
 
