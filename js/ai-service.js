@@ -698,11 +698,13 @@ async function callClaude(prompt, apiKey, parseJson = true) {
         throw new Error('Claude API key not configured. Go to Settings to add your key.');
     }
 
+    const cleanKey = apiKey.trim();
+
     const response = await fetch('https://api.anthropic.com/v1/messages', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
-            'x-api-key': apiKey,
+            'x-api-key': cleanKey,
             'anthropic-version': '2023-06-01',
             'anthropic-dangerous-direct-browser-access': 'true'
         },
@@ -755,8 +757,10 @@ async function callGeminiWithSearch(prompt, apiKey, parseJson = true) {
 
     const dedupPrompt = prompt + buildDeduplicationContext();
 
+    const cleanKey = apiKey.trim();
+
     const response = await fetch(
-        `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`,
+        `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${cleanKey}`,
         {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
