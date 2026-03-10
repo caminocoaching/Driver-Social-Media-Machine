@@ -1035,17 +1035,17 @@ window.appActions = {
 // ─── Parse Script into Sections ──────────────────────────────────
 function parseVideoScript(script) {
   // Extract the slide deck brief for Manus
-  const slideBriefMatch = script.match(/=== SLIDE DECK BRIEF[^=]*===([\\s\\S]*?)(?:===|$)/i);
+  const slideBriefMatch = script.match(/=== SLIDE DECK BRIEF[^=]*===([\s\S]*?)(?:===|$)/i);
   const slideBrief = (slideBriefMatch?.[1] || '').trim();
 
   // Extract the video script section
-  const videoScriptMatch = script.match(/=== VIDEO SCRIPT ===([\\s\\S]*?)(?:=== SLIDE|$)/i);
+  const videoScriptMatch = script.match(/=== VIDEO SCRIPT ===([\s\S]*?)(?:=== SLIDE|$)/i);
   const rawVideoScript = (videoScriptMatch?.[1] || script).trim();
 
   // Strip section headers and timestamps to get pure narration text
   const pureNarration = rawVideoScript
-    .replace(/^(HOOK|SCENARIO|THE SCIENCE|THE COST|THE BRIDGE|CTA)\\s*(\\([^)]*\\))?\\s*:?\\s*$/gim, '')
-    .replace(/\\n{3,}/g, '\\n\\n')
+    .replace(/^(HOOK|SCENARIO|THE SCIENCE|THE COST|THE BRIDGE|CTA)\s*(\([^)]*\))?\s*:?\s*$/gim, '')
+    .replace(/\n{3,}/g, '\n\n')
     .trim();
 
   // Extract individual slide sections for per-slide copy
@@ -1076,11 +1076,11 @@ function parseVideoScript(script) {
   }
 
   // Extract social caption
-  const captionMatch = script.match(/=== SOCIAL CAPTION ===([\\s\\S]*?)(?:===|$)/i);
+  const captionMatch = script.match(/=== SOCIAL CAPTION ===([\s\S]*?)(?:===|$)/i);
   const socialCaption = (captionMatch?.[1] || '').trim();
 
   // Extract HeyGen notes
-  const heygenMatch = script.match(/=== HEYGEN NOTES ===([\\s\\S]*?)(?:===|$)/i);
+  const heygenMatch = script.match(/=== HEYGEN NOTES ===([\s\S]*?)(?:===|$)/i);
   const heygenNotes = (heygenMatch?.[1] || '').trim();
 
   return { slideBrief, pureNarration, socialCaption, heygenNotes, rawVideoScript, sections };
@@ -1130,23 +1130,23 @@ IMPORTANT:
 // ─── Parse 30-Second Shorts Script ──────────────────────────────────
 function parseShortsScript(script) {
   // Extract the 4-slide brief for Manus
-  const slideBriefMatch = script.match(/=== SHORTS SLIDE BRIEF[^=]*===([\\s\\S]*?)(?:===|$)/i);
+  const slideBriefMatch = script.match(/=== SHORTS SLIDE BRIEF[^=]*===([\s\S]*?)(?:===|$)/i);
   const slideBrief = (slideBriefMatch?.[1] || '').trim();
 
   // Extract the Short script section
-  const shortsMatch = script.match(/=== 30-SECOND SHORT SCRIPT ===([\\s\\S]*?)(?:=== SHORTS SLIDE|$)/i);
+  const shortsMatch = script.match(/=== 30-SECOND SHORT SCRIPT ===([\s\S]*?)(?:=== SHORTS SLIDE|$)/i);
   const rawScript = (shortsMatch?.[1] || script).trim();
 
   // Strip section headers to get pure narration
-  const voiceLines = rawScript.match(/Voice:\\s*(.+)/gi) || [];
+  const voiceLines = rawScript.match(/Voice:\s*(.+)/gi) || [];
   const pureNarration = voiceLines.length > 0
-    ? voiceLines.map(line => line.replace(/^Voice:\\s*/i, '').trim()).join('\n\n')
+    ? voiceLines.map(line => line.replace(/^Voice:\s*/i, '').trim()).join('\n\n')
     : rawScript
-      .replace(/^(HOOK|THE INSIGHT|THE PROOF|CTA)\\s*(\\([^)]*\\))?\\s*\\|?\\s*(Slide \\d+)?\\s*:?\\s*$/gim, '')
-      .replace(/^On screen:\\s*.+$/gim, '')
-      .replace(/^Voice:\\s*/gim, '')
-      .replace(/^Total word count:\\s*.+$/gim, '')
-      .replace(/\\n{3,}/g, '\\n\\n')
+      .replace(/^(HOOK|THE INSIGHT|THE PROOF|CTA)\s*(\([^)]*\))?\s*\|?\s*(Slide \d+)?\s*:?\s*$/gim, '')
+      .replace(/^On screen:\s*.+$/gim, '')
+      .replace(/^Voice:\s*/gim, '')
+      .replace(/^Total word count:\s*.+$/gim, '')
+      .replace(/\n{3,}/g, '\n\n')
       .trim();
 
   // Extract individual 4-slide sections for per-slide copy
@@ -1170,8 +1170,8 @@ function parseShortsScript(script) {
     const match = rawScript.match(pattern);
     const sectionText = (match?.[1] || '').trim();
     // Extract voice and on-screen text separately
-    const voiceMatch = sectionText.match(/Voice:\\s*(.+)/i);
-    const onScreenMatch = sectionText.match(/On screen:\\s*(.+)/i);
+    const voiceMatch = sectionText.match(/Voice:\s*(.+)/i);
+    const onScreenMatch = sectionText.match(/On screen:\s*(.+)/i);
     shortsSections.push({
       ...def,
       text: sectionText,
@@ -1181,11 +1181,11 @@ function parseShortsScript(script) {
   }
 
   // Extract loop note
-  const loopMatch = script.match(/=== LOOP NOTE ===([\\s\\S]*?)(?:===|$)/i);
+  const loopMatch = script.match(/=== LOOP NOTE ===([\s\S]*?)(?:===|$)/i);
   const loopNote = (loopMatch?.[1] || '').trim();
 
   // Extract HeyGen notes
-  const heygenMatch = script.match(/=== HEYGEN NOTES ===([\\s\\S]*?)(?:===|$)/i);
+  const heygenMatch = script.match(/=== HEYGEN NOTES ===([\s\S]*?)(?:===|$)/i);
   const heygenNotes = (heygenMatch?.[1] || '').trim();
 
   return { slideBrief, pureNarration, loopNote, heygenNotes, rawScript, shortsSections };
