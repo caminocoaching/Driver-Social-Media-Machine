@@ -749,6 +749,88 @@ async function callClaude(prompt, apiKey, parseJson = true) {
     return content;
 }
 
+// ─── Resolve Google Grounding API Redirect URLs to Real URLs ────
+// Uses Vercel serverless function (/api/resolve-url) to bypass CORS.
+// Browser-side fetch CANNOT follow cross-origin redirects from Google's
+// grounding-api-redirect URLs because the target sites don't set CORS headers.
+async function resolveRedirectUrl(redirectUrl, timeoutMs = 8000) {
+    // Only resolve vertexaisearch redirect URLs
+    if (!redirectUrl || !redirectUrl.includes('grounding-api-redirect')) {
+        return redirectUrl;
+    }
+
+    // Strategy 1: Server-side resolution via Vercel Edge Function (no CORS issues)
+    try {
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
+        const apiUrl = `/api/resolve-url?url=${encodeURIComponent(redirectUrl)}`;
+        const response = await fetch(apiUrl, { signal: controller.signal });
+        clearTimeout(timeoutId);
+        if (response.ok) {
+            const data = await response.json();
+            if (data.resolvedUrl && data.resolvedUrl !== redirectUrl && !data.resolvedUrl.includes('grounding-api-redirect')) {
+                console.log(`[URL Resolve] ✅ Server-side → ${data.resolvedUrl}`);
+                return data.resolvedUrl;
+            }
+        }
+    } catch (e) {
+        console.warn(`[URL Resolve] Server-side failed: ${e.message} — trying direct...`);
+    }
+
+    // Strategy 2: Direct browser fetch (usually fails due to CORS, but works locally sometimes)
+    try {
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 5000);
+        const response = await fetch(redirectUrl, {
+            method: 'HEAD',
+            redirect: 'follow',
+            signal: controller.signal
+        });
+        clearTimeout(timeoutId);
+        if (response.url && response.url !== redirectUrl && !response.url.includes('grounding-api-redirect')) {
+            console.log(`[URL Resolve] ✅ Direct HEAD → ${response.url}`);
+            return response.url;
+        }
+    } catch (e) {
+        // Expected to fail (CORS) — this is why the server-side API exists
+    }
+
+    console.warn(`[URL Resolve] ❌ Could not resolve: ${redirectUrl.substring(0, 80)}...`);
+    // Return original redirect URL as fallback (it still works as a clickable link)
+    return redirectUrl;
+}
+
+async function resolveAllRedirectUrls(chunks) {
+    if (!chunks || chunks.length === 0) return chunks;
+
+    const redirectChunks = chunks.filter(c => c.uri?.includes('grounding-api-redirect'));
+    if (redirectChunks.length === 0) {
+        console.log('[URL Resolve] No redirect URLs to resolve');
+        return chunks;
+    }
+
+    console.log(`[URL Resolve] Resolving ${redirectChunks.length} redirect URLs...`);
+
+    // Resolve all redirect URLs in parallel
+    const resolvedResults = await Promise.allSettled(
+        chunks.map(async (chunk) => {
+            const resolvedUri = await resolveRedirectUrl(chunk.uri);
+            return { ...chunk, uri: resolvedUri, originalUri: chunk.uri };
+        })
+    );
+
+    const resolved = resolvedResults.map((result, i) => {
+        if (result.status === 'fulfilled') return result.value;
+        return chunks[i]; // Keep original on failure
+    });
+
+    const successCount = resolved.filter(c => !c.uri?.includes('grounding-api-redirect')).length;
+    const failCount = resolved.filter(c => c.uri?.includes('grounding-api-redirect')).length;
+    console.log(`[URL Resolve] Done: ${successCount} resolved, ${failCount} still redirect URLs`);
+
+    return resolved;
+}
+
 // ─── Gemini API Call with Google Search Grounding — Research ────
 async function callGeminiWithSearch(prompt, apiKey, parseJson = true) {
     if (!apiKey) {
@@ -769,7 +851,7 @@ async function callGeminiWithSearch(prompt, apiKey, parseJson = true) {
                 tools: [{ google_search: {} }],
                 generationConfig: {
                     temperature: 0.8,
-                    maxOutputTokens: 8192
+                    maxOutputTokens: 16384
                 }
             })
         }
@@ -790,8 +872,8 @@ async function callGeminiWithSearch(prompt, apiKey, parseJson = true) {
         }
     }
 
-    // Extract REAL URLs from Gemini's grounding metadata
-    const groundingChunks = [];
+    // Extract URLs from Gemini's grounding metadata
+    let groundingChunks = [];
     try {
         const gm = data.candidates?.[0]?.groundingMetadata;
         console.log('[Gemini] groundingMetadata keys:', gm ? Object.keys(gm) : 'NONE');
@@ -813,7 +895,12 @@ async function callGeminiWithSearch(prompt, apiKey, parseJson = true) {
         console.warn('[Gemini] Error extracting grounding metadata:', e);
     }
 
-    console.log(`[Gemini] Found ${groundingChunks.length} grounding chunks:`, groundingChunks.map(c => c.uri));
+    console.log(`[Gemini] Found ${groundingChunks.length} grounding chunks (pre-resolve):`, groundingChunks.map(c => c.uri.substring(0, 80)));
+
+    // Resolve redirect URLs to real URLs
+    groundingChunks = await resolveAllRedirectUrls(groundingChunks);
+
+    console.log(`[Gemini] Grounding chunks (post-resolve):`, groundingChunks.map(c => c.uri));
 
     // Strip markdown code fences if present
     content = content.replace(/```json\s*/gi, '').replace(/```\s*/g, '').trim();

@@ -282,8 +282,55 @@ def _extract_json(content: str):
     raise ValueError(f"Could not extract JSON from response. First 200 chars: {content[:200]}")
 
 
+
+def _resolve_redirect_url(redirect_url: str, timeout: float = 5.0) -> str:
+    """Follow a Google grounding-api-redirect URL to get the real source URL."""
+    if not redirect_url or "grounding-api-redirect" not in redirect_url:
+        return redirect_url
+
+    try:
+        resp = requests.head(redirect_url, allow_redirects=True, timeout=timeout)
+        if resp.url and resp.url != redirect_url and "grounding-api-redirect" not in resp.url:
+            return resp.url
+    except Exception:
+        pass
+
+    # Fallback: try GET
+    try:
+        resp = requests.get(redirect_url, allow_redirects=True, timeout=timeout, stream=True)
+        if resp.url and resp.url != redirect_url and "grounding-api-redirect" not in resp.url:
+            resp.close()
+            return resp.url
+        resp.close()
+    except Exception:
+        pass
+
+    return redirect_url
+
+
+def _resolve_all_redirect_urls(chunks: list) -> list:
+    """Resolve all grounding-api-redirect URLs to real source URLs."""
+    redirect_chunks = [c for c in chunks if "grounding-api-redirect" in c.get("uri", "")]
+    if not redirect_chunks:
+        return chunks
+
+    resolved = []
+    for chunk in chunks:
+        real_url = _resolve_redirect_url(chunk.get("uri", ""))
+        resolved.append({**chunk, "uri": real_url})
+
+    success = sum(1 for c in resolved if "grounding-api-redirect" not in c.get("uri", ""))
+    fail = len(resolved) - success
+    print(f"[URL Resolve] {success} resolved, {fail} still redirect URLs")
+
+    return resolved
+
+
 def _assign_grounding_urls(topics: list, chunks: list):
     """Map grounding URLs to topics based on similarity scoring."""
+    # Resolve redirect URLs first
+    chunks = _resolve_all_redirect_urls(chunks)
+
     clean_chunks = [c for c in chunks if "youtube.com" not in c["uri"] and "youtu.be" not in c["uri"]]
     used = set()
 
@@ -325,6 +372,7 @@ def _assign_grounding_urls(topics: list, chunks: list):
             else:
                 item["articleUrl"] = ""
                 item["urlMatchMethod"] = "unverified"
+
 
 
 # ─── Generate Topics (Gemini Web Search) ─────────────────────────

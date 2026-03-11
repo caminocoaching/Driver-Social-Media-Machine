@@ -105,7 +105,12 @@
       <!-- Generated Posts (hidden until posts are written) -->
       <div class="posts-container hidden" id="posts-container">
         <div class="posts-header">
-          <h2 class="posts-title">Your posts are ready</h2>
+          <div style="display:flex;align-items:center;gap:1rem;margin-bottom:0.5rem;">
+            <button class="btn btn-secondary" id="back-to-stories-btn" style="font-size:0.78rem;padding:0.35rem 0.8rem;">
+              <span class="btn-icon-left">←</span> Back to Stories
+            </button>
+            <h2 class="posts-title" style="margin:0;">Your posts</h2>
+          </div>
           <div class="posts-actions-bar">
             <button class="btn btn-secondary" id="export-csv-btn">
               <span class="btn-icon-left">📄</span> Export CSV

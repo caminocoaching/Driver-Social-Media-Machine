@@ -239,6 +239,10 @@ function initWeeklyMode() {
   document.getElementById('copy-csv-btn')?.addEventListener('click', handleCopyCSV);
   document.getElementById('generate-emails-btn')?.addEventListener('click', handleGenerateAllEmails);
   document.getElementById('clear-session-btn')?.addEventListener('click', clearSession);
+  document.getElementById('back-to-stories-btn')?.addEventListener('click', () => {
+    renderStoryCards();
+    showContainer('stories-container');
+  });
 }
 
 
@@ -436,12 +440,21 @@ function renderStoryCards() {
         </div>
 
         <div class="story-card-actions">
+          ${state.posts[i] ? `
+          <button class="story-generate-btn" onclick="window.appActions.viewPost(${i})" style="background:rgba(46,160,67,0.15);border-color:rgba(46,160,67,0.3);color:var(--green,#2EA043);">
+            ✅ Generated — View
+          </button>
+          <button class="story-generate-btn" onclick="window.appActions.generateStory(${i})" style="font-size:0.7rem;padding:0.3rem 0.6rem;background:none;border:1px solid var(--border);color:var(--text-muted);" title="Regenerate this post">
+            🔄 Regen
+          </button>
+          ` : `
           <button class="story-generate-btn" onclick="window.appActions.regenerateStory && window.appActions.regenerateStory(${i})" style="font-size:0.7rem;padding:0.3rem 0.6rem;background:none;border:1px solid var(--border);color:var(--text-muted);" title="Find a different story for this slot">
             🔄 Swap
           </button>
           <button class="story-generate-btn" onclick="window.appActions.generateStory(${i})">
             Generate →
           </button>
+          `}
         </div>
       </div>
     `;
@@ -502,6 +515,35 @@ function renderPosts() {
   container.innerHTML = state.posts.map((post, i) => {
     const date = dates[i];
     const chem = state.stories[i]?.chemical || {};
+    const dayNames = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+
+    // Handle null posts (not yet generated)
+    if (!post) {
+      const story = state.stories[i];
+      return `
+        <div class="post-card" id="post-card-${i}" data-index="${i}" style="opacity:0.5;border-style:dashed;">
+          <div class="post-card-header">
+            <div class="post-card-header-left">
+              <span class="post-number">${i + 1}</span>
+              <span class="story-tag chemical" style="background:${chem.color}15;color:${chem.color};border:1px solid ${chem.color}30;">
+                ${chem.icon || '🧪'} ${chem.name || ''}
+              </span>
+              <span style="font-size:0.78rem;color:var(--text-secondary);">${escapeHtml(story?.headline || `Story ${i + 1}`)}</span>
+            </div>
+            <div class="post-card-header-right">
+              <span class="schedule-info">${dayNames[i] || `Day ${i + 1}`} ${date?.dateString || ''}</span>
+            </div>
+          </div>
+          <div style="padding:2rem;text-align:center;">
+            <p style="font-size:0.82rem;color:var(--text-muted);margin-bottom:1rem;">Post not yet written</p>
+            <button class="story-generate-btn" onclick="window.appActions.generateStory(${i})" style="font-size:0.82rem;padding:0.5rem 1.2rem;">
+              ✍️ Generate →
+            </button>
+          </div>
+        </div>
+      `;
+    }
+
     const isConfirmed = post._confirmed || false;
     const isEditing = post._editing || false;
     const topicData = post.topic || state.topics?.[i] || {};
@@ -695,7 +737,7 @@ function renderPosts() {
 
   // Wire edit-mode tab switching for textareas
   state.posts.forEach((post, i) => {
-    if (post._editing) {
+    if (post && post._editing) {
       const tabs = document.getElementById(`platform-tabs-${i}`)?.querySelectorAll('.platform-tab');
       tabs?.forEach(tab => {
         tab.addEventListener('click', () => {
@@ -714,6 +756,25 @@ function renderPosts() {
 
 // ─── Post Actions ─────────────────────────────────────────────
 window.appActions = {
+  // Navigate to posts view and scroll to a specific post
+  viewPost(index) {
+    // Ensure posts array has slots
+    while (state.posts.length < state.stories.length) {
+      state.posts.push(null);
+    }
+    renderPosts();
+    showContainer('posts-container');
+    requestAnimationFrame(() => {
+      const postCard = document.getElementById(`post-card-${index}`);
+      if (postCard) {
+        postCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        postCard.style.transition = 'box-shadow 0.3s ease';
+        postCard.style.boxShadow = '0 0 20px rgba(0,191,165,0.3)';
+        setTimeout(() => { postCard.style.boxShadow = ''; }, 2000);
+      }
+    });
+  },
+
   // Tab switching (works in both read and edit mode)
   switchTab(index, platform) {
     const post = state.posts[index];
@@ -917,6 +978,17 @@ window.appActions = {
     const settings = loadSettings();
     if (!settings.claudeApiKey) { showToast('Claude API key needed.', 'error'); return; }
 
+    // Show loading on the button
+    const card = document.querySelector(`.story-card[data-index="${index}"]`);
+    const actionsEl = card?.querySelector('.story-card-actions');
+    if (actionsEl) {
+      actionsEl.innerHTML = `
+        <span style="color:var(--neuro-teal);font-size:0.75rem;font-weight:600;display:flex;align-items:center;gap:0.4rem;">
+          <span class="spinner" style="width:14px;height:14px;border-width:2px;"></span> Writing post...
+        </span>
+      `;
+    }
+
     setStatus(`Writing post for story ${index + 1}...`, true);
     try {
       const content = await generatePost({
@@ -928,7 +1000,12 @@ window.appActions = {
         apiKey: settings.claudeApiKey
       });
 
-      // Add to posts array at this index
+      // Ensure posts array has slots for all stories
+      while (state.posts.length < state.stories.length) {
+        state.posts.push(null);
+      }
+
+      // Add/update the post at this index
       if (!state.posts[index]) {
         state.posts[index] = {
           id: `post-${Date.now()}-${index}`,
@@ -945,24 +1022,36 @@ window.appActions = {
       }
 
       saveSession();
-      showToast(`Post ${index + 1} generated!`, 'success');
+      showToast(`Post ${index + 1} generated! Opening for review.`, 'success');
 
-      // If all posts are generated, show posts view
-      if (state.posts.filter(Boolean).length === state.stories.length) {
-        renderPosts();
-        showContainer('posts-container');
-      } else {
-        // Show inline preview on the story card
-        const card = document.querySelector(`.story-card[data-index="${index}"]`);
-        if (card) {
-          card.querySelector('.story-card-actions').innerHTML = `
-                        <span style="color:var(--green);font-size:0.75rem;font-weight:600;">✅ Generated</span>
-                    `;
-          card.style.borderColor = 'rgba(46,160,67,0.3)';
+      // Immediately show the posts view with this post
+      renderPosts();
+      showContainer('posts-container');
+
+      // Scroll to the specific post card
+      requestAnimationFrame(() => {
+        const postCard = document.getElementById(`post-card-${index}`);
+        if (postCard) {
+          postCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          // Brief highlight animation
+          postCard.style.transition = 'box-shadow 0.3s ease';
+          postCard.style.boxShadow = '0 0 20px rgba(0,191,165,0.3)';
+          setTimeout(() => { postCard.style.boxShadow = ''; }, 2000);
         }
-      }
+      });
     } catch (err) {
       showToast(`Error: ${err.message}`, 'error');
+      // Restore the generate button
+      if (actionsEl) {
+        actionsEl.innerHTML = `
+          <button class="story-generate-btn" onclick="window.appActions.regenerateStory && window.appActions.regenerateStory(${index})" style="font-size:0.7rem;padding:0.3rem 0.6rem;background:none;border:1px solid var(--border);color:var(--text-muted);" title="Find a different story for this slot">
+            🔄 Swap
+          </button>
+          <button class="story-generate-btn" onclick="window.appActions.generateStory(${index})">
+            Generate →
+          </button>
+        `;
+      }
     } finally { setStatus('Ready'); }
   },
 
@@ -1640,16 +1729,18 @@ async function handleGenerateAllEmails() {
 
 // ─── Export CSV ────────────────────────────────────────────────
 function handleExportCSV() {
-  if (state.posts.length === 0) { showToast('No posts to export.', 'error'); return; }
+  const validPosts = state.posts.filter(Boolean);
+  if (validPosts.length === 0) { showToast('No posts to export.', 'error'); return; }
   const dates = getScheduleDates(state.posts.length);
-  const filename = exportCSV(state.posts, dates);
-  showToast(`Exported ${state.posts.length} posts to ${filename}`, 'success');
+  const filename = exportCSV(validPosts, dates);
+  showToast(`Exported ${validPosts.length} posts to ${filename}`, 'success');
 }
 
 function handleCopyCSV() {
-  if (state.posts.length === 0) { showToast('No posts to copy.', 'error'); return; }
+  const validPosts = state.posts.filter(Boolean);
+  if (validPosts.length === 0) { showToast('No posts to copy.', 'error'); return; }
   const dates = getScheduleDates(state.posts.length);
-  const csvString = buildCSVString(state.posts, dates);
+  const csvString = buildCSVString(validPosts, dates);
   copyToClipboard(csvString);
-  showToast(`CSV for ${state.posts.length} posts copied!`, 'success');
+  showToast(`CSV for ${validPosts.length} posts copied!`, 'success');
 }
