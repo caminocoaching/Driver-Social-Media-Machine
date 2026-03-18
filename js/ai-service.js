@@ -226,6 +226,23 @@ ${seasonNote}
 Find one story for each slot:
 ${daySlots.map((d, i) => `${i + 1}. ${d}`).join('\n')}
 
+=== STORY SELECTION METHODOLOGY (Frank Kern Content Pipeline) ===
+
+Do NOT just find the most "relevant" articles. Find stories that create NARRATIVE TENSION and COGNITIVE DISSONANCE:
+
+1. SIGNIFICANT OBJECTS — Look for weird, interesting, or unexpected stories that amplify the perceived value of a concept through narrative. A story about a surgeon's hand tremor study is more compelling than a generic "focus improves performance" article. The stranger and more specific the story, the better.
+
+2. EXPECTATION VIOLATION — Prioritise articles whose findings CONTRADICT what racing drivers believe. If every driver thinks more seat time = faster laptimes, find a study that shows diminishing returns. If drivers believe pre-session routines help, find data that shows they can hurt. The headline should make the driver think "wait, that can't be right."
+
+3. BUT/THEREFORE POTENTIAL — Each story should have a natural BUT/THEREFORE built in. Example: "Researchers studied 200 elite athletes to find what makes them faster. BUT the data showed the fastest athletes actually practised LESS. THEREFORE the question is not how much you train, but how you recover." Reject stories that are linear and predictable.
+
+4. DEMONSTRATION LOGIC — Prefer stories that DEMONSTRATE value rather than teach "how-to." The reader should think "I need to know more" not "I already know this." WOW not HOW.
+
+STORY QUALITY RANKING:
+- 🟢 BEST: Counterintuitive finding + specific data + natural BUT/THEREFORE tension + connects to track experience
+- 🟡 GOOD: Interesting data point + specific racing relevance + driver will pause and think
+- 🔴 REJECT: Generic advice article, listicle, no specific data, predictable conclusion, no conflict
+
 WEARABLE TECH SEARCH GUIDANCE:
 - Garmin: new health features, Body Battery studies, HRV tracking for athletes, racing driver use cases, endurance study data
 - Whoop: recovery score studies, strain tracking, sleep performance data, pro athlete partnerships, HRV and performance correlation research
@@ -264,6 +281,7 @@ Return a JSON array with 7 objects:
     "emotionalHook": "What should the racing driver feel?",
     "mechanism": "Neuroscience mechanism referenced",
     "racingRelevance": "One sentence connecting to car racing on track, using car racing language (turn, apex, braking zone, throttle, steering input, the car, cockpit, harness, pit wall)",
+    "butTherefore": "The natural BUT/THEREFORE tension in this story — how does the finding contradict expectations?",
     "contentBrief": "Type of post"
   }
 ]
@@ -845,6 +863,13 @@ Find the BEST article published in the last 7 days for this search area. If noth
 
 THE AUDIENCE: Club racers (Ginetta, Caterham, Fun Cup, Classic), amateur GT and touring car drivers, single-seater pilots (F4, GB3, Formula Ford), sim-to-real crossover drivers, semi-professional competitors. UK and Europe primarily. They spend £2,500-£5,000+ per race weekend. They are serious about improving.
 
+=== STORY SELECTION (Frank Kern Content Pipeline) ===
+Do NOT just find the most "relevant" article. Find the most COMPELLING one:
+- SIGNIFICANT OBJECTS: Prefer weird, specific, or unexpected stories over generic ones. A study on surgeons' hand tremors connecting to braking precision is better than a generic "focus" article.
+- EXPECTATION VIOLATION: Prioritise findings that CONTRADICT what drivers believe. Counterintuitive data creates cognitive dissonance and stops the scroll.
+- BUT/THEREFORE: The best article has a built-in conflict. Something is true BUT another thing contradicts it. THEREFORE the conclusion surprises.
+- REJECT articles that are predictable, generic "5 tips" listicles, or confirm what everyone already knows.
+
 QUALITY FILTERS:
 PREFER: Peer-reviewed studies, university research, Autosport, Motorsport.com, F1.com, The Race, Frontiers in Psychology, BJSM, JSSM, Journal of Sports Sciences, BBC Sport, Sky Sports F1, Nature, Scientific American, New Scientist.
 AVOID: Listicles, affiliate content, generic self-help blogs, Reddit threads, unverified claims, articles older than 30 days unless nothing else exists.
@@ -854,6 +879,7 @@ WHAT MAKES A 10/10 ARTICLE:
 - From a credible, citable source
 - Directly connects to something a car racer experiences on track
 - Makes a driver think: "That explains what happens to me"
+- Has a natural BUT/THEREFORE tension — the finding surprises
 - Current (last 7 days ideal)
 
 Return a JSON object with these exact fields:
@@ -864,6 +890,7 @@ Return a JSON object with these exact fields:
     "summary": "3 sentences describing the key finding",
     "killerDataPoint": "The specific number, statistic, or direct quote that makes this article valuable. Must be concrete — a percentage, a time, a measurement, a direct quote from a researcher or driver.",
     "racingRelevance": "One sentence connecting this finding to what a club or amateur car racer actually experiences on a race weekend. Use car racing language: braking markers, racing line, qualifying, FP sessions, engineer debrief, car setup, data traces, stint management, tyre deg, lock-ups. NEVER use motorcycle language.",
+    "butTherefore": "The natural conflict in this article — what does the finding contradict? What is the unexpected consequence?",
     "quality": "A number 1-10 rating the article quality"
 }
 
