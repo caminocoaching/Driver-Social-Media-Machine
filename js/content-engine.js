@@ -77,7 +77,7 @@ export const PILLARS = [
     group: 'positive',
     description: 'What the debrief data shows about drivers who break through plateaus. The confidence multiplier. The preparation patterns that predict PBs. Framed as "what works" rather than "what is broken."',
     topics: [
-      'The preparation patterns behind 699 documented personal bests',
+      'The preparation patterns behind 808 documented personal bests',
       'Why drivers who debrief consistently achieve PB rates above 50%',
       'The confidence multiplier — what the data shows about drivers who believe they belong',
       'Breaking through plateaus: the single variable that changes everything',
@@ -116,7 +116,8 @@ export const PILLARS = [
   }
 ];
 
-// ─── 5 Frameworks (3S + 2F) — Alex Hormozi Style ──────────────
+// ─── 7 Frameworks (3S + 2F + 2K) — Hormozi + Kern ────────────
+// v3: Added South Park Rule and Expectation Violation from Frank Kern's Content Pipeline
 export const FRAMEWORKS = [
   {
     id: 'scary',
@@ -167,8 +168,132 @@ export const FRAMEWORKS = [
     description: 'Relatable story — "that\'s me" moment every driver recognises',
     hookStyle: 'Start with a situation every driver has experienced. Make them think "that\'s exactly what happens to me".',
     example: 'You know that feeling when you come out of Turn 1 on Lap 1 and you\'ve already lost three positions? Let me tell you what\'s happening...'
+  },
+  // ─── KERN PIPELINE FRAMEWORKS ───
+  {
+    id: 'south-park-rule',
+    name: 'South Park Rule',
+    icon: '🎭',
+    prefix: 'K',
+    color: '#E91E8C',
+    description: 'BUT/THEREFORE tension engineering — replaces linear "and then" with conflict and consequence. Creates narrative tension that keeps the reader engaged through the entire post to resolve the dissonance.',
+    hookStyle: 'Start with a compelling statistic or statement. Follow with "BUT" to introduce conflict/contradiction. Then "THEREFORE" to deliver the consequence. The reader stays to resolve the tension.',
+    example: '81% of racing drivers now use data analysis tools. But it just means 81% of racing drivers are overthinking their next session. Therefore, the question is not whether you are using data. It is whether the data is making you faster or slower.'
+  },
+  {
+    id: 'expectation-violation',
+    name: 'Expectation Violation',
+    icon: '⚡',
+    prefix: 'K',
+    color: '#9B59B6',
+    description: 'Purposefully subvert audience expectations. Instead of generic paddock wisdom, challenge the driver\'s existing beliefs with a provocative truth that creates immediate curiosity. The goal is to make the reader stop and wonder.',
+    hookStyle: 'Lead with a headline that directly contradicts what the driver believes is true. Create cognitive dissonance by challenging the accepted approach. The headline should make them think "wait, that cannot be right" — then explain why it IS right.',
+    example: 'YOUR PRE-SESSION ROUTINE IS MAKING YOU SLOWER. Every driver I talk to has one. 73% of them are doing the exact opposite of what the neuroscience says. The routine is not the problem. The timing is.'
   }
 ];
+
+// ─── Frank Kern Content Pipeline Stages ───────────────────────
+// Reference: The 4-stage pipeline that orchestrates the entire content creation process.
+// Mapped to existing SMM features for the Pipeline Dashboard.
+export const PIPELINE_STAGES = [
+  {
+    id: 'strategic-planning',
+    name: 'Strategic Planning',
+    icon: '🎯',
+    color: '#FF6B35',
+    kernConcept: 'Chief Revenue Officer',
+    smmFeature: 'Content Pillars + Championship Calendar + Research Pipeline',
+    description: 'Analyse where content impact is highest. Pick the week\'s topics based on championship calendar, neurochemistry rotation, and audience gaps.',
+    tools: ['Gemini Search', 'Content Pillars', 'Championship Calendar'],
+    action: 'Find Stories'
+  },
+  {
+    id: 'ai-copywriting',
+    name: 'AI Copywriting',
+    icon: '✍️',
+    color: '#8B5CF6',
+    kernConcept: 'Project Shepherd',
+    smmFeature: 'Claude Post Generation with Voice Training',
+    description: 'Generate posts using voice-trained AI. Every post follows the 5-step architecture (Hook → Problem → Neuroscience → Bridge → CTA) with PAS structure.',
+    tools: ['Claude Sonnet', 'Voice Training', '5-Step Formula'],
+    action: 'Write All 7'
+  },
+  {
+    id: 'visual-generation',
+    name: 'Visual Generation',
+    icon: '🎨',
+    color: '#00BFA5',
+    kernConcept: 'Two-Step Image Process',
+    smmFeature: 'Cinematic Image Prompts + Manus Slide Decks',
+    description: 'Build cinematic, scroll-stopping visuals. Step 1: AI reads the post and generates a detailed image prompt. Step 2: Generate the visual with strict brand requirements.',
+    tools: ['Gemini Image', 'Manus Slides', 'Canva Templates'],
+    action: 'Build Visuals'
+  },
+  {
+    id: 'multi-platform-publish',
+    name: 'Multi-Platform Publishing',
+    icon: '🚀',
+    color: '#2EA043',
+    kernConcept: 'Review + Schedule + Distribute',
+    smmFeature: 'Edit/Confirm → CSV Export → GHL Social Planner',
+    description: 'Review each post across FB/IG. Edit in-place, confirm, then schedule across platforms. Track post IDs and engagement.',
+    tools: ['GHL Planner', 'GHL Email', 'HeyGen Video', 'ManyChat'],
+    action: 'Publish'
+  }
+];
+
+// ─── Cinematic Image Prompt Specs (Kern Two-Step Process) ──────
+// Step 1: buildImagePrompt() reads the post and outputs a detailed image prompt + headline text
+// Step 2: generateImage() receives the prompt and creates the visual
+export const CINEMATIC_IMAGE_SPECS = {
+  style: 'cinematic movie poster',
+  aspectRatio: '4:5',
+  camera: '85mm portrait lens, shallow depth of field',
+  composition: 'Movie poster composition. Mid-chest up. Subject stares DIRECTLY at the camera.',
+  lighting: 'Rich, natural dramatic sunlight, film grain, high-end editorial photography',
+  textOverlay: {
+    position: 'UPPER THIRD of the image, ABOVE the subject\'s head',
+    font: 'Thick bold sans-serif font (like Impact or Bebas Neue)',
+    style: 'Large, bold, UPPERCASE',
+    colors: ['stark white with subtle drop shadow', 'bold navy blue', 'deep red'],
+    hierarchy: 'The text is the FIRST thing the viewer should see. Large enough to read even if the image is small.',
+    maxWords: 7
+  },
+  prohibited: [
+    'robots', 'cyborgs', 'circuit boards', 'futuristic neon', 'AI branding',
+    'sci-fi cliches', 'stock photos', 'abstract designs', 'generic backgrounds',
+    'corporate office settings', 'cartoon illustrations'
+  ],
+  subjects: [
+    { type: 'racing-driver', description: 'Racing driver in fireproof suit or team gear, helmet nearby or in hand, pit lane or paddock background' },
+    { type: 'pit-lane', description: 'Atmospheric pit lane shot, blurred racing cars in background, dramatic lighting' },
+    { type: 'cockpit', description: 'Driver\'s perspective from cockpit, steering wheel visible, visor reflections' },
+    { type: 'data-screen', description: 'Telemetry data on screens with driver silhouette, dramatic racing tech atmosphere' },
+    { type: 'authority-portrait', description: 'Confident coaching figure in smart-casual attire, motorsport environment backdrop' }
+  ]
+};
+
+// ─── Build Cinematic Image Prompt from Post Content ───────────
+// Kern Step 1: Reads the post text and generates a structured image prompt
+export function buildCinematicImagePrompt(postContent, pillar, hookText = '') {
+  const specs = CINEMATIC_IMAGE_SPECS;
+  const subjectPool = specs.subjects;
+  const subject = subjectPool[Math.floor(Math.random() * subjectPool.length)];
+
+  // Extract first line as potential text overlay if no hookText provided
+  const textForOverlay = hookText || (postContent ? postContent.split('\n')[0].replace(/["']/g, '').substring(0, 50).toUpperCase() : 'STOP OVERTHINKING');
+
+  // Select text colour based on pillar
+  const textColour = pillar?.color ? specs.textOverlay.colors[0] : specs.textOverlay.colors[Math.floor(Math.random() * specs.textOverlay.colors.length)];
+
+  return {
+    imagePrompt: `${specs.style} portrait, shot from mid-chest up on an ${specs.camera}. ${subject.description}. ${specs.composition} ${specs.lighting}. The image MUST include text overlay in the ${specs.textOverlay.position}: "${textForOverlay}" in a ${specs.textOverlay.font}, ${specs.textOverlay.style}, using ${textColour}. ${specs.textOverlay.hierarchy} NEVER include: ${specs.prohibited.join(', ')}.`,
+    headlineText: textForOverlay,
+    aspectRatio: specs.aspectRatio,
+    subjectType: subject.type,
+    textColour: textColour
+  };
+}
 
 // ─── 5 CTA Templates — Lead Magnets + Free Training ──────────
 // 4 Lead Magnets (LM2-LM5) + 1 Direct Blueprint CTA
@@ -330,8 +455,8 @@ export const DATA_LAYERS = {
       pbs: '808',
       podiums: '438',
       wins: '159',
-      drivers: '118+',
-      circuits: '100+',
+      drivers: '89',
+      circuits: '107',
       seasons: '10',
       months: '60',
       trustpilot: '4.9/5 (85 reviews, 100% five-star)'
@@ -345,10 +470,10 @@ export const DATA_LAYERS = {
       pbs: '808',
       podiums: '438',
       wins: '159',
-      circuits: '100+',
+      circuits: '107',
       months: '60',
-      pbRate: '34%',
-      podiumRate: '19%',
+      pbRate: '44.3%',
+      podiumRate: '22.4%',
       avgFlowScore: '7.8/10'
     }
   }
@@ -359,13 +484,13 @@ export const AUTHORITY_LINES = [
   // Layer 1 — Career totals (broad authority)
   'Pattern recognition across 808 personal bests, 438 podiums, and 159 race wins has shown me this pattern over and over again.',
   'After 10 seasons embedded in elite motorsport paddocks, from F1 to F4, GT racing to touring cars, I see this in 90% of drivers I work with.',
-  'Working with 118+ drivers across 100+ circuits, the data on this is very clear.',
+  'Working with 89 drivers across 107 circuits, the data on this is very clear.',
   'I have sat beside drivers across F4, GB3, GT3, and Carrera Cup. The pattern is always the same.',
   '85 five-star reviews on Trustpilot, 4.9 out of 5, 100% five-star. Drivers from 12 countries have reviewed this programme. Most of them mention the same breakthrough.',
   // Layer 2 — Verified ITZ debrief data (specific, data-backed)
   'I have analysed 2,358 performance debriefs over 60 months. The pattern in the data is impossible to ignore.',
   '808 documented personal bests. All traceable back to specific mental preparation patterns in our debrief system.',
-  'Across 2,358 debriefs and 100+ circuits, we can see exactly what separates the drivers who improve from the ones who plateau.',
+  'Across 2,358 debriefs and 107 circuits, we can see exactly what separates the drivers who improve from the ones who plateau.',
   '438 podiums and 159 race wins documented through our In The Zone system. Each one tracked back to what the driver was thinking and feeling before the session.',
   'No other motorsport performance coach has a dataset of this scale and depth. 60 months of continuous, verified data from real drivers in real races.'
 ];
@@ -398,14 +523,14 @@ export const DRIVER_INSIGHTS = [
   'The average driver loses 0.3-0.5s per corner from visual targeting errors.',
   // Layer 2 — Verified ITZ debrief data
   '2,358 performance debriefs analysed across 60 months of continuous data.',
-  '699 personal bests documented and traceable to specific mental preparation patterns.',
+  '808 personal bests documented and traceable to specific mental preparation patterns.',
   'Drivers who debrief consistently achieve PB rates above 50%. Those who do not stay stuck.',
   'Becky Gleeson: 30 PBs across 58 sessions. That is a 52% PB rate, sustained over time.',
   'Calum Beach has an 85% podium rate across 26 documented sessions. That is not talent. That is a system.',
   'Cormac Buchanan averages a 9.11 flow score across 30 debriefs. Elite-level consistency.',
   'Al Hoogie Racing: 19 wins, 70% podium rate. Documented through the In The Zone system.',
   'The most improved driver in our system increased their flow score by 36%. It translated directly into results.',
-  'No other motorsport performance coach has a dataset of this scale. 2,358 debriefs. 100+ circuits. 60 months.'
+  'No other motorsport performance coach has a dataset of this scale. 2,358 debriefs. 107 circuits. 60 months.'
 ];
 
 // ─── Review Data (Trustpilot + Google) ────────────────────────
@@ -564,7 +689,7 @@ export const VISUAL_TYPES = [
     guidance: 'Best for neuroscience explainers, framework breakdowns, numbered lists, and data-heavy content. Manus creates the slide deck visuals. HeyGen renders your avatar delivering the script with slides behind. The slide deck adds visual authority and keeps viewers watching longer.',
     frequency: '1x per week',
     tool: 'Manus + HeyGen',
-    toolUrl: 'https://manus.im',
+    toolUrl: 'https://manus.im/app/project/5ndQv7naHNFmzkfVtH4dfq',
     toolIcon: '📽️',
     workflow: '1. Copy script from post card → 2. Create slide deck in Manus (3-6 slides matching key points) → 3. Paste script into HeyGen → 4. Select avatar with slide deck background or composite in Descript → 5. Export → 6. Upload to Meta/GHL'
   },
@@ -672,14 +797,15 @@ export function getVisualGuidance(visualType) {
 }
 
 // ─── AI Image Prompts (Tier 3/4 concept illustration only) ────
+// v3: Updated with Kern cinematic specs. Use buildCinematicImagePrompt() for per-post generation.
 export const AI_IMAGE_PROMPTS = {
-  'visual-targeting': 'Abstract neural pathway visualisation showing eye movement patterns, blue and gold highlights on dark background, scientific illustration style',
-  'braking-zone': 'Brain cross-section showing amygdala activation during stress, warm red tones, cortisol pathway illustration, clean scientific style',
-  'overthinking': 'Prefrontal cortex override visualisation, cluttered neural pathways simplifying into clean flow, blue tones transitioning to golden',
-  'expectation-pressure': 'Amygdala hijack illustration showing pressure cascade, red warning tones transitioning to calm blue flow state',
-  'personal-best-triggers': 'Neural growth and breakthrough visualisation, dopamine pathways lighting up, gold and blue tones, clean scientific style',
-  'race-craft': 'Split-second decision making brain diagram, testosterone and dopamine pathways, competitive drive visualisation, amber and red tones',
-  'flow-state-confidence': 'Flow state brain scan visualisation, transient hypofrontality diagram, serene golden glow with deep blue neural pathways'
+  'visual-targeting': 'Cinematic movie poster portrait. Racing driver in cockpit, eyes locked forward through visor with intense focus. Natural dramatic sunlight through windscreen, shallow depth of field, film grain. Eye-tracking data visualised as subtle teal HUD overlay. 85mm lens, mid-chest up. High-end editorial photography.',
+  'braking-zone': 'Cinematic movie poster portrait. Racing driver\'s hands gripping steering wheel, knuckles white, brake marker board blurred in background. Warm amber and red tones, dramatic side lighting, shallow depth of field, film grain. 85mm lens, mid-chest up. High-end editorial photography.',
+  'overthinking': 'Cinematic movie poster portrait. Racing driver sat in cockpit, helmet off, head slightly bowed, hand on brow. Cluttered data screens behind transitioning from chaotic red to calm teal. Film grain, shallow depth of field. 85mm lens. High-end editorial photography.',
+  'expectation-pressure': 'Cinematic movie poster portrait. Racing driver walking through pit lane, team members and sponsors blurred behind. Weight-of-the-world body language, dramatic shadows. Red warning tones in background shifting to calm blue. 85mm lens, film grain.',
+  'personal-best-triggers': 'Cinematic movie poster portrait. Racing driver punching the air on pit wall, team celebrating in background blur. Golden victory light, dopamine-rush energy. Confetti or champagne spray, shallow depth of field. 85mm lens, film grain.',
+  'race-craft': 'Cinematic movie poster portrait. Racing driver in helmet making split-second overtaking decision, competitor\'s car reflected in visor. Amber and red competitive tones, dramatic side lighting. 85mm lens, film grain.',
+  'flow-state-confidence': 'Cinematic movie poster portrait. Racing driver in zen-like calm before session, eyes closed, helmet resting beside them. Serene golden glow with deep teal neural pathway overlay. Pit lane sunrise atmosphere. 85mm lens, film grain.'
 };
 
 // ─── Data Card Templates (Tier 4) ────────────────────────────
@@ -690,7 +816,7 @@ export const DATA_CARD_TEMPLATES = [
   { stat: '60%+', subtext: 'of drivers plateau despite more seat time', source: 'Season Review Data', color: '#9775fa' },
   { stat: '80%+', subtext: 'of drivers can\'t wake without an alarm on race weekends', source: 'Sleep Test Results', color: '#69db7c' },
   { stat: '2.7x', subtext: 'more PBs for drivers scoring 8.5+ on confidence', source: 'Confidence-PB Correlation', color: '#ffd43b' },
-  { stat: '2,358', subtext: 'debrief sessions analysed across 118+ drivers over 60 months', source: 'In The Zone App', color: '#f783ac' }
+  { stat: '2,358', subtext: 'debrief sessions analysed across 89 drivers over 60 months', source: 'In The Zone App', color: '#f783ac' }
 ];
 
 // ─── Text Quote Templates (Tier 5) ───────────────────────────
@@ -753,16 +879,24 @@ export const LEXICON = {
   'Seven-Minute Protocol': 'Pre-session mental preparation framework',
   'Goldilocks Zone': 'Optimal arousal level — challenge matches skill',
   'Believable Stretch': 'Goal hard enough to demand 100% focus but realistic enough to avoid panic',
-  'Protective Mode': 'When brain prioritises safety over performance'
+  'Protective Mode': 'When brain prioritises safety over performance',
+  // ─── Kern Pipeline Concepts ───
+  'South Park Rule': 'BUT/THEREFORE structure — replace "and then" with conflict (BUT) and consequence (THEREFORE) to maintain narrative tension',
+  'Expectation Violation': 'Purposefully subvert audience expectations with provocative truths that create curiosity and cognitive dissonance',
+  'Significant Objects': 'Story-based value amplification — narrative increases perceived value of a concept exponentially',
+  'Intent-Based Branding': 'Build a bond by providing value before selling. Pre-frame, indoctrinate with useful info, then convert.',
+  'Demonstration Logic': 'Show value rather than teach "how-to" — attract buyers not students',
+  'AI + HI Formula': 'AI finds the story, Human Intelligence bridges the gap between narrative and specific business lesson'
 };
 
-// ─── 5-Day Campaign Arc ──────────────────────────────────────
+// ─── 5-Day Campaign Arc (PAS + South Park Rule) ──────────────
+// v3: Added Kern narrative tension engineering to each day
 export const CAMPAIGN_ARC = [
-  { day: 'Monday', purpose: 'Describe the Problem', emotion: 'Recognition: "That\'s me"', wordCount: '150-250' },
-  { day: 'Tuesday', purpose: 'Agitate the Pain', emotion: 'Frustration: "This is costing me"', wordCount: '200-300' },
-  { day: 'Wednesday', purpose: 'Explain the Neuroscience', emotion: 'Understanding: "Now I get it"', wordCount: '250-350' },
-  { day: 'Thursday', purpose: 'Future-Pace the Solution', emotion: 'Hope: "This could work"', wordCount: '200-300' },
-  { day: 'Friday', purpose: 'Release Free Training', emotion: 'Action: "I want this"', wordCount: '3 variations' }
+  { day: 'Monday', purpose: 'Describe the Problem', emotion: 'Recognition: "That\'s me"', wordCount: '150-250', tension: 'Open with a statistic or scenario the driver recognises. End with BUT — the hidden cost they have not calculated.' },
+  { day: 'Tuesday', purpose: 'Agitate the Pain', emotion: 'Frustration: "This is costing me"', wordCount: '200-300', tension: 'BUT this problem compounds. THEREFORE the gap between where they are and where they could be is widening every race weekend.' },
+  { day: 'Wednesday', purpose: 'Explain the Neuroscience', emotion: 'Understanding: "Now I get it"', wordCount: '250-350', tension: 'The science explains WHY. BUT most drivers do the opposite of what the data shows. THEREFORE the fix is counterintuitive.' },
+  { day: 'Thursday', purpose: 'Future-Pace the Solution', emotion: 'Hope: "This could work"', wordCount: '200-300', tension: 'Show the transformation. BUT it requires one specific shift. THEREFORE the question becomes: are you willing to do it differently?' },
+  { day: 'Friday', purpose: 'Release Free Training', emotion: 'Action: "I want this"', wordCount: '3 variations', tension: 'THEREFORE the next step is clear. Comment BLUEPRINT. No selling. "With or without you" energy.' }
 ];
 
 // ─── Problem → Mechanism Reference ───────────────────────────

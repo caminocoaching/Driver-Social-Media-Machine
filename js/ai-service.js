@@ -37,7 +37,7 @@ const SYSTEM_PROMPT = `You are Craig Muirhead's Facebook & Instagram content str
 - 59-year-old flow performance coach based in Mallorca, Spain
 - 10 seasons inside elite racing paddocks (F1, F4, GB3, British GT, Carrera Cup, GT3, WEC, MotoGP, WorldSBK, BSB)
 - 808 personal bests, 438 podiums, 159 race wins tracked
-- Proprietary 'In The Zone' app: 2,358 debriefs, 118+ drivers, 100+ circuits worldwide, 60 months continuous data
+- Proprietary 'In The Zone' app: 2,358 debriefs, 89 drivers, 107 circuits worldwide, 60 months continuous data
 - 4.9 Trustpilot rating (85 reviews, 100% five-star) + 5.0 Google rating (36 reviews, 100% five-star) = 121 total reviews
 - REVIEW AUTHORITY: Use these in rotation: "Rated 4.9 out of 5 on Trustpilot from 85 unprompted driver reviews" / "85 five-star reviews on Trustpilot. 100% satisfaction rate" / "121 reviews across Trustpilot and Google. Every single one is five stars."
 - Works with racing drivers (F1 development to club level), motorcycle racers, and business leaders
@@ -83,6 +83,8 @@ This is the ONLY line that matters for reach. Proven hook patterns:
 - Celebrity Bridge Hook: "[F1 driver name] just said something most club racers will misunderstand..."
 - Relatable Pain Hook: "You are P5 in practice. Then qualifying arrives..." / "Your first flying lap is your fastest. Then it all falls apart."
 - Provocative Challenge Hook: "It is the most expensive lie in the paddock..." / "Your brain has a limit. You are pushing past it."
+- EXPECTATION VIOLATION Hook: Lead with a headline that directly contradicts what the driver believes is true. Create cognitive dissonance. "YOUR PRE-SESSION ROUTINE IS MAKING YOU SLOWER." / "THE DATA SAYS STOP PRACTISING." This makes the reader stop and think "wait, that cannot be right" — then you explain why it IS right.
+- SOUTH PARK RULE Hook: Start with a statistic/statement. Follow with BUT to introduce conflict. Then THEREFORE to deliver consequence. "81% of drivers now use data analysis. But it means 81% are overthinking. Therefore the question is not whether you use data. It is whether the data is making you faster."
 - QUOTED REVIEW HOOK: Use a single sentence from a real Trustpilot review as the opening hook in quotation marks. Then build teaching content around the theme. Use this approximately 1 in 4 posts.
 
 ## Step 2: THE PROBLEM (Next 2-3 Sentences)
@@ -98,6 +100,18 @@ Show how this pattern appears at every level. Reference real results or anonymis
 Separated from value content by a line break and visual separator (··).
 "Comment BLUEPRINT below and I will send you the free training."
 "With or without you" energy. Never needy. CTA is ALWAYS unrelated to the post topic.
+
+# NARRATIVE TENSION (South Park Rule — Frank Kern / Matt Stone & Trey Parker)
+Replace linear "and then" connectors with "BUT" and "THEREFORE" to create narrative tension:
+- BUT introduces conflict or contradiction that creates cognitive dissonance
+- THEREFORE delivers the consequence that the reader needs to resolve
+This structure keeps the reader engaged through the entire post. Every great post has at least one BUT/THEREFORE pivot. Do NOT label them explicitly. The tension should feel natural, not formulaic.
+
+# CONTENT PHILOSOPHY (Intent-Based Branding)
+- Demonstrate value, do not educate on process. WOW not HOW.
+- The post should make the driver FEEL something (recognised, curious, challenged) before asking them to DO anything.
+- Sell the outcome, not the process. Focus on the transformation, not the features.
+- Every post must establish BORROWED AUTHORITY from the source article, then bridge to Craig's data. Third-party authority first, your expertise second, CTA last.
 
 # VOICE & TONE (Mandatory Rules — Non-Negotiable)
 - UK English spelling throughout. No American spellings. (colour, analyse, programme, tyre, favourite)
@@ -128,7 +142,7 @@ Balance: 2 pain/challenge, 2 outside-the-paddock/tech, 2 proof/aspiration, 1 tim
 - WOW not HOW: Reveal what the problem is and why it happens (neuroscience). NEVER give the specific fix or methodology.
 - Never use generic coaching language: "mindset shift", "unlock your potential", "be your best self", "level up".
 - Every post must reference a specific racing scenario (turn number, session context, tyre condition, grid position).
-- Use real data: 808 PBs, 438 podiums, 159 wins, 118 drivers, 100+ circuits, 2,358 debriefs, 60 months, 4.9 Trustpilot (85 reviews).
+- Use real data: 808 PBs, 438 podiums, 159 wins, 89 drivers, 107 circuits, 2,358 debriefs, 60 months, 4.9 Trustpilot (85 reviews).
 - ROTATE credibility claims. Never use the same stat in consecutive posts.
 
 # PLATFORM-SPECIFIC ADAPTATION
@@ -330,7 +344,7 @@ RULES (racing driver Facebook / Instagram format):
 - UK English spelling throughout (colour, analyse, programme, tyre, favourite)
 - WOW not HOW: Reveal the problem and why it happens. NEVER give the specific fix or methodology.
 - Every post must reference a specific racing scenario (turn number, session context, tyre condition, grid position)
-- Use real data: 808 PBs, 438 podiums, 159 wins, 118 drivers, 100+ circuits, 2,358 debriefs, 60 months, 4.9 Trustpilot (85 reviews)
+- Use real data: 808 PBs, 438 podiums, 159 wins, 89 drivers, 107 circuits, 2,358 debriefs, 60 months, 4.9 Trustpilot (85 reviews)
 - NEVER use em dashes or en dashes. Use commas or full stops instead.
 - NEVER use ** or bullet symbols in the post body
 - No emojis in the value section. Occasional use in CTA is acceptable.
@@ -475,7 +489,7 @@ HOW TO USE THE ARTICLE IN THE VIDEO:
 1. HOOK must reference the article directly. Name the person, the study, or the discovery from the article in the first sentence.
 2. SCENARIO must include at least one named example from the article in the first 15 seconds. Show WHY this person/study is fascinating.
 3. THE SCIENCE explains the brain chemistry behind WHY the article's story works. This is where the neurochemical layer adds depth.
-4. THE COST quantifies what happens when drivers DON'T have this. Use Camino debrief data (2,358 debriefs, 118 drivers, 100+ circuits).
+4. THE COST quantifies what happens when drivers DON'T have this. Use Camino debrief data (2,358 debriefs, 89 drivers, 107 circuits).
 5. THE BRIDGE connects the article's insight to the driver watching. "After 2,358 performance debriefs, the pattern is identical in motorsport..."
 6. CTA is casual and separate.
 
@@ -596,7 +610,7 @@ RULES:
 - Use UK English spelling throughout (colour, analyse, programme, tyre, favourite)
 - Use CAR RACING language: driver, turn, apex, braking zone, racing line, throttle, steering input, circuit, pit lane, grid, qualifying, cockpit, stint
 - NEVER use motorcycle language (lean angle, body position, hanging off, the bike)
-- Write numbers out in full text for voice synthesis (e.g., "six hundred and ninety nine" not "699")
+- Write numbers out in full text for voice synthesis (e.g., "eight hundred and eight" not "808")
 - WOW not HOW: Reveal the chemical and what it does. NEVER give the specific fix or programme methodology
 - Warm, direct, confident tone. Like a trusted paddock insider giving you one razor-sharp insight.
 - TOTAL SCRIPT: 75-85 words. Read it aloud. Time it. If over 30 seconds, cut words. Do NOT speed up delivery.
@@ -643,6 +657,456 @@ Slide 4 — CTA: [Comment keyword in teal. Minimal visual weight. Dark backgroun
 [Avatar expression, gesture, and pace instructions specific to this Short.]`;
 
     return await callClaude(prompt, apiKey, false);
+}
+
+// ═══════════════════════════════════════════════════════════════
+// 🔬 WEEKLY RESEARCH MODE — 7-Area Research Pipeline
+// Replicates the Gemini Gem "Race Car Driver News Research"
+// Searches 7 specific areas and returns structured results
+// ═══════════════════════════════════════════════════════════════
+
+const RESEARCH_AREAS = [
+    {
+        id: 1,
+        name: 'Attention, Distraction & Focus',
+        description: 'Research on: attention splitting costs, social comparison and performance, distraction penalties, multitasking myths, attention residue, focus and reaction time.',
+        searchQueries: [
+            'attention splitting performance cost',
+            'social comparison athlete performance anxiety study',
+            'distraction cognitive penalty reaction time',
+            'multitasking myth neuroscience',
+            'focus switching cost performance data'
+        ]
+    },
+    {
+        id: 2,
+        name: 'Flow State & Breaking Through Plateaus',
+        description: 'Research on: flow state breakthroughs, plateau psychology, peak performance under pressure, dopamine and challenge-skill balance, transient hypofrontality, zone state in sport.',
+        searchQueries: [
+            'flow state performance breakthrough study',
+            'athlete plateau psychology breaking through',
+            'peak performance dopamine challenge skill balance',
+            'transient hypofrontality speed performance',
+            'zone state athletic performance'
+        ]
+    },
+    {
+        id: 3,
+        name: 'Current Motorsport News (Mental Angle)',
+        description: 'Find F1, BTCC, British GT, WEC, or major motorsport news from THIS WEEK that has a driver mental performance angle. Driver interviews about pressure, regulations increasing cognitive workload, team psychology, sports psychologist involvement, mental health stories.',
+        searchQueries: [
+            'F1 driver mental workload cognitive',
+            'F1 driver psychology pressure interview',
+            'BTCC driver mental preparation',
+            'racing driver sports psychologist',
+            'motorsport mental health driver performance',
+            'British GT driver pressure'
+        ]
+    },
+    {
+        id: 4,
+        name: 'Overthinking & Choking Under Pressure',
+        description: 'Research on: choking under pressure neuroscience, explicit monitoring theory, overthinking and motor skill degradation, the try-harder paradox, prefrontal cortex and automatic execution.',
+        searchQueries: [
+            'choking under pressure neuroscience',
+            'overthinking motor performance degradation study',
+            'explicit monitoring hypothesis sport',
+            'trying harder makes athletes slower',
+            'paradox conscious control sport performance'
+        ]
+    },
+    {
+        id: 5,
+        name: 'Adaptability & Performing Through Uncertainty',
+        description: 'Research on: cognitive flexibility under stress, adaptation and performance, resilience in high-pressure sport, decision-making in changing conditions, uncertainty tolerance.',
+        searchQueries: [
+            'cognitive flexibility stress performance',
+            'adaptability resilience athlete performance study',
+            'decision making changing conditions sport',
+            'uncertainty tolerance athletic performance',
+            'mental reset after disruption sport psychology'
+        ]
+    },
+    {
+        id: 6,
+        name: 'Vision, Reaction Time & Cognitive Speed',
+        description: 'Research on: eye tracking and driving performance, visual processing speed, gaze behaviour in expert vs novice drivers, peripheral vision in high-speed environments, anticipation.',
+        searchQueries: [
+            'eye tracking driver performance study',
+            'visual processing speed athletic performance',
+            'gaze behaviour expert novice driver',
+            'anticipation reaction time driving racing',
+            'peripheral vision high speed decision making'
+        ]
+    },
+    {
+        id: 7,
+        name: 'Performance Anxiety & Self-Created Pressure',
+        description: 'Research on: performance anxiety in competition, expectation effects on athletic performance, imposter syndrome in sport, self-imposed pressure, home advantage psychology.',
+        searchQueries: [
+            'performance anxiety competition study',
+            'expectation pressure athletic underperformance',
+            'imposter syndrome athlete performance data',
+            'self imposed pressure sport performance cost',
+            'home advantage psychological pressure study'
+        ]
+    }
+];
+
+// Seasonal bonus search terms based on month
+function getSeasonalBonusSearches() {
+    const month = new Date().getMonth(); // 0-11
+    if (month >= 0 && month <= 2) {
+        // Jan-Mar: Pre-Season
+        return 'Also search: F1 pre-season testing, BTCC testing news, driver fitness camps, off-season mental prep, sim racing crossover studies';
+    } else if (month >= 3 && month <= 4) {
+        // Apr-May: Early Season
+        return 'Also search: Season opener nerves, first race anxiety, new car/class adaptation, BTCC/British GT opening rounds';
+    } else if (month >= 5 && month <= 7) {
+        // Jun-Aug: Mid-Season
+        return 'Also search: Championship pressure, mid-season form slumps, heat and cognitive performance, endurance racing, driver fatigue';
+    } else if (month >= 8 && month <= 9) {
+        // Sep-Oct: Late Season
+        return 'Also search: Title deciders, must-win races, final round pressure, end of season burnout, BTCC/British GT finales';
+    } else {
+        // Nov-Dec: Off-Season
+        return 'Also search: Season reflection, goal setting, driver transfers, sponsorship pressure, new regulation announcements';
+    }
+}
+
+/**
+ * Run the full 7-area weekly research pipeline.
+ * Each area gets its own Gemini call with Google Search grounding.
+ * Returns an array of 7 research results.
+ */
+export async function runWeeklyResearch(apiKey, additionalTopic = '', onProgress = null) {
+    if (!apiKey) {
+        throw new Error('Gemini API key not configured. Go to Settings to add your key.');
+    }
+
+    const seasonalContext = getSeasonalBonusSearches();
+    const results = [];
+
+    for (let i = 0; i < RESEARCH_AREAS.length; i++) {
+        const area = RESEARCH_AREAS[i];
+        if (onProgress) onProgress(i + 1, RESEARCH_AREAS.length, area.name);
+
+        try {
+            const result = await searchResearchArea(area, apiKey, seasonalContext, additionalTopic);
+            results.push(result);
+        } catch (err) {
+            console.error(`[Research] Area ${area.id} (${area.name}) failed:`, err);
+            results.push({
+                searchNumber: area.id,
+                searchArea: area.name,
+                article: '',
+                url: '',
+                source: '',
+                summary: `Search failed: ${err.message}`,
+                killerDataPoint: '',
+                racingRelevance: '',
+                error: true
+            });
+        }
+
+        // Small delay between searches to avoid rate limiting
+        if (i < RESEARCH_AREAS.length - 1) {
+            await new Promise(resolve => setTimeout(resolve, 1500));
+        }
+    }
+
+    // Bonus search if additional topic provided
+    if (additionalTopic) {
+        if (onProgress) onProgress(8, 8, `Bonus: ${additionalTopic}`);
+        try {
+            const bonusResult = await searchBonusTopic(additionalTopic, apiKey);
+            if (bonusResult) results.push(bonusResult);
+        } catch (err) {
+            console.error('[Research] Bonus search failed:', err);
+        }
+    }
+
+    return results;
+}
+
+async function searchResearchArea(area, apiKey, seasonalContext, additionalTopic) {
+    const searchTerms = area.searchQueries.map(q => `"${q}"`).join(', ');
+
+    const prompt = `You are a research assistant for Craig Muirhead, a flow performance coach for motorsport. Your ONLY job is to find the best current article relevant to race car drivers and the mental side of racing performance.
+
+SEARCH AREA: ${area.name}
+${area.description}
+
+SUGGESTED SEARCH QUERIES: ${searchTerms}
+${seasonalContext ? `\nSEASONAL CONTEXT: ${seasonalContext}` : ''}
+${additionalTopic ? `\nADDITIONAL TOPIC TO CONSIDER: ${additionalTopic}` : ''}
+
+Find the BEST article published in the last 7 days for this search area. If nothing from the last 7 days fits, go back up to 30 days. If still nothing, find the best evergreen source and note it is not current.
+
+THE AUDIENCE: Club racers (Ginetta, Caterham, Fun Cup, Classic), amateur GT and touring car drivers, single-seater pilots (F4, GB3, Formula Ford), sim-to-real crossover drivers, semi-professional competitors. UK and Europe primarily. They spend £2,500-£5,000+ per race weekend. They are serious about improving.
+
+QUALITY FILTERS:
+PREFER: Peer-reviewed studies, university research, Autosport, Motorsport.com, F1.com, The Race, Frontiers in Psychology, BJSM, JSSM, Journal of Sports Sciences, BBC Sport, Sky Sports F1, Nature, Scientific American, New Scientist.
+AVOID: Listicles, affiliate content, generic self-help blogs, Reddit threads, unverified claims, articles older than 30 days unless nothing else exists.
+
+WHAT MAKES A 10/10 ARTICLE:
+- Has a SPECIFIC data point (percentage, measurement, time)
+- From a credible, citable source
+- Directly connects to something a car racer experiences on track
+- Makes a driver think: "That explains what happens to me"
+- Current (last 7 days ideal)
+
+Return a JSON object with these exact fields:
+{
+    "article": "Full article title",
+    "url": "Real clickable URL from your search results",
+    "source": "Publication name | Date published",
+    "summary": "3 sentences describing the key finding",
+    "killerDataPoint": "The specific number, statistic, or direct quote that makes this article valuable. Must be concrete — a percentage, a time, a measurement, a direct quote from a researcher or driver.",
+    "racingRelevance": "One sentence connecting this finding to what a club or amateur car racer actually experiences on a race weekend. Use car racing language: braking markers, racing line, qualifying, FP sessions, engineer debrief, car setup, data traces, stint management, tyre deg, lock-ups. NEVER use motorcycle language.",
+    "quality": "A number 1-10 rating the article quality"
+}
+
+If you cannot find a good article for this area, return:
+{
+    "article": "",
+    "url": "",
+    "source": "",
+    "summary": "No strong article found for this search area in the last 30 days.",
+    "killerDataPoint": "",
+    "racingRelevance": "",
+    "quality": 0
+}
+
+Return ONLY the JSON object, nothing else.`;
+
+    const cleanKey = apiKey.trim();
+
+    const response = await fetch(
+        `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${cleanKey}`,
+        {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                contents: [{ parts: [{ text: prompt }] }],
+                tools: [{ google_search: {} }],
+                generationConfig: {
+                    temperature: 0.4,
+                    maxOutputTokens: 4096
+                }
+            })
+        }
+    );
+
+    if (!response.ok) {
+        const error = await response.json().catch(() => ({}));
+        throw new Error(error.error?.message || `Gemini API error: ${response.status}`);
+    }
+
+    const data = await response.json();
+
+    // Extract text content
+    let content = '';
+    if (data.candidates?.[0]?.content?.parts) {
+        for (const part of data.candidates[0].content.parts) {
+            if (part.text) content += part.text;
+        }
+    }
+
+    // Handle RECITATION blocks
+    const finishReason = data.candidates?.[0]?.finishReason;
+    if (!content && finishReason === 'RECITATION') {
+        console.warn(`[Research] Area ${area.id}: RECITATION block — returning empty`);
+        return {
+            searchNumber: area.id,
+            searchArea: area.name,
+            article: '',
+            url: '',
+            source: '',
+            summary: 'Article found but blocked by copyright filter. Try searching manually.',
+            killerDataPoint: '',
+            racingRelevance: '',
+            error: true
+        };
+    }
+
+    // Extract grounding URLs for URL resolution
+    let groundingChunks = [];
+    try {
+        const gm = data.candidates?.[0]?.groundingMetadata;
+        if (gm?.groundingChunks) {
+            for (const chunk of gm.groundingChunks) {
+                if (chunk.web?.uri) {
+                    let uri = chunk.web.uri;
+                    // Resolve redirect URLs
+                    if (uri.includes('grounding-api-redirect')) {
+                        uri = await resolveRedirectUrl(uri);
+                    }
+                    if (!uri.includes('youtube.com') && !uri.includes('youtu.be')) {
+                        groundingChunks.push({ uri, title: chunk.web.title || '' });
+                    }
+                }
+            }
+        }
+    } catch (e) {
+        console.warn(`[Research] Area ${area.id}: Error processing grounding metadata:`, e);
+    }
+
+    // Parse JSON
+    content = content.replace(/```json\s*/gi, '').replace(/```\s*/g, '').trim();
+
+    let parsed;
+    try {
+        const jsonMatch = content.match(/\{[\s\S]*\}/);
+        parsed = jsonMatch ? JSON.parse(jsonMatch[0]) : JSON.parse(content);
+    } catch (e) {
+        console.error(`[Research] Area ${area.id}: JSON parse failed. Content:`, content.substring(0, 500));
+        return {
+            searchNumber: area.id,
+            searchArea: area.name,
+            article: '',
+            url: '',
+            source: '',
+            summary: 'Failed to parse research result. Try again.',
+            killerDataPoint: '',
+            racingRelevance: '',
+            error: true
+        };
+    }
+
+    // Fix URL if it is a Gemini redirect or empty
+    let articleUrl = parsed.url || '';
+    const isRedirect = (u) => u.includes('grounding-api-redirect') || u.includes('googleapis.com') || u.includes('vertexaisearch');
+
+    if (!articleUrl || isRedirect(articleUrl)) {
+        // Try to find the best URL from grounding chunks
+        if (groundingChunks.length > 0) {
+            // Prefer non-redirect URLs
+            const realUrl = groundingChunks.find(c => !isRedirect(c.uri));
+            if (realUrl) {
+                articleUrl = realUrl.uri;
+            } else {
+                articleUrl = groundingChunks[0].uri;
+            }
+        }
+    }
+
+    return {
+        searchNumber: area.id,
+        searchArea: area.name,
+        article: parsed.article || '',
+        url: articleUrl,
+        source: parsed.source || '',
+        summary: parsed.summary || '',
+        killerDataPoint: parsed.killerDataPoint || '',
+        racingRelevance: parsed.racingRelevance || '',
+        quality: parsed.quality || 0,
+        groundingChunks
+    };
+}
+
+async function searchBonusTopic(topic, apiKey) {
+    const prompt = `You are a research assistant for Craig Muirhead, a flow performance coach for motorsport. Find the best current article about: "${topic}"
+
+The article must connect to the MENTAL PERFORMANCE side of car racing. The audience is club racers, GT drivers, and semi-pro competitors in UK/Europe.
+
+Return a JSON object:
+{
+    "article": "Full article title",
+    "url": "Real clickable URL",
+    "source": "Publication name | Date published",
+    "summary": "3 sentences describing the key finding",
+    "killerDataPoint": "Specific data point or quote",
+    "racingRelevance": "Connection to car racing using car racing language",
+    "quality": 8
+}
+
+Return ONLY the JSON object.`;
+
+    const cleanKey = apiKey.trim();
+    const response = await fetch(
+        `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${cleanKey}`,
+        {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                contents: [{ parts: [{ text: prompt }] }],
+                tools: [{ google_search: {} }],
+                generationConfig: { temperature: 0.4, maxOutputTokens: 2048 }
+            })
+        }
+    );
+
+    if (!response.ok) return null;
+
+    const data = await response.json();
+    let content = '';
+    if (data.candidates?.[0]?.content?.parts) {
+        for (const part of data.candidates[0].content.parts) {
+            if (part.text) content += part.text;
+        }
+    }
+
+    content = content.replace(/```json\s*/gi, '').replace(/```\s*/g, '').trim();
+
+    let parsed;
+    try {
+        const jsonMatch = content.match(/\{[\s\S]*\}/);
+        parsed = jsonMatch ? JSON.parse(jsonMatch[0]) : JSON.parse(content);
+    } catch { return null; }
+
+    // Resolve URL from grounding
+    let articleUrl = parsed.url || '';
+    try {
+        const gm = data.candidates?.[0]?.groundingMetadata;
+        if (gm?.groundingChunks) {
+            for (const chunk of gm.groundingChunks) {
+                let uri = chunk.web?.uri || '';
+                if (uri.includes('grounding-api-redirect')) {
+                    uri = await resolveRedirectUrl(uri);
+                }
+                if (uri && !uri.includes('youtube.com') && !uri.includes('grounding-api-redirect')) {
+                    articleUrl = uri;
+                    break;
+                }
+            }
+        }
+    } catch {}
+
+    return {
+        searchNumber: 8,
+        searchArea: `BONUS: ${topic}`,
+        article: parsed.article || '',
+        url: articleUrl,
+        source: parsed.source || '',
+        summary: parsed.summary || '',
+        killerDataPoint: parsed.killerDataPoint || '',
+        racingRelevance: parsed.racingRelevance || '',
+        quality: parsed.quality || 0,
+        isBonus: true
+    };
+}
+
+/**
+ * Format research results into the exact text format from the Gem,
+ * ready to paste into Claude.
+ */
+export function formatResearchForClaude(results) {
+    let output = `Here are ${results.length} articles from this week's research. Write ${results.length} Facebook posts from them — one per article. Follow your custom instructions.\n\n`;
+
+    for (const r of results) {
+        output += `---\n`;
+        output += `SEARCH ${r.searchNumber}: ${r.searchArea}\n\n`;
+        output += `ARTICLE: ${r.article || 'No article found'}\n`;
+        output += `URL: ${r.url || 'No URL available'}\n`;
+        output += `SOURCE: ${r.source || 'Unknown'}\n`;
+        output += `SUMMARY: ${r.summary || 'N/A'}\n`;
+        output += `KILLER DATA POINT: ${r.killerDataPoint || 'None found'}\n`;
+        output += `RACING RELEVANCE: ${r.racingRelevance || 'N/A'}\n`;
+        output += `---\n\n`;
+    }
+
+    return output;
 }
 
 // ─── Content Deduplication Storage ────────────────────────────────────────
@@ -922,9 +1386,27 @@ async function callGeminiWithSearch(prompt, apiKey, parseJson = true) {
         throw new Error(`No content from Gemini (reason: ${blockReason || 'unknown'}). Try again.`);
     }
 
+    // Log finishReason for debugging truncation
+    const finishReason = data.candidates?.[0]?.finishReason;
+    if (finishReason && finishReason !== 'STOP') {
+        console.warn(`[Gemini] ⚠️ finishReason: ${finishReason} (response may be truncated)`);
+    }
+
     if (parseJson) {
         try {
-            // Try multiple approaches to extract JSON array
+            // Pre-clean: strip grounding-api-redirect URLs from raw JSON text before parsing
+            // Phase 1: Complete redirect URLs (with closing quote)
+            content = content.replace(/"articleUrl"\s*:\s*"https?:\/\/vertexaisearch\.cloud\.google\.com\/grounding-api-redirect\/[^"]*"/g,
+                '"articleUrl": ""');
+            content = content.replace(/"articleUrl"\s*:\s*"https?:\/\/[^"]*googleapis\.com[^"]*"/g,
+                '"articleUrl": ""');
+
+            // Phase 2: TRUNCATED redirect URLs (no closing quote — response was cut off mid-URL)
+            content = content.replace(/"articleUrl"\s*:\s*"https?:\/\/vertexaisearch\.cloud\.google\.com\/grounding-api-redirect\/[^"]*$/gm,
+                '"articleUrl": ""');
+            content = content.replace(/"articleUrl"\s*:\s*"https?:\/\/[^"]*googleapis\.com[^"]*$/gm,
+                '"articleUrl": ""');
+
             let parsed;
 
             // Approach 1: Direct parse (cleanest)
@@ -954,19 +1436,102 @@ async function callGeminiWithSearch(prompt, apiKey, parseJson = true) {
                 }
             }
 
+            // Approach 4: Repair truncated JSON array
+            if (!parsed) {
+                const arrayStart = content.indexOf('[');
+                if (arrayStart !== -1) {
+                    let truncated = content.substring(arrayStart);
+                    const lastBrace = truncated.lastIndexOf('}');
+                    if (lastBrace !== -1) {
+                        truncated = truncated.substring(0, lastBrace + 1) + ']';
+                        try {
+                            parsed = JSON.parse(truncated);
+                            console.warn(`[Gemini] Repaired truncated JSON — recovered ${parsed.length} items`);
+                        } catch {
+                            const lastComma = truncated.lastIndexOf('},');
+                            if (lastComma !== -1) {
+                                truncated = truncated.substring(0, lastComma + 1) + ']';
+                                try {
+                                    parsed = JSON.parse(truncated);
+                                    console.warn(`[Gemini] Deep-repaired truncated JSON — recovered ${parsed.length} items`);
+                                } catch { }
+                            }
+                        }
+                    }
+                }
+            }
+
+            // Approach 5: Nuclear option — strip ALL redirect URLs from content, then retry
+            if (!parsed) {
+                console.warn('[Gemini] All parse approaches failed — trying nuclear URL strip...');
+                let nuclear = content;
+                nuclear = nuclear.replace(/https?:\/\/vertexaisearch[^\s"',\]}]*/g, '');
+                nuclear = nuclear.replace(/https?:\/\/[^\s"',\]]*googleapis\.com[^\s"',\]}]*/g, '');
+                nuclear = nuclear.replace(/"articleUrl"\s*:\s*"?\s*$/gm, '"articleUrl": ""');
+                nuclear = nuclear.replace(/"articleUrl"\s*:\s*(?=")/g, '"articleUrl": ');
+
+                try { parsed = JSON.parse(nuclear); } catch { }
+                if (!parsed) {
+                    const arrStart = nuclear.indexOf('[');
+                    if (arrStart !== -1) {
+                        let depth = 0, arrEnd = -1;
+                        for (let i = arrStart; i < nuclear.length; i++) {
+                            if (nuclear[i] === '[') depth++;
+                            else if (nuclear[i] === ']') { depth--; if (depth === 0) { arrEnd = i; break; } }
+                        }
+                        if (arrEnd > arrStart) {
+                            try { parsed = JSON.parse(nuclear.substring(arrStart, arrEnd + 1)); } catch { }
+                        }
+                    }
+                }
+                if (!parsed) {
+                    const arrStart = nuclear.indexOf('[');
+                    if (arrStart !== -1) {
+                        let truncated = nuclear.substring(arrStart);
+                        const lastBrace = truncated.lastIndexOf('}');
+                        if (lastBrace !== -1) {
+                            truncated = truncated.substring(0, lastBrace + 1) + ']';
+                            try { parsed = JSON.parse(truncated); } catch { }
+                        }
+                        if (!parsed) {
+                            const lastComma = truncated?.lastIndexOf('},') ?? -1;
+                            if (lastComma !== -1) {
+                                truncated = truncated.substring(0, lastComma + 1) + ']';
+                                try { parsed = JSON.parse(truncated); } catch { }
+                            }
+                        }
+                    }
+                }
+                if (parsed) {
+                    console.warn(`[Gemini] Nuclear strip recovered ${Array.isArray(parsed) ? parsed.length : 1} items`);
+                }
+            }
+
             if (!parsed) {
                 throw new Error('Could not extract JSON from Gemini response');
             }
 
             if (Array.isArray(parsed)) {
+                // Helper: check if a URL is still an unresolved Gemini redirect
+                const isRedirectUrl = (u) => u.includes('grounding-api-redirect') || u.includes('googleapis.com') || u.includes('vertexaisearch');
+
                 // Remove YouTube from grounding chunks
                 const cleanChunks = groundingChunks.filter(gc =>
                     !gc.uri.includes('youtube.com') && !gc.uri.includes('youtu.be')
                 );
                 const usedChunkIdxs = new Set();
 
-                console.log(`[URL] ${cleanChunks.length} grounding chunks available (YouTube filtered):`);
-                cleanChunks.forEach((c, i) => console.log(`  [${i}] ${c.uri} — "${c.title}"`));
+                // Sort: resolved real URLs first, redirect URLs last
+                cleanChunks.sort((a, b) => {
+                    const aIsRedirect = isRedirectUrl(a.uri) ? 1 : 0;
+                    const bIsRedirect = isRedirectUrl(b.uri) ? 1 : 0;
+                    return aIsRedirect - bIsRedirect;
+                });
+
+                const resolvedCount = cleanChunks.filter(c => !isRedirectUrl(c.uri)).length;
+                const redirectRemaining = cleanChunks.filter(c => isRedirectUrl(c.uri)).length;
+                console.log(`[URL] ${cleanChunks.length} grounding chunks: ${resolvedCount} resolved, ${redirectRemaining} redirect fallbacks`);
+                cleanChunks.forEach((c, i) => console.log(`  [${i}] ${isRedirectUrl(c.uri) ? '🔄' : '✅'} ${c.uri.substring(0, 80)} — "${c.title}"`));
 
                 // Helper: compute word similarity score between two strings
                 const wordSimilarity = (textA, textB) => {
@@ -982,14 +1547,14 @@ async function callGeminiWithSearch(prompt, apiKey, parseJson = true) {
                 const storyScores = parsed.map((item, idx) => {
                     const url = item.articleUrl || '';
 
-                    // Strip YouTube
-                    if (url.includes('youtube.com') || url.includes('youtu.be')) {
+                    // Strip bad URLs (YouTube, Gemini redirects)
+                    if (url.includes('youtube.com') || url.includes('youtu.be') || isRedirectUrl(url)) {
+                        if (isRedirectUrl(url)) console.warn(`[URL] Story ${idx + 1}: 🚫 Stripped Gemini redirect URL`);
                         item.articleUrl = '';
                     }
 
                     // If Gemini provided a valid, real URL — keep it
-                    if (item.articleUrl && !item.articleUrl.includes('grounding-api-redirect') &&
-                        !item.articleUrl.includes('googleapis.com') &&
+                    if (item.articleUrl &&
                         (item.articleUrl.startsWith('http://') || item.articleUrl.startsWith('https://'))) {
                         item.urlMatchMethod = 'gemini-direct';
                         console.log(`[URL] Story ${idx + 1}: ✅ Gemini-provided URL → ${item.articleUrl}`);
@@ -1093,16 +1658,124 @@ async function callGeminiWithSearch(prompt, apiKey, parseJson = true) {
                     }
 
                     if (!assigned) {
+                        console.warn(`[URL] Story ${story.idx + 1}: ⚠️ ALL CHUNKS EXHAUSTED — will attempt URL rescue`);
                         item.articleUrl = '';
                         item.urlMatchMethod = 'unverified';
-                        console.warn(`[URL] Story ${story.idx + 1}: ⚠️ No grounding chunk available`);
+                    }
+                }
+            }
+
+            // ─── URL RESCUE PASS ─────────────────────────────────────
+            // Any story that STILL has no URL gets a targeted follow-up search
+            if (Array.isArray(parsed)) {
+                const missingUrlStories = parsed
+                    .map((item, idx) => ({ item, idx }))
+                    .filter(({ item }) => !item.articleUrl || item.urlMatchMethod === 'unverified');
+
+                if (missingUrlStories.length > 0) {
+                    console.log(`[URL-RESCUE] ${missingUrlStories.length} stories need URL rescue...`);
+
+                    const rescuePromises = missingUrlStories.map(async ({ item, idx }) => {
+                        try {
+                            const searchQuery = `${item.sourceArticle || item.headline || ''}`;
+                            console.log(`[URL-RESCUE] Story ${idx + 1}: searching for "${searchQuery}"`);
+
+                            const rescuePrompt = `Find the exact URL for this article. Search the web and return ONLY the URL.
+
+ARTICLE TO FIND: "${searchQuery}"
+${item.source ? `PUBLICATION: ${item.source}` : ''}
+
+Return a JSON object with ONE field:
+{"url": "the real article URL from your search results"}
+
+If you absolutely cannot find this specific article, find the closest matching article on the same topic from a reputable source and return that URL instead.
+
+Return ONLY the JSON object, nothing else.`;
+
+                            const rescueResponse = await fetch(
+                                `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${cleanKey}`,
+                                {
+                                    method: 'POST',
+                                    headers: { 'Content-Type': 'application/json' },
+                                    body: JSON.stringify({
+                                        contents: [{ parts: [{ text: rescuePrompt }] }],
+                                        tools: [{ google_search: {} }],
+                                        generationConfig: { temperature: 0.2, maxOutputTokens: 512 }
+                                    })
+                                }
+                            );
+
+                            if (!rescueResponse.ok) {
+                                console.warn(`[URL-RESCUE] Story ${idx + 1}: API error ${rescueResponse.status}`);
+                                return;
+                            }
+
+                            const rescueData = await rescueResponse.json();
+
+                            // First try: extract URL from grounding metadata and resolve redirects
+                            let rescuedUrl = '';
+                            const rescueGM = rescueData.candidates?.[0]?.groundingMetadata;
+                            if (rescueGM?.groundingChunks) {
+                                for (const chunk of rescueGM.groundingChunks) {
+                                    let uri = chunk.web?.uri || '';
+                                    if (!uri || uri.includes('youtube.com') || uri.includes('youtu.be')) continue;
+                                    // Resolve redirect if needed
+                                    if (uri.includes('grounding-api-redirect')) {
+                                        uri = await resolveRedirectUrl(uri);
+                                    }
+                                    if (uri && !uri.includes('grounding-api-redirect') && !uri.includes('googleapis.com')) {
+                                        rescuedUrl = uri;
+                                        break;
+                                    }
+                                }
+                            }
+
+                            // Second try: parse from response text
+                            if (!rescuedUrl) {
+                                let rescueText = '';
+                                for (const part of (rescueData.candidates?.[0]?.content?.parts || [])) {
+                                    if (part.text) rescueText += part.text;
+                                }
+                                rescueText = rescueText.replace(/```json\s*/gi, '').replace(/```\s*/g, '').trim();
+                                try {
+                                    const parsedRescue = JSON.parse(rescueText.match(/\{[\s\S]*\}/)?.[0] || '{}');
+                                    if (parsedRescue.url && parsedRescue.url.startsWith('http') &&
+                                        !parsedRescue.url.includes('youtube.com') &&
+                                        !parsedRescue.url.includes('grounding-api-redirect') &&
+                                        !parsedRescue.url.includes('googleapis.com')) {
+                                        rescuedUrl = parsedRescue.url;
+                                    }
+                                } catch { }
+                            }
+
+                            if (rescuedUrl) {
+                                item.articleUrl = rescuedUrl;
+                                item.urlMatchMethod = 'url-rescue';
+                                console.log(`[URL-RESCUE] Story ${idx + 1}: ✅ RESCUED → ${rescuedUrl}`);
+                            } else {
+                                console.warn(`[URL-RESCUE] Story ${idx + 1}: ❌ Could not find URL even after rescue search`);
+                            }
+                        } catch (err) {
+                            console.error(`[URL-RESCUE] Story ${idx + 1}: Error during rescue:`, err);
+                        }
+                    });
+
+                    await Promise.allSettled(rescuePromises);
+
+                    const stillMissing = parsed.filter(item => !item.articleUrl).length;
+                    if (stillMissing > 0) {
+                        console.warn(`[URL-RESCUE] ${stillMissing} stories still have no URL after rescue`);
+                    } else {
+                        console.log('[URL-RESCUE] All stories now have URLs!');
                     }
                 }
             }
 
             return parsed;
         } catch (e) {
-            console.error('[Gemini] JSON parse failed. Content:', content.substring(0, 500));
+            console.error('[Gemini] JSON parse failed. Error:', e.message);
+            console.error('[Gemini] Content (first 1000 chars):', content.substring(0, 1000));
+            console.error('[Gemini] Content (last 500 chars):', content.substring(Math.max(0, content.length - 500)));
             throw new Error('Failed to parse Gemini response as JSON. Try again.');
         }
     }

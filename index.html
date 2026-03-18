@@ -35,6 +35,12 @@
         <button class="nav-link active" data-page="weekly" id="nav-weekly">
           <span class="nav-link-text">This Week's 7</span>
         </button>
+        <button class="nav-link" data-page="research" id="nav-research">
+          <span class="nav-link-text">🔬 Research</span>
+        </button>
+        <button class="nav-link" data-page="pipeline" id="nav-pipeline">
+          <span class="nav-link-text">🎯 Pipeline</span>
+        </button>
         <button class="nav-link" data-page="single" id="nav-single">
           <span class="nav-link-text">Single Post</span>
         </button>
@@ -99,6 +105,10 @@
               <span class="spinner"></span>
             </span>
           </button>
+          <button class="btn btn-secondary" onclick="window.appActions.clearSession()"
+            style="color: var(--accent); border-color: rgba(255,68,68,0.3);">
+            <span class="btn-icon-left">🔄</span> Start Over
+          </button>
         </div>
       </div>
 
@@ -139,7 +149,78 @@
     </section>
 
     <!-- ═══════════════════════════════════════════════════════ -->
-    <!-- MODE 2: SINGLE POST                                     -->
+    <!-- MODE 2: RESEARCH (Gemini Gem Replacement)                -->
+    <!-- ═══════════════════════════════════════════════════════ -->
+    <section class="page" id="research-page">
+      <div class="hero-section">
+        <h1 class="hero-title">🔬 Weekly Research</h1>
+        <p class="hero-subtitle">Find the 7 best articles across <strong>attention</strong>, <strong>flow</strong>,
+          <strong>motorsport news</strong>, <strong>choking</strong>, <strong>adaptability</strong>,
+          <strong>vision</strong>, and <strong>performance anxiety</strong>.<br>
+          Output is raw research — no posts.</p>
+
+        <div class="research-input-area" style="max-width:600px;margin:1.5rem auto 0;">
+          <textarea class="form-textarea" id="research-bonus-topic" rows="2"
+            style="margin-bottom:0.75rem;font-size:0.85rem;"
+            placeholder='Optional: Add specific topics — e.g. "MotoGP Qatar testing" or "Toprak WorldSBK defence"'></textarea>
+          <button class="btn btn-primary btn-hero" id="run-research-btn">
+            <span class="btn-icon-left">🔬</span>
+            Go
+            <span class="btn-loading" style="display:none;">
+              <span class="spinner"></span>
+            </span>
+          </button>
+        </div>
+
+        <!-- Progress Indicator -->
+        <div id="research-progress" class="hidden" style="max-width:500px;margin:1.5rem auto 0;text-align:center;">
+          <div style="margin-bottom:0.5rem;">
+            <span id="research-progress-text" style="font-size:0.85rem;color:var(--neuro-teal,#00BFA5);font-weight:600;">Searching...</span>
+          </div>
+          <div style="background:rgba(255,255,255,0.06);border-radius:8px;height:8px;overflow:hidden;">
+            <div id="research-progress-bar" style="height:100%;background:linear-gradient(90deg,var(--neuro-teal,#00BFA5),#DAA520);border-radius:8px;transition:width 0.5s ease;width:0%;"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Research Results -->
+      <div class="research-results-container hidden" id="research-results-container" style="max-width:800px;margin:0 auto;padding:0 1rem 2rem;">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;flex-wrap:wrap;gap:0.5rem;">
+          <h2 style="font-size:1.1rem;font-weight:700;color:var(--text-primary);margin:0;">📰 Research Results</h2>
+          <div style="display:flex;gap:0.5rem;flex-wrap:wrap;">
+            <button class="btn btn-primary" id="copy-for-claude-btn" style="font-size:0.78rem;padding:0.4rem 1rem;">
+              📋 Copy All for Claude
+            </button>
+            <button class="btn btn-secondary" id="copy-raw-research-btn" style="font-size:0.78rem;padding:0.4rem 1rem;">
+              📄 Copy Raw Text
+            </button>
+            <button class="btn btn-secondary" id="rerun-research-btn" style="font-size:0.78rem;padding:0.4rem 1rem;color:var(--neuro-teal);border-color:rgba(0,191,165,0.3);">
+              🔄 Search Again
+            </button>
+          </div>
+        </div>
+        <div id="research-results-list">
+          <!-- Research cards rendered by JS -->
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══════════════════════════════════════════════════════ -->
+    <!-- MODE 2.5: PIPELINE DASHBOARD (Frank Kern)                 -->
+    <!-- ═══════════════════════════════════════════════════════ -->
+    <section class="page" id="pipeline-page">
+      <div class="hero-section">
+        <h1 class="hero-title">🎯 Content Pipeline</h1>
+        <p class="hero-subtitle">Your 4-stage content factory. Inspired by Frank Kern's AI Content Pipeline.<br>
+          Strategic Planning → AI Copywriting → Visual Generation → Multi-Platform Publishing.</p>
+      </div>
+
+      <!-- Pipeline Flow -->
+      <div id="pipeline-dashboard" style="max-width:900px;margin:0 auto;padding:0 1rem 2rem;"></div>
+    </section>
+
+    <!-- ═══════════════════════════════════════════════════════ -->
+    <!-- MODE 3: SINGLE POST                                     -->
     <!-- ═══════════════════════════════════════════════════════ -->
     <section class="page" id="single-page">
       <div class="hero-section">
